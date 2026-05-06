@@ -15,6 +15,7 @@
             --header-bg: #000000; 
             --accent-purple: #a855f7;
             --accent-dim: #7c3aed;
+            --admin-gold: #c9a84c;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -70,8 +71,8 @@
         .avatar-circle { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #fff; background: #000; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; font-size: 2.4rem; color: #fff; overflow: hidden; transition: border-color 0.3s; }
         .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-circle.plus-border { border-color: var(--accent-purple); }
+        .avatar-circle.gold-border { border-color: var(--admin-gold); }
 
-        /* остальные стили такие же как у тебя были, не менял */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 40px 80px; font-family: 'Montserrat', sans-serif; }
         .user-info-row { display: flex; align-items: flex-end; gap: 24px; padding-top: 70px; padding-left: 20px; margin-bottom: 40px; }
         .user-text { flex: 1; }
@@ -80,12 +81,30 @@
         .plus-status-text { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; font-family: 'Montserrat', sans-serif; cursor: pointer; transition: opacity 0.2s; }
         .plus-status-text.active-plus { color: var(--accent-purple); opacity: 1; font-weight: 600; }
         .plus-status-text.active-plus:hover { opacity: 0.8; text-decoration: underline; text-underline-offset: 3px; }
+
+        /* Admin badge inline */
+        .admin-badge-inline {
+            font-size: 0.45rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--admin-gold); border: 1px solid var(--admin-gold);
+            padding: 3px 9px; line-height: 1.7; display: none;
+        }
+
         .stats-bar { display: flex; gap: 30px; font-size: 0.8rem; }
         .stat-item span { opacity: 0.5; margin-left: 4px; }
 
         .actions { display: flex; gap: 10px; align-items: center; padding-bottom: 4px; flex-wrap: wrap; }
         .btn { padding: 10px 22px; background: #fff; font-size: 0.7rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: 1px solid #000; font-family: 'Montserrat'; white-space: nowrap; }
         .btn:hover { background: #000; color: #fff; }
+
+        /* Admin Panel button — gold accent */
+        .btn-admin {
+            padding: 10px 22px; font-size: 0.7rem; font-weight: 600; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+            border: 1px solid var(--admin-gold); color: var(--admin-gold);
+            background: #fff; font-family: 'Montserrat'; white-space: nowrap;
+            display: none;
+        }
+        .btn-admin:hover { background: var(--admin-gold); color: #fff; }
 
         .saved-cards-section { border: 1px solid #eee; margin-bottom: 40px; padding: 0; }
         .section-header { padding: 18px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
@@ -241,6 +260,7 @@
                 <div class="user-name-line">
                     <h1 id="userNameDisplay">username</h1>
                     <span id="noirPlusStatus" class="plus-status-text">noir plus inactive</span>
+                    <span id="adminBadgeInline" class="admin-badge-inline">Admin</span>
                 </div>
                 <div class="stats-bar">
                     <div class="stat-item"><b>0</b><span>Transactions</span></div>
@@ -252,6 +272,8 @@
                 <button class="btn" id="subBtn" onclick="openPlusModal()">Get Noir Plus</button>
                 <button class="btn" onclick="location.href='/LinkCard'">Link card</button>
                 <button class="btn" onclick="openModal('avatar')">Edit</button>
+                <!-- Admin Panel button — only visible for @@if6was7 -->
+                <button class="btn-admin" id="adminPanelBtn" onclick="location.href='/AdminFunction'">Admin Panel</button>
             </div>
         </div>
 
@@ -368,7 +390,18 @@
 
     <script>
         var isPlus = false;
+        var isSuperAdmin = false;
         var currentUsername = "";
+
+        var SUPERADMIN = '@@if6was7';
+
+        function getAdmins() {
+            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
+        }
+
+        function isAdminUser(username) {
+            return getAdmins().indexOf(username) !== -1;
+        }
 
         function renderCards() {
             var raw = sessionStorage.getItem('noir_user');
@@ -387,14 +420,12 @@
                 var card = cards[i];
                 var networkName = card.network.charAt(0).toUpperCase() + card.network.slice(1);
                 var last4 = card.number.slice(-4);
-                html += `
-                    <div class="card-item" data-index="${i}">
-                        <div class="card-network">${networkName}</div>
-                        <div class="card-number-masked">•••• •••• •••• ${last4}</div>
-                        <div class="card-expiry">Expires ${card.expiry}</div>
-                        <button class="remove-card" onclick="removeCard(${i})">✕</button>
-                    </div>
-                `;
+                html += '<div class="card-item" data-index="' + i + '">' +
+                    '<div class="card-network">' + networkName + '</div>' +
+                    '<div class="card-number-masked">•••• •••• •••• ' + last4 + '</div>' +
+                    '<div class="card-expiry">Expires ' + card.expiry + '</div>' +
+                    '<button class="remove-card" onclick="removeCard(' + i + ')">✕</button>' +
+                '</div>';
             }
             html += '</div>';
             container.innerHTML = html;
@@ -416,47 +447,51 @@
 
             currentUsername = u.username || "";
             var cleanUsername = currentUsername.replace('@@', '');
-            var initial = cleanUsername.charAt(0).toUpperCase() || 'U';
             var avatarPath = '/images/avatar/' + cleanUsername + '.jpg';
             var bannerPath = '/images/avatar/' + cleanUsername + '_banner.jpg';
 
-            // === HEADER AVATAR — только изображение или черный фон, НИКАКИХ БУКВ ===
+            // Header avatar
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
             var haImg = document.createElement('img');
             haImg.src = avatarPath;
             haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            haImg.onerror = function() {
-                ha.removeChild(haImg);
-                // НЕ добавляем текст, оставляем просто черный фон
-                ha.style.backgroundColor = '#000';
-                ha.style.fontSize = '0';
-            };
+            haImg.onerror = function() { ha.removeChild(haImg); ha.style.backgroundColor = '#000'; };
             ha.appendChild(haImg);
 
             document.getElementById('headerUsername').innerText = u.displayName || u.username || cleanUsername;
 
-            // === MAIN AVATAR — только изображение или черный фон ===
+            // Main avatar
             var ma = document.getElementById('mainAvatar');
             ma.innerHTML = '';
             var maImg = document.createElement('img');
             maImg.src = avatarPath;
             maImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            maImg.onerror = function() {
-                ma.removeChild(maImg);
-                ma.style.backgroundColor = '#000';
-                ma.style.fontSize = '0';
-            };
+            maImg.onerror = function() { ma.removeChild(maImg); ma.style.backgroundColor = '#000'; };
             ma.appendChild(maImg);
 
             document.getElementById('userNameDisplay').innerText = cleanUsername;
             document.getElementById('userBalance').innerText = u.balance || "0.00";
 
-            // ПОДПИСКА — ТОЛЬКО у @@if6was7!!!
-            isPlus = (currentUsername === '@@if6was7');
+            // Plus — only @@if6was7
+            isPlus = (currentUsername === SUPERADMIN);
+
+            // Admin check: superadmin OR in admins list
+            isSuperAdmin = (currentUsername === SUPERADMIN);
+            var userIsAdmin = isSuperAdmin || isAdminUser(currentUsername);
 
             if (!u.savedCards) u.savedCards = [];
             renderCards();
+
+            // ── Superadmin: show Admin Panel button ──
+            if (isSuperAdmin) {
+                document.getElementById('adminPanelBtn').style.display = 'inline-block';
+            }
+
+            // ── Admin badge (for admins that aren't superadmin) ──
+            if (userIsAdmin && !isSuperAdmin) {
+                document.getElementById('adminBadgeInline').style.display = 'inline-block';
+            }
 
             if (isPlus) {
                 document.getElementById('headerPlus').style.display = 'inline';

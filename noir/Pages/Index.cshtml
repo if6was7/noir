@@ -27,6 +27,7 @@
             --header-bg: #000000; 
             --light-gray: #fdfdfd; 
             --accent-purple: #a855f7;
+            --admin-gold: #c9a84c;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -59,38 +60,20 @@
         nav a:hover, nav a.active { opacity: 1; }
 
         .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
-
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-
         .header-avatar { 
-            width: 28px; 
-            height: 28px; 
-            border-radius: 50%; 
-            background: #000;
-            border: 1px solid #2a2a2a;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden; 
-            transition: border-color 0.3s;
+            width: 28px; height: 28px; border-radius: 50%; 
+            background: #000; border: 1px solid #2a2a2a;
+            display: flex; align-items: center; justify-content: center; 
+            overflow: hidden; transition: border-color 0.3s;
         }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
-
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
-
         .auth-btn { 
-            font-family: 'Montserrat'; 
-            font-size: 0.6rem; 
-            letter-spacing: 2px; 
-            text-transform: uppercase; 
-            color: #fff; 
-            opacity: 0.3; 
-            background: none; 
-            border: none; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            padding: 0; 
+            font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; 
+            text-transform: uppercase; color: #fff; opacity: 0.3; 
+            background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; 
         }
         .auth-btn:hover { opacity: 1; }
 
@@ -100,18 +83,64 @@
         .page-label { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 5px; color: #000; font-weight: 600; opacity: 0.3; white-space: nowrap; }
         .page-title { font-family: 'Cinzel', serif; font-size: 3.2rem; letter-spacing: 12px; text-transform: uppercase; margin: 0; }
 
+        /* ── Admin bar ── */
+        .admin-bar {
+            display: none;
+            align-items: center; justify-content: space-between;
+            background: #000; padding: 12px 24px;
+            margin-bottom: 40px;
+        }
+        .admin-bar-left { display: flex; align-items: center; gap: 14px; }
+        .admin-bar-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--admin-gold); }
+        .admin-bar-text { font-family: 'Montserrat'; font-size: 0.52rem; letter-spacing: 3px; text-transform: uppercase; color: var(--admin-gold); font-weight: 600; }
+        .admin-bar-note { font-family: 'Montserrat'; font-size: 0.48rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.25; }
+
         .catalog-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 80px 30px; }
 
-        .item-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; position: relative; cursor: pointer; }
+        /* ── Item card ── */
+        .item-card { 
+            text-decoration: none; color: inherit; 
+            display: flex; flex-direction: column; 
+            position: relative; cursor: pointer; 
+        }
 
-        .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; color: #ccc; margin-bottom: 12px; }
+        .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; color: #ccc; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
 
-        .image-wrapper { width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 25px; overflow: hidden; }
-
-        .image-wrapper::before { content: ""; position: absolute; left: 0; bottom: 0; width: 2px; height: 100%; background-color: #000; transform: scaleY(0); transform-origin: bottom; transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; }
+        .image-wrapper { 
+            width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); 
+            display: flex; align-items: center; justify-content: center; 
+            position: relative; margin-bottom: 25px; overflow: hidden; 
+        }
+        .image-wrapper::before { 
+            content: ""; position: absolute; left: 0; bottom: 0; 
+            width: 2px; height: 100%; background-color: #000; 
+            transform: scaleY(0); transform-origin: bottom; 
+            transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; 
+        }
         .item-card:hover .image-wrapper::before { transform: scaleY(1); }
-
         .image-wrapper span { font-family: 'Cinzel', serif; font-size: 12rem; color: #f6f6f6; position: absolute; bottom: -40px; right: -30px; line-height: 1; }
+
+        /* ── Admin remove overlay ── */
+        .admin-remove-overlay {
+            position: absolute; inset: 0; z-index: 20;
+            background: rgba(0,0,0,0); 
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: background 0.25s, opacity 0.25s;
+            pointer-events: none;
+        }
+        .item-card.admin-mode .admin-remove-overlay { pointer-events: all; }
+        .item-card.admin-mode:hover .admin-remove-overlay { background: rgba(0,0,0,0.55); opacity: 1; }
+        .remove-btn {
+            font-family: 'Montserrat'; font-size: 0.6rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 3px;
+            padding: 12px 28px; border: 1px solid var(--admin-gold);
+            color: var(--admin-gold); background: transparent;
+            cursor: pointer; transition: 0.2s;
+        }
+        .remove-btn:hover { background: var(--admin-gold); color: #000; }
+
+        /* removed state */
+        .item-card.removed { opacity: 0; pointer-events: none; transition: opacity 0.4s; }
 
         .item-info { text-align: left; border-top: 1px solid #000; padding-top: 18px; }
         .item-title { font-size: 1.8rem; margin: 0 0 10px 0; text-transform: lowercase; font-weight: normal; }
@@ -122,6 +151,18 @@
         .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
         .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
         .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #000; color: #fff;
+            font-family: 'Montserrat'; font-size: 0.55rem;
+            text-transform: uppercase; letter-spacing: 3px;
+            padding: 14px 28px; opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none; z-index: 9000;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         @@media (max-width: 1400px) { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
         @@media (max-width: 900px) { .catalog-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -154,13 +195,25 @@
             <h1 class="page-title">all items</h1>
         </div>
 
+        <!-- Admin mode bar -->
+        <div class="admin-bar" id="adminBar">
+            <div class="admin-bar-left">
+                <div class="admin-bar-dot"></div>
+                <span class="admin-bar-text">Admin mode</span>
+                <span class="admin-bar-note">Hover a card to remove a listing</span>
+            </div>
+        </div>
+
         <div class="catalog-grid">
             @foreach (var item in displayItems) 
             {
-                <div onclick="handleItemClick(@item.Id)" class="item-card">
+                <div class="item-card" id="card-@item.Id" onclick="handleItemClick(@item.Id)">
                     <span class="lot-tag">Archive Ref: 00@item.Id</span>
                     <div class="image-wrapper">
                         <span>@item.Id</span>
+                        <div class="admin-remove-overlay">
+                            <button class="remove-btn" onclick="removeListing(event, @item.Id)">Remove</button>
+                        </div>
                     </div>
                     <div class="item-info">
                         <h3 class="item-title">@item.Title</h3>
@@ -177,7 +230,15 @@
         </footer>
     </main>
 
+    <div class="toast" id="toast"></div>
+
     <script>
+        var isAdminMode = false;
+
+        function getAdmins() {
+            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
+        }
+
         function requireAuth(url) {
             if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';
@@ -187,6 +248,7 @@
         }
 
         function handleItemClick(itemId) {
+            if (isAdminMode) return; // в режиме админа клик по карточке не переходит
             if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';
             } else {
@@ -194,54 +256,50 @@
             }
         }
 
+        function removeListing(e, itemId) {
+            e.stopPropagation();
+            var card = document.getElementById('card-' + itemId);
+            card.classList.add('removed');
+            // Store removed IDs in localStorage
+            var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
+            if (removed.indexOf(itemId) === -1) removed.push(itemId);
+            localStorage.setItem('noir_removed_listings', JSON.stringify(removed));
+            showToast('Listing #' + itemId + ' removed');
+        }
+
         function loadUser() {
             var userData = sessionStorage.getItem('noir_user');
             var user = userData ? JSON.parse(userData) : null;
             var isGuest = !user;
 
-            // Определяем что показывать в хедере
             var displayName = 'guest';
             if (!isGuest) {
-                if (user.nickname && user.nickname.length > 0) {
-                    displayName = user.nickname;
-                } else if (user.displayName && user.displayName !== user.email) {
-                    displayName = user.displayName;
-                } else if (user.name) {
-                    displayName = user.name;
-                } else if (user.username) {
-                    displayName = user.username.replace('@@', '');
-                } else if (user.email) {
-                    displayName = user.email.split('@@')[0];
-                }
+                if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
+                else if (user.displayName && user.displayName !== user.email) displayName = user.displayName;
+                else if (user.name) displayName = user.name;
+                else if (user.username) displayName = user.username.replace('@@', '');
+                else if (user.email) displayName = user.email.split('@@')[0];
             }
 
             var ha = document.getElementById('headerAvatar');
-            ha.innerHTML = ''; // Очищаем
+            ha.innerHTML = '';
             
             if (!isGuest) {
-                // Пытаемся загрузить аватарку
                 var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
                 var avatarPath = '/images/avatar/' + cleanName + '.jpg';
                 var img = document.createElement('img');
                 img.src = avatarPath;
                 img.onerror = function() {
-                    // Аватарка не найдена — оставляем просто черный фон, БЕЗ БУКВ!!!
                     ha.removeChild(img);
                     ha.style.backgroundColor = '#000';
-                    ha.style.backgroundImage = 'none';
-                    ha.innerText = '';
                 };
                 ha.appendChild(img);
             } else {
-                // Гость — черный круг
                 ha.style.backgroundColor = '#000';
-                ha.style.backgroundImage = 'none';
-                ha.innerText = '';
             }
 
             document.getElementById('headerUsername').innerText = displayName;
 
-            // Подписка ТОЛЬКО у @@if6was7
             var isPlus = !isGuest && (user.username === '@@if6was7');
             document.getElementById('headerPlus').style.display = isPlus ? 'inline' : 'none';
             if (isPlus) ha.classList.add('plus-border');
@@ -249,8 +307,28 @@
 
             var authBtn = document.getElementById('authBtn');
             authBtn.innerText = isGuest ? 'sign in' : 'exit';
-        }
 
+            // ── Admin mode ──
+            if (!isGuest) {
+                var admins = getAdmins();
+                isAdminMode = admins.indexOf(user.username) !== -1;
+            }
+
+            if (isAdminMode) {
+                document.getElementById('adminBar').style.display = 'flex';
+                document.querySelectorAll('.item-card').forEach(function(c) {
+                    c.classList.add('admin-mode');
+                });
+            }
+
+            // Hide removed listings
+            var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
+            removed.forEach(function(id) {
+                var card = document.getElementById('card-' + id);
+                if (card) card.style.display = 'none';
+            });
+        }
+        
         function handleAuth() {
             if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';
@@ -258,6 +336,13 @@
                 sessionStorage.removeItem('noir_user');
                 location.reload();
             }
+        }
+
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 2200);
         }
 
         loadUser();
