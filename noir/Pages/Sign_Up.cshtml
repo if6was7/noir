@@ -1,0 +1,384 @@
+﻿@page
+@model noir.Pages.Sign_UpModel
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>noir — sign_up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #fff;
+            color: #000;
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── LOGO ─── */
+        .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 4rem;
+            letter-spacing: 14px;
+            text-transform: lowercase;
+            color: #000;
+            text-decoration: none;
+            text-align: center;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .logo-sub {
+            font-size: 0.48rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #000;
+            opacity: 0.28;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        /* ─── PANEL ─── */
+        .panel {
+            width: 100%;
+            max-width: 380px;
+        }
+
+        /* ─── FLOATING LABEL FIELD ─── */
+        .field {
+            position: relative;
+            margin-bottom: 36px;
+        }
+
+        .field label {
+            position: absolute;
+            left: 0;
+            top: 32px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            color: #bbb;
+            pointer-events: none;
+            transition: top 0.2s ease, font-size 0.2s ease, color 0.2s ease, letter-spacing 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .field input:focus ~ label,
+        .field input:not(:placeholder-shown) ~ label {
+            top: 0px;
+            font-size: 0.44rem;
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .field input {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #ddd;
+            padding: 28px 0 10px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: #000;
+            background: transparent;
+            outline: none;
+            transition: border-color 0.25s;
+            -webkit-appearance: none;
+            -webkit-font-smoothing: antialiased;
+            caret-color: #000;
+        }
+
+        .field input::placeholder { color: transparent; }
+
+        .field input:focus {
+            border-bottom-color: #000;
+        }
+
+        /* chrome autofill fix */
+        .field input:-webkit-autofill,
+        .field input:-webkit-autofill:hover,
+        .field input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
+            -webkit-text-fill-color: #000 !important;
+            transition: background-color 9999s 0s;
+        }
+
+        /* ─── STRENGTH ─── */
+        .strength-wrap {
+            display: flex;
+            gap: 4px;
+            margin-top: 10px;
+        }
+        .strength-bar {
+            flex: 1;
+            height: 1px;
+            background: #eee;
+            transition: background 0.3s;
+        }
+        .strength-bar.weak   { background: #c0392b; }
+        .strength-bar.medium { background: #e67e22; }
+        .strength-bar.strong { background: #2d5a27; }
+
+        /* ─── ERROR / SUCCESS ─── */
+        .error-msg {
+            font-size: 0.44rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #c0392b;
+            margin-top: -20px;
+            margin-bottom: 20px;
+            display: none;
+            line-height: 2;
+        }
+        .error-msg.visible { display: block; }
+
+        .success-msg {
+            font-size: 0.44rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #2d5a27;
+            margin-top: -20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .success-msg.visible { display: block; }
+
+        /* ─── PRIMARY BUTTON ─── */
+        .btn-login {
+            width: 100%;
+            height: 52px;
+            background: #000;
+            color: #fff;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.58rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            cursor: pointer;
+            margin-bottom: 0;
+            transition: background 0.2s;
+            -webkit-appearance: none;
+        }
+        .btn-login:hover { background: #1a1a1a; }
+
+        /* ─── OR ─── */
+        .divider-or {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+            font-size: 0.44rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #000;
+            opacity: 0.22;
+        }
+        .divider-or::before,
+        .divider-or::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        /* ─── OUTLINE BUTTON ─── */
+        .btn-outline {
+            width: 100%;
+            height: 48px;
+            background: transparent;
+            border: 1px solid #e0e0e0;
+            color: #000;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            -webkit-appearance: none;
+        }
+        .btn-outline:hover { border-color: #000; background: #fafafa; }
+
+        /* ─── STATUS ─── */
+        .status {
+            margin-top: 48px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.42rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #000;
+            opacity: 0.18;
+        }
+        .status-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #000;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="logo">noir</a>
+    <div class="logo-sub">private collection</div>
+
+    <div class="panel">
+
+        <div class="field">
+            <input type="text"
+                   id="username"
+                   placeholder=" "
+                   autocomplete="new-password"
+                   spellcheck="false"
+                   autocorrect="off"
+                   autocapitalize="off"
+                   readonly
+                   onfocus="this.removeAttribute('readonly')"
+                   oninput="clearErrors()">
+            <label for="username">Username</label>
+        </div>
+
+        <div class="field">
+            <input type="password"
+                   id="password"
+                   placeholder=" "
+                   autocomplete="new-password"
+                   readonly
+                   onfocus="this.removeAttribute('readonly')"
+                   oninput="checkStrength()">
+            <label for="password">Password</label>
+            <div class="strength-wrap">
+                <div class="strength-bar" id="bar1"></div>
+                <div class="strength-bar" id="bar2"></div>
+                <div class="strength-bar" id="bar3"></div>
+            </div>
+        </div>
+
+        <div class="field">
+            <input type="password"
+                   id="passwordConfirm"
+                   placeholder=" "
+                   autocomplete="new-password"
+                   readonly
+                   onfocus="this.removeAttribute('readonly')"
+                   oninput="clearErrors()">
+            <label for="passwordConfirm">Confirm Password</label>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="success-msg" id="successMsg">Account created — redirecting...</div>
+
+        <button class="btn-login" onclick="handleRegister()">Create Account</button>
+
+        <div class="divider-or">or</div>
+
+        <a href="/Log_In" class="btn-outline">Already have an account — Log In</a>
+
+    </div>
+
+    <div class="status">
+        <div class="status-dot"></div>
+        vault accessible · 2026
+    </div>
+
+    <script>
+        var hardcodedUsers = [
+            { username: '@@if6was7', password: '67890', role: 'admin' },
+            { username: '@@tornadomart1', password: '12345', role: 'user' }
+        ];
+
+        function getAllUsers() {
+            var registered = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
+            return hardcodedUsers.concat(registered);
+        }
+
+        function clearErrors() {
+            document.getElementById('errorMsg').classList.remove('visible');
+        }
+
+        function checkStrength() {
+            clearErrors();
+            var p = document.getElementById('password').value;
+            var b1 = document.getElementById('bar1');
+            var b2 = document.getElementById('bar2');
+            var b3 = document.getElementById('bar3');
+
+            b1.className = 'strength-bar';
+            b2.className = 'strength-bar';
+            b3.className = 'strength-bar';
+
+            if (p.length === 0) return;
+            if (p.length >= 3)  b1.classList.add('weak');
+            if (p.length >= 6)  { b1.classList.add('medium'); b2.classList.add('medium'); }
+            if (p.length >= 10) { b1.classList.add('strong'); b2.classList.add('strong'); b3.classList.add('strong'); }
+        }
+
+        function handleRegister() {
+            var u  = document.getElementById('username').value.trim();
+            var p  = document.getElementById('password').value;
+            var pc = document.getElementById('passwordConfirm').value;
+            var err = document.getElementById('errorMsg');
+            var ok  = document.getElementById('successMsg');
+
+            var errors = [];
+            if (u.length < 3) errors.push('Username must be at least 3 characters');
+            if (p.length < 3) errors.push('Password must be at least 3 characters');
+            if (p !== pc)     errors.push('Passwords do not match');
+
+            // проверка что ник не занят
+            if (u.length >= 3) {
+                var existing = getAllUsers();
+                for (var i = 0; i < existing.length; i++) {
+                    if (existing[i].username === u) {
+                        errors.push('Username already taken');
+                        break;
+                    }
+                }
+            }
+
+            if (errors.length > 0) {
+                err.innerHTML = errors.join('<br>');
+                err.classList.add('visible');
+                return;
+            }
+
+            // сохраняем нового юзера
+            var registered = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
+            registered.push({ username: u, password: p, role: 'user' });
+            localStorage.setItem('noir_registered_users', JSON.stringify(registered));
+
+            ok.classList.add('visible');
+            setTimeout(function() {
+                window.location.href = '/Log_In';
+            }, 1500);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') handleRegister();
+        });
+    </script>
+</body>
+</html>

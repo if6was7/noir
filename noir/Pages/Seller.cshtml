@@ -1,0 +1,440 @@
+﻿@page
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>noir — seller</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #ffffff; 
+            --text-main: #000000; 
+            --header-bg: #000000; 
+            --accent-purple: #a855f7; 
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { background-color: #000; }
+
+        body { 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            font-family: 'Goudy Old Style', serif; 
+            -webkit-font-smoothing: antialiased; 
+            min-height: 100vh;
+            overscroll-behavior-y: none;
+        }
+
+        /* ── Header ── */
+        header { 
+            background-color: var(--header-bg); 
+            height: 60px; 
+            display: grid; 
+            grid-template-columns: 1fr auto 1fr; 
+            align-items: center; 
+            padding: 0 60px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+        }
+        .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; }
+        .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
+        .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
+        nav { display: flex; gap: 60px; }
+        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; }
+        nav a:hover { opacity: 1; }
+        .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
+        .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .header-avatar { 
+            width: 28px; height: 28px; border-radius: 50%; 
+            background: #1a1a1a; border: 1px solid #2a2a2a;
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 0.6rem; font-weight: 600; color: #fff;
+            overflow: hidden; font-family: 'Cinzel', serif;
+            transition: border-color 0.3s;
+        }
+        .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .header-avatar.plus-ring { border-color: var(--accent-purple); }
+        .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
+        .logout-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
+        .logout-btn:hover { opacity: 1; }
+
+        /* ── Hero / Banner ── */
+        .profile-hero {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            background: #0d0d0d;
+            overflow: visible;
+        }
+        .profile-hero-bg {
+            width: 100%; height: 100%;
+            object-fit: cover; display: block;
+            opacity: 0; transition: opacity 0.5s;
+            position: absolute; inset: 0;
+        }
+        .profile-hero-bg.loaded { opacity: 1; }
+        .profile-hero::after {
+            content: '';
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 120px;
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.55));
+            pointer-events: none;
+        }
+        .hero-placeholder {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .hero-placeholder span { font-family: 'Montserrat'; font-size: 0.5rem; letter-spacing: 4px; text-transform: uppercase; color: #fff; opacity: 0.12; }
+
+        .avatar-overlap {
+            position: absolute; bottom: -50px; left: 60px; z-index: 10;
+        }
+        .avatar-circle {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 3px solid #fff; background: #1a1a1a;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Cinzel'; font-size: 2.4rem; color: #fff;
+            overflow: hidden; transition: border-color 0.3s;
+        }
+        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-circle.plus-border { border-color: var(--accent-purple); }
+
+        /* ── Main content ── */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 40px 80px; font-family: 'Montserrat', sans-serif; }
+
+        .user-info-row {
+            display: flex; align-items: flex-end; gap: 24px;
+            padding-top: 70px; padding-left: 20px; margin-bottom: 40px;
+        }
+        .user-text { flex: 1; }
+        .user-name-line { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .user-name-line h1 { font-size: 1.6rem; font-weight: 600; }
+        .plus-status-text { font-size: 0.6rem; letter-spacing: 2px; opacity: 0.3; text-transform: uppercase; }
+        .plus-status-text.active { opacity: 1; color: var(--accent-purple); font-weight: 600; }
+        .stats-bar { display: flex; gap: 30px; font-size: 0.8rem; }
+        .stat-item span { opacity: 0.5; margin-left: 4px; }
+
+        .actions { display: flex; gap: 10px; align-items: center; padding-bottom: 4px; }
+        .btn { padding: 10px 22px; background: #fff; font-size: 0.7rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: 1px solid #000; font-family: 'Montserrat'; white-space: nowrap; }
+        .btn:hover { background: #000; color: #fff; }
+        .btn.following { background: #000; color: #fff; }
+        .btn.following:hover { background: #222; }
+
+        /* ── Tabs ── */
+        .tabs-nav { display: flex; gap: 35px; border-bottom: 1px solid #eee; }
+        .tab-link { padding: 15px 5px; font-size: 0.9rem; color: #000; opacity: 0.4; cursor: pointer; position: relative; transition: 0.2s; user-select: none; }
+        .tab-link:hover { opacity: 0.7; }
+        .tab-link.active { opacity: 1; font-weight: 600; }
+        .tab-link.active::after { content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #000; }
+        .tab-content { display: none; margin-top: 40px; }
+        .tab-content.active { display: block; }
+
+        /* ── Listings grid ── */
+        .listings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 50px 30px;
+        }
+        .listing-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; position: relative; cursor: pointer; }
+        .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; color: #ccc; margin-bottom: 12px; }
+        .image-wrapper { 
+            width: 100%; aspect-ratio: 3 / 4; 
+            background-color: #fdfdfd; 
+            display: flex; align-items: center; justify-content: center; 
+            position: relative; margin-bottom: 20px; overflow: hidden;
+            border: 1px solid #eee;
+        }
+        .image-wrapper::before { 
+            content: ""; position: absolute; left: 0; bottom: 0; 
+            width: 2px; height: 100%; background-color: #000; 
+            transform: scaleY(0); transform-origin: bottom; 
+            transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; 
+        }
+        .listing-card:hover .image-wrapper::before { transform: scaleY(1); }
+        .image-wrapper span { font-family: 'Cinzel', serif; font-size: 10rem; color: #f6f6f6; position: absolute; bottom: -30px; right: -20px; line-height: 1; }
+        .listing-info { border-top: 1px solid #000; padding-top: 15px; }
+        .listing-title { font-size: 1.5rem; margin: 0 0 8px 0; text-transform: lowercase; font-weight: normal; }
+        .listing-price { font-family: 'Montserrat', sans-serif; font-size: 0.8rem; }
+        .listing-price::before { content: "EUR "; font-weight: 400; opacity: 0.5; }
+
+        /* ── Empty state ── */
+        .tab-empty { padding: 70px 0; text-align: center; }
+        .tab-empty-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 5px; opacity: 0.25; margin-bottom: 12px; }
+        .tab-empty-title { font-family: 'Cinzel'; font-size: 1.4rem; letter-spacing: 4px; opacity: 0.12; }
+
+        /* ── Reviews tab ── */
+        .review-item { border-bottom: 1px solid #eee; padding: 24px 0; display: flex; gap: 20px; align-items: flex-start; }
+        .review-stars { color: #000; font-size: 0.8rem; letter-spacing: 2px; }
+        .review-text { font-size: 0.85rem; line-height: 1.7; color: #444; font-family: 'Montserrat'; }
+        .review-meta { font-size: 0.6rem; opacity: 0.4; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; font-family: 'Montserrat'; }
+
+        /* ── Footer ── */
+        .page-spacer { height: 10vh; }
+        .footer-main { border-top: 1px solid #000; padding: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: #fff; }
+        .footer-brand { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 5px; text-transform: lowercase; }
+        .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
+        .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="brand-wrapper">
+            <span class="brand">noir</span>
+            <span id="headerPlus" class="plus-sticker">plus</span>
+        </a>
+        <nav>
+            <a href="/">Catalog</a>
+            <a href="/Auction">Auction</a>
+            <a href="/Archive">Archive</a>
+            <a href="/Upload">Upload</a>
+        </nav>
+        <div class="header-right">
+            <div class="header-avatar-wrap" onclick="window.location.href='/Account'">
+                <div class="header-avatar" id="headerAvatar"></div>
+                <span class="header-username" id="headerUsername"></span>
+            </div>
+            <button class="logout-btn" onclick="logout()">exit</button>
+        </div>
+    </header>
+
+    <div class="profile-hero">
+        <img class="profile-hero-bg" id="sellerBanner" src="" alt="">
+        <div class="hero-placeholder" id="heroPlaceholder">
+            <span>noir private collection</span>
+        </div>
+        <div class="avatar-overlap">
+            <div class="avatar-circle" id="sellerAvatar"></div>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="user-info-row">
+            <div class="user-text">
+                <div class="user-name-line">
+                    <h1 id="sellerNameDisplay">—</h1>
+                    <span id="sellerPlusStatus" class="plus-status-text">noir plus inactive</span>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-item"><b>42</b><span>Transactions</span></div>
+                    <div class="stat-item"><b>★★★★★</b><span>Rating</span></div>
+                    <div class="stat-item"><b id="followerCount">0</b><span>Followers</span></div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn" id="followBtn" onclick="toggleFollow()">Follow</button>
+            </div>
+        </div>
+
+        <nav class="tabs-nav">
+            <div class="tab-link active" data-tab="listings">Listings</div>
+            <div class="tab-link" data-tab="reviews">Reviews</div>
+        </nav>
+
+        <!-- Listings tab -->
+        <div class="tab-content active" id="tab-listings">
+            <div class="listings-grid" id="listingsGrid">
+                <!-- populated by JS from the shared item list -->
+            </div>
+            <div class="tab-empty" id="listingsEmpty" style="display:none;">
+                <div class="tab-empty-label">no listings yet</div>
+                <div class="tab-empty-title">Nothing for sale</div>
+            </div>
+        </div>
+
+        <!-- Reviews tab -->
+        <div class="tab-content" id="tab-reviews">
+            <div class="tab-empty">
+                <div class="tab-empty-label">no feedback yet</div>
+                <div class="tab-empty-title">No Reviews</div>
+            </div>
+        </div>
+
+        <div class="page-spacer"></div>
+    </main>
+
+    <footer class="footer-main">
+        <span class="footer-brand">noir</span>
+        <span class="footer-copy">© 2026 noir private collection. all rights reserved.</span>
+        <span class="footer-tagline">objects of consequence</span>
+    </footer>
+
+    <script>
+        // ── Shared item catalogue (same data as Product.cshtml) ──
+        var ALL_ITEMS = [
+            { id: 1,  title: "minimalist ceramic bowl",  price: 450,    isAuction: false },
+            { id: 2,  title: "vintage leather chair",    price: 850,    isAuction: false },
+            { id: 3,  title: "niche perfume set",        price: 1800,   isAuction: false },
+            { id: 4,  title: "rare vinyl collection",    price: 4200,   isAuction: false },
+            { id: 5,  title: "silver mechanical watch",  price: 9500,   isAuction: false },
+            { id: 6,  title: "renaissance oil canvas",   price: 65000,  isAuction: false },
+            { id: 7,  title: "rare private island map",  price: 150000, isAuction: true  },
+            { id: 8,  title: "the celestial sphere",     price: 740000, isAuction: false },
+            { id: 10, title: "ancient marble bust",      price: 85000,  isAuction: true  },
+            { id: 11, title: "viking iron sword",        price: 32000,  isAuction: true  },
+            { id: 12, title: "dynasty ritual vessel",    price: 120000, isAuction: true  },
+            { id: 13, title: "gothic cathedral key",     price: 15000,  isAuction: true  },
+            { id: 14, title: "ottoman silk tapestry",    price: 47000,  isAuction: true  },
+            { id: 15, title: "venetian poison ring",     price: 22000,  isAuction: true  },
+            { id: 16, title: "aztec obsidian blade",     price: 68000,  isAuction: true  },
+            { id: 17, title: "czarist fabergé fragment", price: 310000, isAuction: true  }
+        ];
+
+        // ── Seller Plus lookup (заглушка — потом заменить на реальный запрос) ──
+        var PLUS_SELLERS = ["if6was7"];
+
+        function isSellerPlus(username) {
+            return PLUS_SELLERS.indexOf(username.toLowerCase()) !== -1;
+        }
+
+        (function init() {
+            // 1. Auth check
+            var raw = sessionStorage.getItem('noir_user');
+            if (!raw) { window.location.href = '/Log_In'; return; }
+            var viewer = JSON.parse(raw);
+
+            var viewerOriginal = viewer.username || "";
+            var viewerClean = viewerOriginal.replace('@@', '').toLowerCase();
+
+            // 2. Get seller username from URL
+            var params = new URLSearchParams(window.location.search);
+            var sellerName = (params.get('username') || '').replace('@@', '').toLowerCase();
+
+            // 3. If viewing own profile → redirect to Account
+            if (!sellerName || sellerName === viewerClean) {
+                window.location.href = '/Account';
+                return;
+            }
+
+            // ── Populate viewer header ──
+            var viewerInitial = viewerClean.charAt(0).toUpperCase() || 'U';
+            var viewerAvatarPath = '/images/avatar/' + viewerClean + '.jpg';
+
+            var ha = document.getElementById('headerAvatar');
+            var haImg = document.createElement('img');
+            haImg.src = viewerAvatarPath;
+            haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            haImg.onerror = function() { ha.removeChild(haImg); ha.innerText = viewerInitial; };
+            ha.appendChild(haImg);
+            document.getElementById('headerUsername').innerText = viewerOriginal;
+
+            var low = viewerOriginal.toLowerCase();
+            var viewerIsPlus = low.indexOf('if6was7') !== -1 || viewer.hasPlus === true || viewer.hasPlus === "true";
+            if (viewerIsPlus) {
+                document.getElementById('headerPlus').style.display = 'inline';
+                ha.classList.add('plus-ring');
+            }
+
+            // ── Populate seller profile ──
+            var sellerInitial = sellerName.charAt(0).toUpperCase() || 'S';
+            var sellerAvatarPath = '/images/avatar/' + sellerName + '.jpg';
+            var sellerBannerPath = '/images/avatar/' + sellerName + '_banner.jpg';
+
+            // Avatar
+            var sa = document.getElementById('sellerAvatar');
+            var saImg = document.createElement('img');
+            saImg.src = sellerAvatarPath;
+            saImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            saImg.onerror = function() { sa.removeChild(saImg); sa.innerText = sellerInitial; };
+            sa.appendChild(saImg);
+
+            // Banner (only shown if seller has plus — banner upload is plus-exclusive)
+            if (isSellerPlus(sellerName)) {
+                var banner = document.getElementById('sellerBanner');
+                banner.src = sellerBannerPath;
+                banner.onload = function() {
+                    this.classList.add('loaded');
+                    document.getElementById('heroPlaceholder').style.display = 'none';
+                };
+                // Plus badge
+                sa.classList.add('plus-border');
+                var st = document.getElementById('sellerPlusStatus');
+                st.innerText = 'noir plus member';
+                st.classList.add('active');
+            }
+
+            // Name
+            document.getElementById('sellerNameDisplay').innerText = '@@' + sellerName;
+            document.title = 'noir \u2014 @@' + sellerName;
+
+            // ── Follow state ──
+            var followKey = 'noir_follow_' + sellerName;
+            var following = sessionStorage.getItem(followKey) === '1';
+            updateFollowBtn(following);
+
+            // ── Listings: show all items as seller's listings (заглушка) ──
+            // Позже: fetch('/api/seller-items?username=' + sellerName)
+            var grid = document.getElementById('listingsGrid');
+            var items = ALL_ITEMS; // заглушка — все предметы принадлежат if6was7
+
+            if (items.length === 0) {
+                document.getElementById('listingsEmpty').style.display = 'block';
+            } else {
+                items.forEach(function(item) {
+                    var card = document.createElement('a');
+                    card.href = '/Product?id=' + item.id;
+                    card.className = 'listing-card';
+
+                    var priceFormatted = item.price.toLocaleString('de-DE');
+
+                    card.innerHTML =
+                        '<span class="lot-tag">Archive Ref: 00' + item.id + '</span>' +
+                        '<div class="image-wrapper"><span>' + item.id + '</span></div>' +
+                        '<div class="listing-info">' +
+                            '<h3 class="listing-title">' + item.title + '</h3>' +
+                            '<div class="listing-price">' + priceFormatted + '</div>' +
+                        '</div>';
+
+                    grid.appendChild(card);
+                });
+            }
+
+        })();
+
+        // ── Tabs ──
+        document.querySelectorAll('.tab-link').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.tab-link').forEach(function(l) { l.classList.remove('active'); });
+                document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+                this.classList.add('active');
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ── Follow ──
+        function toggleFollow() {
+            var params = new URLSearchParams(window.location.search);
+            var sellerName = (params.get('username') || '').replace('@@', '').toLowerCase();
+            var followKey = 'noir_follow_' + sellerName;
+            var isFollowing = sessionStorage.getItem(followKey) === '1';
+            isFollowing = !isFollowing;
+            sessionStorage.setItem(followKey, isFollowing ? '1' : '0');
+            updateFollowBtn(isFollowing);
+
+            // Анимация счётчика
+            var fc = document.getElementById('followerCount');
+            var current = parseInt(fc.innerText) || 0;
+            fc.innerText = isFollowing ? current + 1 : Math.max(0, current - 1);
+        }
+
+        function updateFollowBtn(following) {
+            var btn = document.getElementById('followBtn');
+            if (following) {
+                btn.innerText = 'Following';
+                btn.classList.add('following');
+            } else {
+                btn.innerText = 'Follow';
+                btn.classList.remove('following');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('noir_user');
+            window.location.href = '/Log_In';
+        }
+    </script>
+</body>
+</html>

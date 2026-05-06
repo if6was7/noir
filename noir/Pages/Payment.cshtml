@@ -1,0 +1,800 @@
+﻿@page
+@model noir.Pages.PaymentModel
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure Payment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #111113;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            height: 52px;
+            background: #1c1c1e;
+            border-bottom: 0.5px solid rgba(255,255,255,0.07);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .topbar-back {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            transition: color 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        .topbar-back:hover { color: rgba(255,255,255,0.8); }
+        .topbar-back svg { width: 14px; height: 14px; }
+        .topbar-sep { width: 0.5px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 4px; }
+        .topbar-merchant { font-size: 13px; color: rgba(255,255,255,0.35); }
+        .topbar-merchant strong { color: rgba(255,255,255,0.65); font-weight: 500; }
+
+        .topbar-secure {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+        }
+        .topbar-secure svg { width: 12px; height: 12px; color: #22c55e; }
+
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 3rem 1rem;
+            gap: 1.5rem;
+        }
+
+        .panel-card {
+            background: #1c1c1e;
+            border-radius: 18px;
+            border: 0.5px solid rgba(255,255,255,0.07);
+            padding: 1.6rem;
+            width: 360px;
+            flex-shrink: 0;
+        }
+        .panel-title {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 1.4rem;
+        }
+
+        .bank-card {
+            width: 100%;
+            aspect-ratio: 1.586;
+            border-radius: 14px;
+            padding: 1.1rem 1.25rem;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.6rem;
+            transition: all 0.3s ease;
+        }
+
+        .card-bg-visa       { background: linear-gradient(135deg, #1a237e 0%, #283593 55%, #1565c0 100%); }
+        .card-bg-mastercard { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 55%, #0f3460 100%); }
+        .card-bg-paypal     { background: linear-gradient(135deg, #003087 0%, #0070ba 60%, #009cde 100%); }
+        .card-bg-applepay   { background: linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 100%); }
+        .card-bg-mir        { background: linear-gradient(135deg, #00632d 0%, #008c44 50%, #00a651 100%); }
+        .card-bg-default    { background: linear-gradient(135deg, #1a1f36 0%, #2d2d4e 100%); }
+
+        .card-bubble {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .cb1 { width: 200px; height: 200px; top: -70px; right: -50px; background: rgba(99,102,241,0.22); }
+        .cb2 { width: 150px; height: 150px; bottom: -55px; left: 30px; background: rgba(139,92,246,0.15); }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.3rem;
+            position: relative;
+            z-index: 1;
+        }
+        .card-chip {
+            width: 30px; height: 22px;
+            background: linear-gradient(135deg, #c8a84b, #e8c870, #c8a84b);
+            border-radius: 4px;
+            position: relative;
+        }
+        .card-chip::after {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border: 0.8px solid rgba(0,0,0,0.22);
+            border-radius: 2px;
+        }
+        .card-net-top {
+            display: none;
+        }
+
+        .card-number {
+            font-size: 1.15rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.88);
+            letter-spacing: 0.22em;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 1.2rem;
+            position: relative;
+            z-index: 1;
+            word-spacing: 0.4em;
+        }
+
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            position: relative;
+            z-index: 1;
+        }
+        .card-meta-label {
+            font-size: 8px;
+            color: rgba(255,255,255,0.32);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 3px;
+        }
+        .card-meta-value {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.82);
+            letter-spacing: 0.04em;
+        }
+
+        .field-group { margin-bottom: 13px; }
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+        .field-input {
+            width: 100%;
+            height: 44px;
+            background: #2c2c2e;
+            border: 0.5px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 0 13px;
+            font-size: 15px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .field-input::placeholder {
+            font-family: 'Inter', sans-serif;
+            color: rgba(255,255,255,0.18);
+            font-size: 13px;
+        }
+        .field-input:focus {
+            border-color: rgba(99,102,241,0.7);
+            background: #333336;
+        }
+        .field-input.error {
+            border-color: rgba(239,68,68,0.7) !important;
+        }
+        .fields-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .pay-btn {
+            width: 100%;
+            height: 50px;
+            background: #4f46e5;
+            color: #fff;
+            border: none;
+            border-radius: 11px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .pay-btn:hover { background: #4338ca; }
+        .pay-btn:active { transform: scale(0.99); }
+
+        .secure-row {
+            display: flex;
+            gap: 7px;
+            margin-top: 13px;
+            flex-wrap: wrap;
+        }
+        .secure-tag {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.04);
+            border-radius: 20px;
+            padding: 3px 9px;
+            border: 0.5px solid rgba(255,255,255,0.07);
+        }
+        .secure-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
+
+        .order-panel {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .order-card {
+            background: #1c1c1e;
+            border-radius: 18px;
+            border: 0.5px solid rgba(255,255,255,0.07);
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .order-header {
+            background: #111113;
+            border-bottom: 0.5px solid rgba(255,255,255,0.06);
+            padding: 1.1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .order-icon {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: rgba(99,102,241,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            color: rgba(255,255,255,0.6);
+        }
+        .order-title { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); }
+        .order-subtitle { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+
+        .order-body { padding: 1.1rem 1.2rem; }
+        .order-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 9px;
+        }
+        .order-line-label { font-size: 13px; color: rgba(255,255,255,0.4); }
+        .order-line-value { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
+        .order-value-green { color: #22c55e; }
+        .order-divider {
+            border: none;
+            border-top: 0.5px solid rgba(255,255,255,0.07);
+            margin: 12px 0;
+        }
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-total-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.3);
+        }
+        .order-total-amount {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .method-section {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 0.5px solid rgba(255,255,255,0.07);
+        }
+        .method-section-label {
+            font-size: 10px;
+            color: rgba(255,255,255,0.25);
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            margin-bottom: 9px;
+        }
+        .method-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            background: rgba(255,255,255,0.05);
+            border: 0.5px solid rgba(255,255,255,0.1);
+            border-radius: 9px;
+            padding: 7px 11px;
+        }
+        .method-img-wrap {
+            width: 54px;
+            height: 34px;
+            background: #fff;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .method-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .method-badge-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .perks-card {
+            background: #1c1c1e;
+            border-radius: 18px;
+            border: 0.5px solid rgba(255,255,255,0.07);
+            padding: 1.1rem 1.2rem;
+        }
+        .perks-title {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.25);
+            margin-bottom: 12px;
+        }
+        .perk-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .perk-dot {
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: #7c3aed;
+            flex-shrink: 0;
+        }
+        .perk-text {
+            font-size: 12px;
+            color: rgba(255,255,255,0.45);
+        }
+
+        #successScreen {
+            display: none;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+        }
+        #successScreen.show {
+            display: flex;
+        }
+        .success-box {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: #1c1c1e;
+            border-radius: 20px;
+            border: 0.5px solid rgba(255,255,255,0.07);
+            max-width: 380px;
+            width: 100%;
+        }
+        .success-check {
+            width: 60px; height: 60px;
+            background: rgba(34,197,94,0.12);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            color: #22c55e;
+            margin: 0 auto 1.2rem;
+        }
+        .success-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 9px;
+        }
+        .success-sub {
+            font-size: 13px;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .success-back {
+            display: inline-block;
+            padding: 11px 26px;
+            background: rgba(255,255,255,0.06);
+            border: 0.5px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .success-back:hover { background: rgba(255,255,255,0.1); }
+
+        .footer {
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            border-top: 0.5px solid rgba(255,255,255,0.05);
+        }
+        .footer-text {
+            font-size: 11px;
+            color: rgba(255,255,255,0.18);
+        }
+        .footer-dot {
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="topbar-back" onclick="history.back()">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 11L5 7l4-4"/>
+                </svg>
+                Back
+            </button>
+            <div class="topbar-sep"></div>
+            <span class="topbar-merchant">Payment to <strong>noir private collection</strong></span>
+        </div>
+        <div class="topbar-secure">
+            <svg viewBox="0 0 12 12" fill="none" stroke="#22c55e" stroke-width="1.5">
+                <path d="M6 1L2 3v4c0 2 1.8 3.5 4 4 2.2-.5 4-2 4-4V3L6 1z"/>
+            </svg>
+            Secure connection
+        </div>
+    </div>
+
+    <div class="main" id="mainLayout">
+        <div class="panel-card" id="formPanel">
+            <div class="panel-title">Card details</div>
+
+            <div class="bank-card card-bg-visa" id="bankCard">
+                <div class="card-bubble cb1"></div>
+                <div class="card-bubble cb2"></div>
+                <div class="card-top">
+                    <div class="card-chip"></div>
+                    <div class="card-net-top"></div>
+                </div>
+                <div class="card-number" id="cardNumDisplay">•••• •••• •••• ••••</div>
+                <div class="card-bottom">
+                    <div>
+                        <div class="card-meta-label">Card holder</div>
+                        <div class="card-meta-value" id="cardNameDisplay">Your name</div>
+                    </div>
+                    <div>
+                        <div class="card-meta-label">Expires</div>
+                        <div class="card-meta-value" id="cardExpDisplay">MM / YY</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Card number</label>
+                <input type="text" class="field-input" id="cardNumber"
+                       placeholder="0000 0000 0000 0000" maxlength="19"
+                       autocomplete="cc-number" inputmode="numeric">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Cardholder name</label>
+                <input type="text" class="field-input" id="cardHolder"
+                       placeholder="Name as on card" autocomplete="cc-name">
+            </div>
+            <div class="fields-row">
+                <div class="field-group">
+                    <label class="field-label">Expiry date</label>
+                    <input type="text" class="field-input" id="cardExpiry"
+                           placeholder="MM / YY" maxlength="7" autocomplete="cc-exp">
+                </div>
+                <div class="field-group">
+                    <label class="field-label">CVV</label>
+                    <input type="password" class="field-input" id="cardCvv"
+                           placeholder="•••" maxlength="4" autocomplete="cc-csc">
+                </div>
+            </div>
+
+            <button class="pay-btn" id="payBtn" onclick="handlePay()">Continue</button>
+
+            <div class="secure-row">
+                <div class="secure-tag"><div class="secure-dot"></div>256-bit SSL</div>
+                <div class="secure-tag"><div class="secure-dot"></div>PCI DSS</div>
+                <div class="secure-tag"><div class="secure-dot"></div>Encrypted</div>
+            </div>
+        </div>
+
+        <div class="order-panel" id="orderPanel">
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-icon" id="orderIcon">✦</div>
+                    <div>
+                        <div class="order-title" id="orderName">noir plus</div>
+                        <div class="order-subtitle" id="orderSubtitle">Monthly membership</div>
+                    </div>
+                </div>
+                <div class="order-body">
+                    <div class="order-line" id="orderLine1">
+                        <span class="order-line-label" id="orderLineLabel">Membership</span>
+                        <span class="order-line-value" id="orderPrice">€10.99</span>
+                    </div>
+                    <div class="order-line" id="orderSecondLine">
+                        <span class="order-line-label" style="font-size:11px; color:rgba(255,255,255,0.22)">Auto-renews monthly</span>
+                        <span class="order-line-value" style="font-size:11px; color:rgba(255,255,255,0.22)">✓</span>
+                    </div>
+                    <hr class="order-divider">
+                    <div class="order-total">
+                        <span class="order-total-label">Total to pay</span>
+                        <span class="order-total-amount" id="orderTotal">€10.99</span>
+                    </div>
+
+                    <div class="method-section">
+                        <div class="method-section-label">Payment method</div>
+                        <div class="method-badge">
+                            <div class="method-img-wrap">
+                                <img id="methodImg" src="/images/visa.jpg" alt="Visa">
+                            </div>
+                            <span class="method-badge-name" id="methodName">Visa</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="perks-card">
+                <div class="perks-title">Benefits</div>
+                <div class="perk-row"><div class="perk-dot"></div><div class="perk-text">Faster checkout next time</div></div>
+                <div class="perk-row"><div class="perk-dot"></div><div class="perk-text">No saved card fees</div></div>
+                <div class="perk-row"><div class="perk-dot"></div><div class="perk-text">Remove anytime</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="successScreen">
+        <div class="success-box">
+            <div class="success-check">✓</div>
+            <div class="success-title" id="successTitle">Payment confirmed</div>
+            <div class="success-sub" id="successSub">Your transaction has been completed</div>
+            <a class="success-back" id="successBackBtn" href="/Account">Return to account</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span class="footer-text">© 2026 Noir Payments Ltd.</span>
+        <div class="footer-dot"></div>
+        <span class="footer-text">All transactions are encrypted and secure</span>
+        <div class="footer-dot"></div>
+        <span class="footer-text">PCI DSS Level 1 compliant</span>
+    </div>
+
+    <script>
+        var params = new URLSearchParams(window.location.search);
+        var source = params.get('source') || 'subscription';
+        var method = params.get('method') || 'visa';
+        
+        var amount = 10.99;
+        
+        if (source === 'linkcard') {
+            amount = 0;
+        } else if (source === 'topup') {
+            amount = parseFloat(params.get('amount')) || 0;
+        } else if (source === 'auction') {
+            amount = parseFloat(params.get('amount')) || 0;
+        }
+        
+        var isLinking = (source === 'linkcard');
+        var isTopup = (source === 'topup');
+        var isAuction = (source === 'auction');
+        var isSubscription = (!isLinking && !isTopup && !isAuction);
+
+        var netConfig = {
+            visa:       { bgClass: 'card-bg-visa', imgSrc: '/images/visa.jpg', label: 'Visa' },
+            mastercard: { bgClass: 'card-bg-mastercard', imgSrc: '/images/mastercard.jpg', label: 'Mastercard' },
+            mir:        { bgClass: 'card-bg-mir', imgSrc: '/images/mir.jpg', label: 'МИР' },
+            paypal:     { bgClass: 'card-bg-paypal', imgSrc: '/images/paypal.jpg', label: 'PayPal' },
+            applepay:   { bgClass: 'card-bg-applepay', imgSrc: '/images/applepay.jpg', label: 'Apple Pay' }
+        };
+
+        var bgClasses = ['card-bg-visa','card-bg-mastercard','card-bg-mir','card-bg-paypal','card-bg-applepay','card-bg-default'];
+
+        function applyNetwork(key) {
+            var cfg = netConfig[key] || netConfig.visa;
+            var card = document.getElementById('bankCard');
+            bgClasses.forEach(function(c) { card.classList.remove(c); });
+            card.classList.add(cfg.bgClass);
+            document.getElementById('methodImg').src = cfg.imgSrc;
+            document.getElementById('methodImg').alt = cfg.label;
+            document.getElementById('methodName').innerText = cfg.label;
+        }
+
+        (function init() {
+            var fmt = (amount === 0) ? '€0.00' : '€' + amount.toFixed(2);
+            
+            if (isLinking) {
+                document.getElementById('payBtn').innerText = 'Link card';
+                document.getElementById('orderName').innerText = 'Card linking';
+                document.getElementById('orderSubtitle').innerText = 'Save for future payments';
+                document.getElementById('orderIcon').innerHTML = '🔗';
+                document.getElementById('orderLineLabel').innerText = 'Verification charge';
+                document.getElementById('orderPrice').innerHTML = '<span style="color:#22c55e">€0.00</span>';
+                document.getElementById('orderTotal').innerHTML = '€0.00';
+                document.getElementById('orderSecondLine').style.display = 'flex';
+                document.querySelector('#orderSecondLine .order-line-value').innerHTML = 'No charge';
+            } 
+            else if (isTopup) {
+                document.getElementById('payBtn').innerText = 'Pay ' + fmt;
+                document.getElementById('orderName').innerText = 'Balance top-up';
+                document.getElementById('orderSubtitle').innerText = 'noir account';
+                document.getElementById('orderIcon').innerHTML = '◎';
+                document.getElementById('orderLineLabel').innerText = 'Top-up amount';
+                document.getElementById('orderPrice').innerHTML = fmt;
+                document.getElementById('orderTotal').innerHTML = fmt;
+                document.getElementById('orderSecondLine').style.display = 'none';
+            }
+            else if (isAuction) {
+                document.getElementById('payBtn').innerText = 'Pay ' + fmt;
+                document.getElementById('orderName').innerText = 'Auction payment';
+                document.getElementById('orderSubtitle').innerText = 'noir private collection';
+                document.getElementById('orderIcon').innerHTML = '⌖';
+                document.getElementById('orderLineLabel').innerText = 'Bid amount';
+                document.getElementById('orderPrice').innerHTML = fmt;
+                document.getElementById('orderTotal').innerHTML = fmt;
+                document.getElementById('orderSecondLine').style.display = 'none';
+            }
+            else {
+                document.getElementById('payBtn').innerText = 'Pay ' + fmt;
+                document.getElementById('orderName').innerText = 'noir plus';
+                document.getElementById('orderSubtitle').innerText = 'Monthly membership';
+                document.getElementById('orderIcon').innerHTML = '✦';
+                document.getElementById('orderLineLabel').innerText = 'Membership';
+                document.getElementById('orderPrice').innerHTML = fmt;
+                document.getElementById('orderTotal').innerHTML = fmt;
+                document.getElementById('orderSecondLine').style.display = 'flex';
+            }
+            
+            applyNetwork(method);
+        })();
+
+        function detectNetwork(num) {
+            if (/^220[0-4]/.test(num)) return 'mir';
+            if (/^4/.test(num))        return 'visa';
+            if (/^5[1-5]/.test(num))   return 'mastercard';
+            if (/^2[2-7]/.test(num))   return 'mastercard';
+            if (/^3[47]/.test(num))    return 'mastercard';
+            return null;
+        }
+
+        document.getElementById('cardNumber').addEventListener('input', function() {
+            var v = this.value.replace(/\D/g, '').slice(0, 16);
+            this.value = v.replace(/(.{4})/g, '$1 ').trim();
+            var padded = v.padEnd(16, '•');
+            document.getElementById('cardNumDisplay').innerText =
+                padded.slice(0,4) + ' ' + padded.slice(4,8) + ' ' + padded.slice(8,12) + ' ' + padded.slice(12,16);
+            var detected = detectNetwork(v);
+            if (detected) applyNetwork(detected);
+        });
+
+        document.getElementById('cardHolder').addEventListener('input', function() {
+            document.getElementById('cardNameDisplay').innerText = this.value.trim() || 'Your name';
+        });
+
+        document.getElementById('cardExpiry').addEventListener('input', function() {
+            var v = this.value.replace(/\D/g, '').slice(0, 4);
+            if (v.length >= 3) this.value = v.slice(0,2) + ' / ' + v.slice(2);
+            else this.value = v;
+            document.getElementById('cardExpDisplay').innerText = this.value || 'MM / YY';
+        });
+
+        function handlePay() {
+            var num    = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            var holder = document.getElementById('cardHolder').value.trim();
+            var expiry = document.getElementById('cardExpiry').value.replace(/\s/g, '');
+            var cvv    = document.getElementById('cardCvv').value.trim();
+            
+            var hasError = false;
+            if (!num) { document.getElementById('cardNumber').classList.add('error'); hasError = true; }
+            else { document.getElementById('cardNumber').classList.remove('error'); }
+            
+            if (!holder) { document.getElementById('cardHolder').classList.add('error'); hasError = true; }
+            else { document.getElementById('cardHolder').classList.remove('error'); }
+            
+            if (!expiry || expiry.replace('/','').length < 4) { document.getElementById('cardExpiry').classList.add('error'); hasError = true; }
+            else { document.getElementById('cardExpiry').classList.remove('error'); }
+            
+            if (!cvv || cvv.length < 3) { document.getElementById('cardCvv').classList.add('error'); hasError = true; }
+            else { document.getElementById('cardCvv').classList.remove('error'); }
+            
+            if (hasError && !isLinking) return;
+            
+            // Сохраняем изменения в sessionStorage
+            var raw = sessionStorage.getItem('noir_user');
+            if (raw) {
+                try {
+                    var u = JSON.parse(raw);
+                    
+                    if (isTopup && amount > 0) {
+                        var newBal = (parseFloat(u.balance) || 0) + amount;
+                        u.balance = newBal.toFixed(2);
+                    }
+                    
+                    if (isSubscription) {
+                        u.hasPlus = true;
+                    }
+                    
+                    if (isLinking && num && num.length >= 4) {
+                        if (!u.savedCards) u.savedCards = [];
+                        // Добавляем карту в список сохраненных
+                        var last4 = num.slice(-4);
+                        u.savedCards.push({
+                            network: method,
+                            number: num,
+                            last4: last4,
+                            expiry: expiry,
+                            holder: holder
+                        });
+                    }
+                    
+                    sessionStorage.setItem('noir_user', JSON.stringify(u));
+                } catch(e) {}
+            }
+            
+            document.getElementById('mainLayout').style.display = 'none';
+            document.getElementById('successScreen').classList.add('show');
+            
+            if (isLinking) {
+                document.getElementById('successTitle').innerText = 'Card linked successfully';
+                document.getElementById('successSub').innerText = 'Your card has been saved and is ready for future payments';
+                document.getElementById('successBackBtn').href = '/Account';
+            }
+            else if (isTopup) {
+                document.getElementById('successTitle').innerHTML = '€' + amount.toFixed(2) + ' added';
+                document.getElementById('successSub').innerText = 'Your balance has been topped up successfully';
+                document.getElementById('successBackBtn').href = '/Account';
+            }
+            else if (isAuction) {
+                document.getElementById('successTitle').innerText = 'Payment confirmed';
+                document.getElementById('successSub').innerText = 'Your payment has been processed successfully';
+                document.getElementById('successBackBtn').href = '/Auction';
+            }
+            else {
+                document.getElementById('successTitle').innerText = 'noir plus activated!';
+                document.getElementById('successSub').innerText = 'Your noir+ membership is now active. Purple perks unlocked.';
+                document.getElementById('successBackBtn').href = '/Account';
+            }
+        }
+    </script>
+</body>
+</html>

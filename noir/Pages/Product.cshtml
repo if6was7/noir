@@ -1,0 +1,358 @@
+﻿@page
+@using System.Linq
+@functions {
+    public class Item
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = "";
+        public int Price { get; set; }
+        public string Desc { get; set; } = "";
+        public string[] Categories { get; set; } = Array.Empty<string>();
+        public bool IsAuction { get; set; }
+    }
+
+    public Item[] GetAllItems()
+    {
+        return new[] {
+            new Item { Id = 1, Title = "minimalist ceramic bowl", Price = 450, Desc = "Hand-thrown organic stoneware with a matte white glaze.", Categories = new[] { "Ceramics", "Home Decor" } },
+            new Item { Id = 2, Title = "vintage leather chair", Price = 850, Desc = "Mid-century modern lounge chair in aged leather.", Categories = new[] { "Furniture", "Vintage" } },
+            new Item { Id = 3, Title = "niche perfume set", Price = 1800, Desc = "A curated selection of rare single-note fragrances from independent houses.", Categories = new[] { "Fragrance", "Niche" } },
+            new Item { Id = 4, Title = "rare vinyl collection", Price = 4200, Desc = "First pressings from obscure labels across three decades of underground music.", Categories = new[] { "Music", "Vintage" } },
+            new Item { Id = 5, Title = "silver mechanical watch", Price = 9500, Desc = "Hand-assembled Swiss movement in a brushed sterling silver case.", Categories = new[] { "Horology", "Silver" } },
+            new Item { Id = 6, Title = "renaissance oil canvas", Price = 65000, Desc = "A 16th-century oil painting attributed to a Flemish master's workshop.", Categories = new[] { "Painting", "Antique" } },
+            new Item { Id = 7, Title = "rare private island map", Price = 150000, Desc = "An original hand-drawn cartographic survey of an uncharted island, circa 1743.", Categories = new[] { "Cartography", "Rare" }, IsAuction = true },
+            new Item { Id = 8, Title = "the celestial sphere", Price = 740000, Desc = "A gold-plated astronomical instrument from the late 16th century.", Categories = new[] { "Gold", "Astronomy" } },
+            new Item { Id = 10, Title = "ancient marble bust", Price = 85000, Desc = "A serene Roman-era fragment carved from Carrara marble.", Categories = new[] { "Sculpture", "Antique" }, IsAuction = true },
+            new Item { Id = 11, Title = "viking iron sword", Price = 32000, Desc = "A preserved 9th-century blade recovered from a Norse burial site.", Categories = new[] { "Weapons", "Viking" }, IsAuction = true },
+            new Item { Id = 12, Title = "dynasty ritual vessel", Price = 120000, Desc = "A bronze ceremonial vessel from the Chinese Han dynasty.", Categories = new[] { "Bronze", "Antique" }, IsAuction = true },
+            new Item { Id = 13, Title = "gothic cathedral key", Price = 15000, Desc = "A wrought iron master key from a 13th-century French cathedral.", Categories = new[] { "Iron", "Gothic" }, IsAuction = true },
+            new Item { Id = 14, Title = "ottoman silk tapestry", Price = 47000, Desc = "A hand-woven silk panel from the Ottoman imperial workshops, circa 1680.", Categories = new[] { "Textile", "Ottoman" }, IsAuction = true },
+            new Item { Id = 15, Title = "venetian poison ring", Price = 22000, Desc = "A gold compartment ring attributed to 16th-century Venetian nobility.", Categories = new[] { "Jewelry", "Venetian" }, IsAuction = true },
+            new Item { Id = 16, Title = "aztec obsidian blade", Price = 68000, Desc = "A razor-sharp ceremonial blade knapped from volcanic obsidian.", Categories = new[] { "Weapons", "Aztec" }, IsAuction = true },
+            new Item { Id = 17, Title = "czarist fabergé fragment", Price = 310000, Desc = "A verified shard from a lost imperial Fabergé egg, with provenance documentation.", Categories = new[] { "Gold", "Imperial" }, IsAuction = true }
+        };
+    }
+
+    public Item GetItem()
+    {
+        var all = GetAllItems();
+        int.TryParse(Request.Query["id"], out int id);
+        return all.FirstOrDefault(i => i.Id == id) ?? all[0];
+    }
+
+    public string GetActionText(int price, bool isAuction, string title)
+    {
+        if (isAuction) return "Place a Bid";
+        if (title == "the celestial sphere") return "touch the sun";
+        if (price < 500)    return "Purchase Object";
+        if (price < 1000)   return "Acquire Object";
+        if (price < 2000)   return "Buy Niche";
+        if (price < 5000)   return "Private Selection";
+        if (price < 10000)  return "Investment Grade";
+        if (price < 100000) return "Have Fun";
+        return "Treat Yourself";
+    }
+}
+@{
+    Layout = null;
+    var item = GetItem();
+    var actionText = GetActionText(item.Price, item.IsAuction, item.Title);
+    var recommendations = GetAllItems().Where(i => i.Id != item.Id).OrderBy(x => Guid.NewGuid()).Take(3);
+
+    // Seller data — later replace with real DB lookup
+    var sellerUsername = "if6was7";
+    var sellerIsPlus = true; // заглушка: потом брать из базы по sellerUsername
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>noir — @item.Title</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #ffffff; --text-main: #000000; --light-gray: #fdfdfd;
+            --auction-purple: #4b0082; --accent-purple: #a855f7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg); color: var(--text-main); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
+        /* Фикс белой полосы при оверскролле вверх — шапка чёрная, тянем её цвет */
+        html { background-color: #000; }
+        /* Но сам контент страницы белый */
+        body { background-color: var(--bg); min-height: 100vh; }
+
+        header { background-color: #000; height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
+
+        .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; }
+        .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
+        .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
+
+        nav { display: flex; gap: 60px; }
+        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.4s; }
+        nav a:hover { opacity: 1; }
+
+        .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
+        .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .header-avatar { 
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #1a1a1a; border: 1px solid #2a2a2a;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem; font-weight: 600; color: #fff;
+            overflow: hidden; font-family: 'Cinzel', serif;
+            transition: border-color 0.3s;
+        }
+        .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .header-avatar.plus-ring { border-color: var(--accent-purple); }
+        .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
+        .logout-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
+        .logout-btn:hover { opacity: 1; }
+
+        .product-container { max-width: 1400px; margin: 80px auto; padding: 0 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; }
+        .product-image { width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); border: 1px solid #efefef; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .product-image span { font-family: 'Cinzel', serif; font-size: 22rem; color: #f6f6f6; position: absolute; bottom: -50px; right: -30px; pointer-events: none; }
+        .auction-status { position: absolute; top: 0; left: 0; background: var(--auction-purple); color: #fff; padding: 15px 25px; font-family: 'Montserrat'; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 3px; z-index: 10; }
+
+        .product-details { display: flex; flex-direction: column; }
+        .lot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; color: #000; font-weight: 600; }
+        .product-tools { display: flex; gap: 25px; }
+        .tool-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; }
+        .icon-svg { width: 22px; height: 22px; fill: none; stroke: #000; stroke-width: 1.5px; transition: 0.3s; }
+        .tool-btn.active .icon-svg { fill: #000; }
+        .product-title { font-size: 3.5rem; margin: 0 0 25px 0; text-transform: lowercase; line-height: 1.1; font-weight: normal; }
+        .product-desc { font-family: 'Montserrat', sans-serif; font-size: 1.05rem; line-height: 1.8; color: #333; font-weight: 300; margin-bottom: 40px; }
+        .action-box { background-color: #000; color: #fff; width: 100%; height: 90px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; }
+        .price-text, .buy-text { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; position: absolute; transition: 0.5s; font-weight: 300; }
+        .buy-text { transform: translateY(40px); opacity: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 5px; }
+        .action-box:hover .price-text { transform: translateY(-40px); opacity: 0; }
+        .action-box:hover .buy-text { transform: translateY(0); opacity: 1; }
+        .category-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px; }
+        .cat-tag { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; text-transform: uppercase; padding: 6px 15px; border: 1px solid #eee; color: #999; text-decoration: none; transition: 0.3s; }
+        .cat-tag:hover { border-color: #000; color: #000; }
+
+        /* ── Seller card ── */
+        .seller-card { margin-top: 30px; display: flex; align-items: center; justify-content: space-between; }
+        .seller-link { display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit; flex: 1; }
+        .seller-link:hover .seller-name { text-decoration: underline; text-underline-offset: 3px; }
+
+        /* Avatar circle — mirrors account page style */
+        .seller-avatar-wrap {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+        }
+        .seller-avatar-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #000;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: #fff;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        .seller-avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .seller-avatar-circle.plus-border { border-color: var(--accent-purple); }
+
+        .seller-meta-wrap { display: flex; flex-direction: column; gap: 4px; }
+        .seller-name-line { display: flex; align-items: center; gap: 8px; }
+        .seller-name { font-family: 'Montserrat'; font-weight: 600; font-size: 0.9rem; text-transform: lowercase; color: #000; }
+        .seller-plus-badge {
+            font-family: 'Montserrat';
+            font-size: 0.42rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            border: 1px solid var(--accent-purple);
+            padding: 2px 7px;
+            line-height: 1.7;
+            border-radius: 2px;
+            display: @(sellerIsPlus ? "inline" : "none");
+        }
+        .seller-meta { font-family: 'Montserrat'; font-size: 0.7rem; color: #999; }
+
+        .follow-btn { background: none; border: 1px solid #000; padding: 8px 20px; font-family: 'Montserrat'; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; flex-shrink: 0; }
+        .follow-btn.following { background: #000; color: #fff; }
+
+        .recommendations { max-width: 1400px; margin: 0 auto 100px; padding: 80px 60px 0; border-top: 1px solid #eee; }
+        .rec-title { font-family: 'Cinzel', serif; font-size: 1.8rem; margin-bottom: 50px; text-align: center; letter-spacing: 3px; }
+        .rec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+        .rec-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; position: relative; }
+        .rec-img { width: 100%; aspect-ratio: 3/4; background: var(--light-gray); border: 1px solid #eee; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; overflow: hidden; }
+        /* Та же анимация что на главной — чёрная полоса слева при наведении */
+        .rec-img::before { content: ""; position: absolute; left: 0; bottom: 0; width: 2px; height: 100%; background-color: #000; transform: scaleY(0); transform-origin: bottom; transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; }
+        .rec-card:hover .rec-img::before { transform: scaleY(1); }
+        .rec-img span { font-family: 'Cinzel'; font-size: 8rem; color: #f0f0f0; position: absolute; bottom: -20px; right: -10px; }
+        .rec-info { border-top: 1px solid #000; padding-top: 15px; }
+
+        .footer-main { border-top: 1px solid #000; padding: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: #fff; margin-top: 100px; }
+        .footer-brand { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 5px; text-transform: lowercase; }
+        .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
+        .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="brand-wrapper">
+            <span class="brand">noir</span>
+            <span id="headerPlus" class="plus-sticker">plus</span>
+        </a>
+        <nav>
+            <a href="/">Catalog</a>
+            <a href="/Auction">Auction</a>
+            <a href="/Archive">Archive</a>
+            <a href="/Upload">Upload</a>
+        </nav>
+        <div class="header-right">
+            <div class="header-avatar-wrap" onclick="window.location.href='/Account'">
+                <div class="header-avatar" id="headerAvatar"></div>
+                <span class="header-username" id="headerUsername"></span>
+            </div>
+            <button class="logout-btn" onclick="logout()">exit</button>
+        </div>
+    </header>
+
+    <main class="product-container">
+        <div class="product-image">
+            @if(item.IsAuction) { <div class="auction-status">Auction Active • 02:45:12</div> }
+            <span>@item.Id</span>
+        </div>
+
+        <div class="product-details">
+            <div class="lot-header">
+                <span class="lot-tag">Archive Ref: 00@item.Id</span>
+                <div class="product-tools">
+                    <button class="tool-btn" onclick="this.classList.toggle('active')">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    </button>
+                    <button class="tool-btn" onclick="this.classList.toggle('active')">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <h1 class="product-title">@item.Title</h1>
+            <p class="product-desc">@item.Desc</p>
+
+            @if (item.IsAuction)
+            {
+                <a href="/NewBid?id=@item.Id" class="action-box" style="text-decoration: none;">
+                    <div class="price-text">VALUE: EUR @item.Price.ToString("N0")</div>
+                    <div class="buy-text">@actionText</div>
+                </a>
+            }
+            else
+            {
+                <div class="action-box">
+                    <div class="price-text">VALUE: EUR @item.Price.ToString("N0")</div>
+                    <div class="buy-text">@actionText</div>
+                </div>
+            }
+
+            <div class="category-wrap">
+                @foreach (var cat in item.Categories) { <a href="#" class="cat-tag">@cat</a> }
+            </div>
+
+            <!-- Seller card -->
+            <div class="seller-card">
+                <a href="/Seller?username=@sellerUsername" class="seller-link">
+                    <div class="seller-avatar-wrap">
+                        <div class="seller-avatar-circle @(sellerIsPlus ? "plus-border" : "")" id="sellerAvatar">
+                            <!-- avatar injected by JS -->
+                        </div>
+                    </div>
+                    <div class="seller-meta-wrap">
+                        <div class="seller-name-line">
+                            <span class="seller-name">@@@sellerUsername</span>
+                            <span class="seller-plus-badge">plus</span>
+                        </div>
+                        <div class="seller-meta">Rating: ★★★★★ (42 deals)</div>
+                    </div>
+                </a>
+                <button class="follow-btn" onclick="this.classList.toggle('following'); this.innerText = this.classList.contains('following') ? 'Following' : 'Follow';">Follow</button>
+            </div>
+        </div>
+    </main>
+
+    <section class="recommendations">
+        <h2 class="rec-title">curated for you</h2>
+        <div class="rec-grid">
+            @foreach (var rec in recommendations) {
+                <a href="/Product?id=@rec.Id" class="rec-card">
+                    <div class="rec-img"><span>@rec.Id</span></div>
+                    <div class="rec-info">
+                        <h4 style="font-size: 1.4rem; font-weight: normal;">@rec.Title</h4>
+                        <p style="font-family: 'Montserrat'; font-size: 0.8rem; margin-top: 5px;">EUR @rec.Price.ToString("N0")</p>
+                    </div>
+                </a>
+            }
+        </div>
+    </section>
+
+    <footer class="footer-main">
+        <span class="footer-brand">noir</span>
+        <span class="footer-copy">© 2026 noir private collection. all rights reserved.</span>
+        <span class="footer-tagline">objects of consequence</span>
+    </footer>
+
+    <script>
+        // ── Current user (viewer) ──
+        (function() {
+            var userData = sessionStorage.getItem('noir_user');
+            if (!userData) { window.location.href = '/Log_In'; return; }
+            var user = JSON.parse(userData);
+            var originalName = user.username || "";
+            var clean = originalName.replace('@@', '');
+            var initial = clean.charAt(0).toUpperCase() || 'U';
+            var avatarPath = '/images/avatar/' + clean + '.jpg';
+
+            var ha = document.getElementById('headerAvatar');
+            var haImg = document.createElement('img');
+            haImg.src = avatarPath;
+            haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            haImg.onerror = function() { ha.removeChild(haImg); ha.innerText = initial; };
+            ha.appendChild(haImg);
+
+            document.getElementById('headerUsername').innerText = originalName;
+
+            var low = originalName.toLowerCase();
+            var isPlus = low.indexOf('if6was7') !== -1 || user.hasPlus === true || user.hasPlus === "true";
+            if (isPlus) {
+                document.getElementById('headerPlus').style.display = 'inline';
+                ha.classList.add('plus-ring');
+            }
+        })();
+
+        // ── Seller avatar ──
+        (function() {
+            var sellerName = "@sellerUsername";
+            var initial = sellerName.charAt(0).toUpperCase() || 'S';
+            var avatarPath = '/images/avatar/' + sellerName + '.jpg';
+
+            var sa = document.getElementById('sellerAvatar');
+            var saImg = document.createElement('img');
+            saImg.src = avatarPath;
+            saImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            saImg.onerror = function() {
+                sa.removeChild(saImg);
+                sa.innerText = initial;
+            };
+            sa.appendChild(saImg);
+        })();
+
+        function logout() {
+            sessionStorage.removeItem('noir_user');
+            window.location.href = '/Log_In';
+        }
+    </script>
+</body>
+</html>

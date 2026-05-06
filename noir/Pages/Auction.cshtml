@@ -1,0 +1,248 @@
+﻿@page
+@model noir.Pages.AuctionModel
+@{
+    Layout = null;
+    var auctionLots = new[] {
+        new { LotId = 10, Title = "ancient marble bust", Price = 85000 },
+        new { LotId = 11, Title = "viking iron sword", Price = 32000 },
+        new { LotId = 12, Title = "dynasty ritual vessel", Price = 120000 },
+        new { LotId = 13, Title = "gothic cathedral key", Price = 15000 },
+        new { LotId = 14, Title = "ottoman silk tapestry", Price = 47000 },
+        new { LotId = 15, Title = "venetian poison ring", Price = 22000 },
+        new { LotId = 16, Title = "aztec obsidian blade", Price = 68000 },
+        new { LotId = 17, Title = "czarist fabergé fragment", Price = 310000 }
+    };
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>noir — live auction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #ffffff; --text-main: #000000; --header-bg: #000000;
+            --light-gray: #fdfdfd; --auction-purple: #4b0082;
+            --live-red: #ff0000; --accent-purple: #a855f7;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg); color: var(--text-main); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; }
+
+        header { background-color: var(--header-bg); height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
+
+        .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; }
+        .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
+        .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
+
+        nav { display: flex; gap: 60px; }
+        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; cursor: pointer; }
+        nav a:hover, nav a.active { opacity: 1; }
+
+        .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
+        .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .header-avatar { 
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #1a1a1a; border: 1px solid #2a2a2a;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem; font-weight: 600; color: #fff;
+            overflow: hidden; font-family: 'Cinzel', serif;
+            transition: border-color 0.3s;
+        }
+        .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .header-avatar.plus-border { border-color: var(--accent-purple); }
+        .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
+        .auth-btn { 
+            font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; 
+            text-transform: uppercase; color: #fff; opacity: 0.3; 
+            background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; 
+        }
+        .auth-btn:hover { opacity: 1; }
+
+        .container { max-width: 1800px; margin: 80px auto; padding: 0 40px; }
+        .title-wrapper { position: relative; text-align: center; margin-bottom: 80px; }
+        .live-label { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 5px; color: var(--live-red); font-weight: 600; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .dot { width: 6px; height: 6px; background-color: var(--live-red); border-radius: 50%; animation: blink 1.2s infinite; }
+        @@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .page-title { font-family: 'Cinzel', serif; font-size: 3.2rem; letter-spacing: 12px; text-transform: uppercase; margin: 0; }
+
+        .catalog-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 80px 30px; }
+        .item-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; position: relative; cursor: pointer; }
+        .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; color: #ccc; margin-bottom: 12px; }
+        .image-wrapper { width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 25px; overflow: hidden; }
+        .image-wrapper::before { content: ""; position: absolute; left: 0; bottom: 0; width: 2px; height: 100%; background-color: #000; transform: scaleY(0); transform-origin: bottom; transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; }
+        .item-card:hover .image-wrapper::before { transform: scaleY(1); }
+        .auction-badge { position: absolute; top: 0; left: 0; background: #000; color: #fff; font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 2px; padding: 10px 18px; z-index: 10; transition: background 0.4s ease; }
+        .item-card:hover .auction-badge { background: var(--auction-purple); }
+        .image-wrapper span { font-family: 'Cinzel', serif; font-size: 12rem; color: #f6f6f6; position: absolute; bottom: -40px; right: -30px; line-height: 1; }
+        .item-info { text-align: left; border-top: 1px solid #000; padding-top: 18px; }
+        .item-title { font-size: 1.8rem; margin: 0 0 10px 0; text-transform: lowercase; font-weight: normal; }
+        .item-price { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 600; }
+        .item-price::before { content: "STARTING BID: EUR "; font-weight: 400; opacity: 0.5; }
+
+        .footer { margin-top: 120px; border-top: 1px solid #000; padding: 60px 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+        .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
+        .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
+        .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
+
+        @@media (max-width: 1400px) { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
+        @@media (max-width: 900px) { .catalog-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="brand-wrapper">
+            <span class="brand">noir</span>
+            <span id="headerPlus" class="plus-sticker">plus</span>
+        </a>
+        <nav>
+            <a href="/">Catalog</a>
+            <a href="/Auction">Auction</a>
+            <a href="/Archive">Archive</a>
+            <a onclick="handleUploadClick()">Upload</a>
+        </nav>
+        <div class="header-right">
+            <div class="header-avatar-wrap" onclick="handleAvatarClick()">
+                <div class="header-avatar" id="headerAvatar"></div>
+                <span class="header-username" id="headerUsername"></span>
+            </div>
+            <button class="auth-btn" id="authBtn" onclick="handleAuth()">exit</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="title-wrapper">
+            <span class="live-label"><span class="dot"></span>live auction now</span>
+            <h1 class="page-title">current lots</h1>
+        </div>
+        <div class="catalog-grid">
+            @foreach (var lot in auctionLots) 
+            {
+                <div onclick="handleItemClick(@lot.LotId)" class="item-card">
+                    <span class="lot-tag">Archive Ref: 00@lot.LotId</span>
+                    <div class="image-wrapper">
+                        <div class="auction-badge">Auction</div>
+                        <span>@lot.LotId</span>
+                    </div>
+                    <div class="item-info">
+                        <h3 class="item-title">@lot.Title</h3>
+                        <div class="item-price">@lot.Price.ToString("N0")</div>
+                    </div>
+                </div>
+            }
+        </div>
+        <footer class="footer">
+            <span class="footer-brand">noir</span>
+            <span class="footer-copy">© 2026 noir private collection. all rights reserved.</span>
+            <span class="footer-tagline">objects of consequence</span>
+        </footer>
+    </main>
+
+    <script>
+        function handleUploadClick() {
+            var userData = sessionStorage.getItem('noir_user');
+            if (!userData) {
+                window.location.href = '/Log_In';
+            } else {
+                window.location.href = '/Upload';
+            }
+        }
+
+        function handleAvatarClick() {
+            var userData = sessionStorage.getItem('noir_user');
+            if (!userData) {
+                window.location.href = '/Log_In';
+            } else {
+                window.location.href = '/Account';
+            }
+        }
+
+        function handleItemClick(itemId) {
+            var userData = sessionStorage.getItem('noir_user');
+            if (!userData) {
+                window.location.href = '/Log_In';
+            } else {
+                window.location.href = '/Product?id=' + itemId;
+            }
+        }
+
+        function loadUser() {
+            var userData = sessionStorage.getItem('noir_user');
+            var isGuest = false;
+            var user = null;
+            
+            if (!userData) {
+                isGuest = true;
+                user = { username: 'guest', role: 'guest', isGuest: true };
+            } else {
+                user = JSON.parse(userData);
+                user.isGuest = false;
+            }
+            
+            var username = user.username || 'guest';
+            var displayName = user.isGuest ? '@@guest' : username;
+            
+            var ha = document.getElementById('headerAvatar');
+            ha.innerHTML = '';
+            
+            if (!user.isGuest) {
+                var clean = username.replace('@@', '');
+                var avatarPath = '/images/avatar/' + clean + '.jpg';
+                var haImg = document.createElement('img');
+                haImg.src = avatarPath;
+                haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                haImg.onerror = function() {
+                    ha.removeChild(haImg);
+                    ha.innerText = clean.charAt(0).toUpperCase() || 'U';
+                    ha.style.fontSize = '0.8rem';
+                    ha.style.fontWeight = '600';
+                };
+                ha.appendChild(haImg);
+            } else {
+                ha.style.background = '#1a1a1a';
+                ha.innerText = '';
+            }
+            
+            document.getElementById('headerUsername').innerText = displayName;
+            
+            var isPlus = false;
+            if (!user.isGuest) {
+                var low = username.toLowerCase();
+                isPlus = low.indexOf('if6was7') !== -1 || user.hasPlus === true || user.hasPlus === "true";
+            }
+            
+            if (isPlus) {
+                document.getElementById('headerPlus').style.display = 'inline';
+                document.getElementById('headerAvatar').classList.add('plus-border');
+            } else {
+                document.getElementById('headerPlus').style.display = 'none';
+                document.getElementById('headerAvatar').classList.remove('plus-border');
+            }
+            
+            var authBtn = document.getElementById('authBtn');
+            if (user.isGuest) {
+                authBtn.innerText = 'sign in';
+            } else {
+                authBtn.innerText = 'exit';
+            }
+
+            var titles = ["current lots","open bids","live now","going once","fight for it","last chance","place your bet","who wants it","money talks","sold to who"];
+            var titleEl = document.querySelector('.page-title');
+            if (titleEl) titleEl.textContent = titles[Math.floor(Math.random() * titles.length)];
+        }
+        
+        function handleAuth() {
+            var userData = sessionStorage.getItem('noir_user');
+            if (!userData) {
+                window.location.href = '/Log_In';
+            } else {
+                sessionStorage.removeItem('noir_user');
+                location.reload();
+            }
+        }
+        
+        loadUser();
+    </script>
+</body>
+</html>

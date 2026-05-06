@@ -1,0 +1,616 @@
+﻿@page
+@model noir.Pages.AccountModel
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>noir — account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #ffffff; 
+            --text-main: #000000; 
+            --header-bg: #000000; 
+            --accent-purple: #a855f7;
+            --accent-dim: #7c3aed;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            font-family: 'Goudy Old Style', serif; 
+            -webkit-font-smoothing: antialiased; 
+            min-height: 100vh;
+        }
+
+        header { 
+            background-color: var(--header-bg); 
+            height: 60px; 
+            display: grid; 
+            grid-template-columns: 1fr auto 1fr; 
+            align-items: center; 
+            padding: 0 60px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+        }
+        .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; }
+        .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
+        .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
+        nav { display: flex; gap: 60px; }
+        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; }
+        nav a:hover { opacity: 1; }
+
+        .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
+        .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .header-avatar { 
+            width: 28px; height: 28px; border-radius: 50%; background: #000;
+            border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center; 
+            font-size: 0.6rem; font-weight: 600; color: #fff; overflow: hidden; 
+            font-family: 'Cinzel', serif; transition: border-color 0.3s;
+        }
+        .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .header-avatar.plus-border { border-color: var(--accent-purple); }
+        .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
+        .logout-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
+        .logout-btn:hover { opacity: 1; }
+
+        .profile-hero { position: relative; width: 100%; height: 240px; background: #0d0d0d; overflow: visible; }
+        .profile-hero-bg { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity 0.5s; position: absolute; inset: 0; }
+        .profile-hero-bg.loaded { opacity: 1; }
+        .profile-hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.55)); pointer-events: none; }
+        .hero-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+        .hero-placeholder span { font-family: 'Montserrat'; font-size: 0.5rem; letter-spacing: 4px; text-transform: uppercase; color: #fff; opacity: 0.12; }
+
+        .avatar-overlap { position: absolute; bottom: -50px; left: 60px; z-index: 10; }
+        .avatar-circle { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #fff; background: #000; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; font-size: 2.4rem; color: #fff; overflow: hidden; transition: border-color 0.3s; }
+        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-circle.plus-border { border-color: var(--accent-purple); }
+
+        /* остальные стили такие же как у тебя были, не менял */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 40px 80px; font-family: 'Montserrat', sans-serif; }
+        .user-info-row { display: flex; align-items: flex-end; gap: 24px; padding-top: 70px; padding-left: 20px; margin-bottom: 40px; }
+        .user-text { flex: 1; }
+        .user-name-line { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+        .user-name-line h1 { font-size: 1.6rem; font-weight: 600; }
+        .plus-status-text { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; font-family: 'Montserrat', sans-serif; cursor: pointer; transition: opacity 0.2s; }
+        .plus-status-text.active-plus { color: var(--accent-purple); opacity: 1; font-weight: 600; }
+        .plus-status-text.active-plus:hover { opacity: 0.8; text-decoration: underline; text-underline-offset: 3px; }
+        .stats-bar { display: flex; gap: 30px; font-size: 0.8rem; }
+        .stat-item span { opacity: 0.5; margin-left: 4px; }
+
+        .actions { display: flex; gap: 10px; align-items: center; padding-bottom: 4px; flex-wrap: wrap; }
+        .btn { padding: 10px 22px; background: #fff; font-size: 0.7rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: 1px solid #000; font-family: 'Montserrat'; white-space: nowrap; }
+        .btn:hover { background: #000; color: #fff; }
+
+        .saved-cards-section { border: 1px solid #eee; margin-bottom: 40px; padding: 0; }
+        .section-header { padding: 18px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .section-header h3 { font-family: 'Montserrat'; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; }
+        .add-card-link { font-family: 'Montserrat'; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-purple); text-decoration: none; }
+        .cards-list { padding: 20px 25px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .card-item { background: #fafafa; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; min-width: 200px; position: relative; }
+        .card-network { font-family: 'Montserrat'; font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-purple); margin-bottom: 10px; }
+        .card-number-masked { font-family: 'Courier New', monospace; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 8px; }
+        .card-expiry { font-family: 'Montserrat'; font-size: 0.55rem; opacity: 0.5; }
+        .remove-card { position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; font-size: 0.7rem; opacity: 0.3; transition: 0.2s; }
+        .remove-card:hover { opacity: 1; }
+        .empty-cards { padding: 30px 25px; text-align: center; font-family: 'Montserrat'; font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 2px; }
+
+        .balance-widget { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 28px 36px; border: 1px solid #000; background: #fafafa; margin-bottom: 40px; }
+        .bal-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 4px; opacity: 0.35; margin-bottom: 8px; font-family: 'Montserrat'; }
+        .bal-value { font-family: 'Cinzel'; font-size: 2.4rem; letter-spacing: 2px; line-height: 1; }
+        .balance-actions { display: flex; gap: 10px; }
+        .bal-btn { padding: 10px 22px; font-size: 0.65rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; font-family: 'Montserrat'; white-space: nowrap; border: 1px solid #000; background: #fff; }
+        .bal-btn:hover { background: #000; color: #fff; }
+        .bal-btn.primary { background: #000; color: #fff; }
+        .bal-btn.primary:hover { background: #4B0082; border-color: #4B0082; }
+
+        .tabs-nav { display: flex; gap: 35px; border-bottom: 1px solid #eee; }
+        .tab-link { padding: 15px 5px; font-size: 0.9rem; color: #000; opacity: 0.4; cursor: pointer; position: relative; transition: 0.2s; user-select: none; }
+        .tab-link:hover { opacity: 0.7; }
+        .tab-link.active { opacity: 1; font-weight: 600; }
+        .tab-link.active::after { content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #000; }
+
+        .tab-content { display: none; margin-top: 40px; }
+        .tab-content.active { display: block; }
+        .tab-empty { padding: 70px 0; text-align: center; }
+        .tab-empty-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 5px; opacity: 0.25; margin-bottom: 12px; }
+        .tab-empty-title { font-family: 'Cinzel'; font-size: 1.4rem; letter-spacing: 4px; opacity: 0.12; }
+
+        .page-spacer { height: 20vh; }
+        .footer-main { border-top: 1px solid #000; padding: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: #fff; }
+        .footer-brand { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 5px; text-transform: uppercase; font-weight: 700; }
+        .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
+        .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
+
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-backdrop.open { display: flex; }
+        .modal { background: #fff; width: 500px; max-width: 95vw; padding: 50px 45px 40px; position: relative; }
+        .modal-close { position: absolute; top: 18px; right: 22px; font-size: 1.1rem; cursor: pointer; opacity: 0.35; background: none; border: none; font-family: 'Montserrat'; transition: 0.2s; }
+        .modal-close:hover { opacity: 1; }
+        .modal-title { font-family: 'Cinzel'; font-size: 1rem; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 28px; }
+
+        .modal-tabs { display: flex; border-bottom: 1px solid #eee; margin-bottom: 28px; }
+        .modal-tab { width: 140px; text-align: center; padding: 10px 0; font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; opacity: 0.4; position: relative; transition: 0.2s; font-family: 'Montserrat'; font-weight: 600; user-select: none; }
+        .modal-tab:hover:not(.disabled) { opacity: 0.75; }
+        .modal-tab.active { opacity: 1; }
+        .modal-tab.active::after { content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #000; }
+        .modal-tab.disabled { opacity: 0.35; cursor: default; }
+        .modal-tab .lock { font-size: 0.55rem; margin-left: 4px; }
+
+        .modal-panel { display: none; }
+        .modal-panel.active { display: block; }
+
+        .upload-zone { border: 1px dashed #ccc; padding: 36px; text-align: center; cursor: pointer; transition: 0.2s; position: relative; }
+        .upload-zone:hover { border-color: #000; }
+        .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+        .upload-zone-icon { font-size: 1.6rem; opacity: 0.18; margin-bottom: 10px; }
+        .upload-zone-text { font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; opacity: 0.4; }
+        .upload-zone-sub { font-size: 0.52rem; opacity: 0.22; margin-top: 6px; letter-spacing: 1px; }
+
+        .upload-preview { margin-top: 18px; display: none; }
+        .upload-preview img { max-width: 100%; max-height: 150px; object-fit: cover; display: block; margin: 0 auto; }
+
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+        .btn-sm { width: 130px; text-align: center; padding: 9px 0; font-size: 0.65rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: 1px solid #000; background: #fff; font-family: 'Montserrat'; }
+        .btn-sm:hover { background: #000; color: #fff; }
+        .btn-sm.primary { background: #000; color: #fff; }
+        .btn-sm.primary:hover { background: #333; }
+
+        .upload-status { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; text-align: center; opacity: 0.45; min-height: 16px; }
+
+        .plus-upsell { padding: 30px; text-align: center; border: 1px dashed #e0d0ff; background: #faf7ff; }
+        .plus-upsell p { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; margin-bottom: 14px; }
+        .plus-upsell a { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-purple); font-weight: 600; text-decoration: none; cursor: pointer; }
+        .plus-upsell a:hover { text-decoration: underline; }
+
+        .plus-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 3000; display: none; align-items: center; justify-content: center; }
+        .plus-modal-backdrop.open { display: flex; }
+        .plus-modal { background: #fff; width: 500px; max-width: 96vw; position: relative; overflow: hidden; }
+        .plus-modal-close { position: absolute; top: 14px; right: 18px; font-size: 1rem; cursor: pointer; opacity: 0.28; background: none; border: none; color: #fff; font-family: 'Montserrat'; transition: 0.2s; line-height: 1; z-index: 10; }
+        .plus-modal-close:hover { opacity: 1; }
+        .plus-modal-header { background: #000; padding: 28px 36px 24px; position: relative; overflow: hidden; display: flex; align-items: flex-end; justify-content: space-between; }
+        .header-glow { position: absolute; top: -60px; right: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%); pointer-events: none; }
+        .header-glow-2 { position: absolute; bottom: -80px; left: 20px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%); pointer-events: none; }
+        .plus-modal-header-left { position: relative; }
+        .plus-modal-header-top { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 4px; }
+        .plus-modal-brand { font-family: 'Cinzel', serif; font-size: 2rem; letter-spacing: 6px; color: #fff; line-height: 1; }
+        .plus-modal-badge { font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--accent-purple); margin-bottom: 5px; line-height: 1; }
+        .plus-modal-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.5rem; letter-spacing: 4px; text-transform: uppercase; color: #fff; opacity: 0.28; }
+        .plus-modal-price-wrap { text-align: right; position: relative; }
+        .plus-modal-price { font-family: 'Cinzel', serif; font-size: 1.8rem; color: #fff; line-height: 1; }
+        .plus-modal-price-period { font-family: 'Montserrat', sans-serif; font-size: 0.45rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; margin-top: 4px; }
+        .plus-modal-body { padding: 24px 36px 28px; }
+        .plus-section-label { font-family: 'Montserrat', sans-serif; font-size: 0.45rem; letter-spacing: 4px; text-transform: uppercase; opacity: 0.28; margin-bottom: 12px; }
+        .perks-list { display: flex; flex-direction: column; border-top: 1px solid #ebebeb; margin-bottom: 24px; }
+        .perk-row { display: flex; align-items: center; gap: 16px; padding: 11px 0; border-bottom: 1px solid #f0f0f0; cursor: default; transition: background 0.15s; position: relative; }
+        .perk-row:hover { background: #faf6ff; margin: 0 -36px; padding: 11px 36px; }
+        .perk-dot { width: 5px; height: 5px; border-radius: 50%; background: #d0c0f0; flex-shrink: 0; transition: background 0.2s; }
+        .perk-row:hover .perk-dot { background: var(--accent-purple); }
+        .perk-info { flex: 1; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+        .perk-title { font-family: 'Montserrat', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.3px; color: #000; transition: color 0.2s; }
+        .perk-row:hover .perk-title { color: var(--accent-dim); }
+        .perk-sub { font-family: 'Montserrat', sans-serif; font-size: 0.58rem; letter-spacing: 0.2px; color: #000; opacity: 0.35; transition: opacity 0.2s; }
+        .perk-row:hover .perk-sub { opacity: 0.6; }
+        .perk-new { display: inline-block; font-family: 'Montserrat', sans-serif; font-size: 0.52rem; letter-spacing: 1px; text-transform: uppercase; color: var(--accent-purple); font-weight: 600; border: 1px solid rgba(168,85,247,0.3); padding: 2px 7px; line-height: 1.6; flex-shrink: 0; }
+        .plus-modal-footer { display: flex; align-items: center; }
+        .plus-modal-cta { width: 100%; padding: 15px 0; background: #000; color: #fff; font-family: 'Montserrat', sans-serif; font-size: 0.62rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; border: none; cursor: pointer; transition: background 0.25s; text-decoration: none; text-align: center; display: inline-block; }
+        .plus-modal-cta:hover { background: #4B0082; }
+        .plus-modal-already { width: 100%; padding: 15px 0; text-align: center; font-family: 'Montserrat', sans-serif; font-size: 0.62rem; letter-spacing: 6px; text-transform: uppercase; opacity: 0.3; display: none; }
+        .error-message { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); padding: 12px; text-align: center; font-family: 'Montserrat'; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; color: #ef4444; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="brand-wrapper">
+            <span class="brand">noir</span>
+            <span id="headerPlus" class="plus-sticker">plus</span>
+        </a>
+        <nav>
+            <a href="/">Catalog</a>
+            <a href="/Auction">Auction</a>
+            <a href="/Archive">Archive</a>
+            <a href="/Upload">Upload</a>
+        </nav>
+        <div class="header-right">
+            <div class="header-avatar-wrap" onclick="location.href='/Account'">
+                <div class="header-avatar" id="headerAvatar"></div>
+                <span class="header-username" id="headerUsername"></span>
+            </div>
+            <button class="logout-btn" onclick="logout()">exit</button>
+        </div>
+    </header>
+
+    <div class="profile-hero" id="profileHero">
+        <img class="profile-hero-bg" id="bannerImg" src="" alt="">
+        <div class="hero-placeholder" id="heroPlaceholder">
+            <span>noir private collection</span>
+        </div>
+        <div class="avatar-overlap">
+            <div class="avatar-circle" id="mainAvatar"></div>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="user-info-row">
+            <div class="user-text">
+                <div class="user-name-line">
+                    <h1 id="userNameDisplay">username</h1>
+                    <span id="noirPlusStatus" class="plus-status-text">noir plus inactive</span>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-item"><b>0</b><span>Transactions</span></div>
+                    <div class="stat-item"><b>0.0</b><span>No Reviews</span></div>
+                    <div class="stat-item"><b>0</b><span>Following</span></div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn" id="subBtn" onclick="openPlusModal()">Get Noir Plus</button>
+                <button class="btn" onclick="location.href='/LinkCard'">Link card</button>
+                <button class="btn" onclick="openModal('avatar')">Edit</button>
+            </div>
+        </div>
+
+        <div class="balance-widget">
+            <div class="balance-left">
+                <div class="bal-label">Account Balance</div>
+                <div class="bal-value">€ <span id="userBalance">0.00</span></div>
+            </div>
+            <div class="balance-actions">
+                <button class="bal-btn primary" onclick="location.href='/TopUp'">Top Up</button>
+            </div>
+        </div>
+
+        <div class="saved-cards-section">
+            <div class="section-header">
+                <h3>Saved cards</h3>
+                <a href="/LinkCard" class="add-card-link">+ Add new card</a>
+            </div>
+            <div id="cardsListContainer"></div>
+        </div>
+
+        <nav class="tabs-nav">
+            <div class="tab-link active" data-tab="selling">Selling</div>
+            <div class="tab-link" data-tab="favorites">Favorites</div>
+            <div class="tab-link" data-tab="saved">Saved</div>
+            <div class="tab-link" data-tab="purchases">Purchases</div>
+            <div class="tab-link" data-tab="reviews">Reviews</div>
+        </nav>
+
+        <div class="tab-content active" id="tab-selling"><div class="tab-empty"><div class="tab-empty-label">no listings yet</div><div class="tab-empty-title">Nothing for sale</div></div></div>
+        <div class="tab-content" id="tab-favorites"><div class="tab-empty"><div class="tab-empty-label">empty collection</div><div class="tab-empty-title">No Favorites</div></div></div>
+        <div class="tab-content" id="tab-saved"><div class="tab-empty"><div class="tab-empty-label">nothing saved</div><div class="tab-empty-title">No Saved Items</div></div></div>
+        <div class="tab-content" id="tab-purchases"><div class="tab-empty"><div class="tab-empty-label">no history</div><div class="tab-empty-title">No Purchases</div></div></div>
+        <div class="tab-content" id="tab-reviews"><div class="tab-empty"><div class="tab-empty-label">no feedback yet</div><div class="tab-empty-title">No Reviews</div></div></div>
+
+        <div class="page-spacer"></div>
+    </main>
+
+    <footer class="footer-main">
+        <span class="footer-brand">noir</span>
+        <span class="footer-copy">© 2026 noir private collection. all rights reserved.</span>
+        <span class="footer-tagline">objects of consequence</span>
+    </footer>
+
+    <!-- EDIT MODAL -->
+    <div class="modal-backdrop" id="editModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div class="modal-title">Edit Profile</div>
+            <div class="modal-tabs">
+                <div class="modal-tab active" data-panel="avatar" onclick="switchPanel('avatar')">Avatar</div>
+                <div class="modal-tab" id="bannerModalTab" data-panel="banner" onclick="handleBannerTab()">
+                    Banner <span class="lock" id="bannerLock">🔒</span>
+                </div>
+            </div>
+            <div class="modal-panel active" id="panel-avatar">
+                <div class="upload-zone">
+                    <input type="file" accept="image/*" id="avatarFileInput">
+                    <div class="upload-zone-icon">◎</div>
+                    <div class="upload-zone-text">Choose photo</div>
+                    <div class="upload-zone-sub">JPG · PNG · WEBP · max 5 MB</div>
+                </div>
+                <div class="upload-preview" id="avatarPreview"><img id="avatarPreviewImg" src="" alt=""></div>
+                <div class="upload-status" id="avatarStatus"></div>
+                <div class="modal-actions">
+                    <button class="btn-sm" onclick="closeModal()">Cancel</button>
+                    <button class="btn-sm primary" onclick="uploadFile('avatar')">Save</button>
+                </div>
+            </div>
+            <div class="modal-panel" id="panel-banner">
+                <div id="bannerPanelInner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOIR+ INFO MODAL -->
+    <div class="plus-modal-backdrop" id="plusInfoModal">
+        <div class="plus-modal">
+            <button class="plus-modal-close" onclick="closePlusModal()">✕</button>
+            <div class="plus-modal-header">
+                <div class="header-glow"></div>
+                <div class="header-glow-2"></div>
+                <div class="plus-modal-header-left">
+                    <div class="plus-modal-header-top">
+                        <span class="plus-modal-brand">noir</span>
+                        <span class="plus-modal-badge">plus</span>
+                    </div>
+                    <div class="plus-modal-tagline">private collection · member privileges</div>
+                </div>
+                <div class="plus-modal-price-wrap">
+                    <div class="plus-modal-price">€10.99</div>
+                    <div class="plus-modal-price-period">per month</div>
+                </div>
+            </div>
+            <div class="plus-modal-body">
+                <div class="plus-section-label">Exclusive privileges</div>
+                <div class="perks-list">
+                    <div class="perk-row"><div class="perk-dot"></div><div class="perk-info"><span class="perk-title">Unlimited listings</span><span class="perk-sub">No cap — place any number of items for sale</span></div></div>
+                    <div class="perk-row"><div class="perk-dot"></div><div class="perk-info"><span class="perk-title">Commission 5%</span><span class="perk-sub">Seller fee drops from 20% down to 5%</span></div></div>
+                    <div class="perk-row"><div class="perk-dot"></div><div class="perk-info"><span class="perk-title">High-value access</span><span class="perk-sub">Purchase lots exceeding €10,000</span></div></div>
+                    <div class="perk-row"><div class="perk-dot"></div><div class="perk-info"><span class="perk-title">Video &amp; GIF avatar</span><span class="perk-sub">Animated profile — up to 3 sec or GIF</span></div></div>
+                    <div class="perk-row"><div class="perk-dot"></div><div class="perk-info"><span class="perk-title">Purple avatar ring</span><span class="perk-sub">Violet border on your profile photo</span></div></div>
+                    <div class="perk-row"><div class="perk-dot"></div><div class="perk-info"><span class="perk-title">Profile banner</span><span class="perk-sub">Custom header image on your public page</span></div></div>
+                    <div class="perk-row"><div class="perk-dot"></div><div class="perk-info"><span class="perk-title">Member signature</span><span class="perk-sub">Special noir+ badge next to your username</span></div></div>
+                    <div class="perk-row"><div class="perk-dot"></div><div class="perk-info" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="perk-title">Early auction access</span><span class="perk-sub">See new lots 24 hours before public release</span><span class="perk-new">new</span></div></div>
+                </div>
+                <div class="plus-modal-footer">
+                    <a class="plus-modal-cta" id="plusModalCta" href="/Subscription">Get noir plus</a>
+                    <div class="plus-modal-already" id="plusModalAlready">already a member</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var isPlus = false;
+        var currentUsername = "";
+
+        function renderCards() {
+            var raw = sessionStorage.getItem('noir_user');
+            if (!raw) return;
+            var u = JSON.parse(raw);
+            var cards = u.savedCards || [];
+            var container = document.getElementById('cardsListContainer');
+            
+            if (!cards.length) {
+                container.innerHTML = '<div class="empty-cards">No saved cards yet</div>';
+                return;
+            }
+            
+            var html = '<div class="cards-list">';
+            for (var i = 0; i < cards.length; i++) {
+                var card = cards[i];
+                var networkName = card.network.charAt(0).toUpperCase() + card.network.slice(1);
+                var last4 = card.number.slice(-4);
+                html += `
+                    <div class="card-item" data-index="${i}">
+                        <div class="card-network">${networkName}</div>
+                        <div class="card-number-masked">•••• •••• •••• ${last4}</div>
+                        <div class="card-expiry">Expires ${card.expiry}</div>
+                        <button class="remove-card" onclick="removeCard(${i})">✕</button>
+                    </div>
+                `;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function removeCard(index) {
+            var raw = sessionStorage.getItem('noir_user');
+            if (!raw) return;
+            var u = JSON.parse(raw);
+            u.savedCards.splice(index, 1);
+            sessionStorage.setItem('noir_user', JSON.stringify(u));
+            renderCards();
+        }
+
+        (function init() {
+            var raw = sessionStorage.getItem('noir_user');
+            if (!raw) { window.location.href = '/Log_In'; return; }
+            var u = JSON.parse(raw);
+
+            currentUsername = u.username || "";
+            var cleanUsername = currentUsername.replace('@@', '');
+            var initial = cleanUsername.charAt(0).toUpperCase() || 'U';
+            var avatarPath = '/images/avatar/' + cleanUsername + '.jpg';
+            var bannerPath = '/images/avatar/' + cleanUsername + '_banner.jpg';
+
+            // === HEADER AVATAR — только изображение или черный фон, НИКАКИХ БУКВ ===
+            var ha = document.getElementById('headerAvatar');
+            ha.innerHTML = '';
+            var haImg = document.createElement('img');
+            haImg.src = avatarPath;
+            haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            haImg.onerror = function() {
+                ha.removeChild(haImg);
+                // НЕ добавляем текст, оставляем просто черный фон
+                ha.style.backgroundColor = '#000';
+                ha.style.fontSize = '0';
+            };
+            ha.appendChild(haImg);
+
+            document.getElementById('headerUsername').innerText = u.displayName || u.username || cleanUsername;
+
+            // === MAIN AVATAR — только изображение или черный фон ===
+            var ma = document.getElementById('mainAvatar');
+            ma.innerHTML = '';
+            var maImg = document.createElement('img');
+            maImg.src = avatarPath;
+            maImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            maImg.onerror = function() {
+                ma.removeChild(maImg);
+                ma.style.backgroundColor = '#000';
+                ma.style.fontSize = '0';
+            };
+            ma.appendChild(maImg);
+
+            document.getElementById('userNameDisplay').innerText = cleanUsername;
+            document.getElementById('userBalance').innerText = u.balance || "0.00";
+
+            // ПОДПИСКА — ТОЛЬКО у @@if6was7!!!
+            isPlus = (currentUsername === '@@if6was7');
+
+            if (!u.savedCards) u.savedCards = [];
+            renderCards();
+
+            if (isPlus) {
+                document.getElementById('headerPlus').style.display = 'inline';
+                var st = document.getElementById('noirPlusStatus');
+                st.innerText = 'noir plus member';
+                st.classList.add('active-plus');
+                st.addEventListener('click', openPlusModal);
+                document.getElementById('headerAvatar').classList.add('plus-border');
+                document.getElementById('mainAvatar').classList.add('plus-border');
+                document.getElementById('subBtn').style.display = 'none';
+                document.getElementById('plusModalCta').style.display = 'none';
+                document.getElementById('plusModalAlready').style.display = 'block';
+                var bt = document.getElementById('bannerModalTab');
+                bt.classList.remove('disabled');
+                document.getElementById('bannerLock').style.display = 'none';
+                var bpi = document.getElementById('bannerPanelInner');
+                bpi.innerHTML =
+                    '<div class="upload-zone" id="bannerZone">' +
+                    '<div class="upload-zone-icon">▭</div>' +
+                    '<div class="upload-zone-text">Choose banner</div>' +
+                    '<div class="upload-zone-sub">JPG · PNG · WEBP · 1400x300 recommended · max 8 MB</div>' +
+                    '</div>' +
+                    '<div class="upload-preview" id="bannerPreview"><img id="bannerPreviewImg" src="" alt=""></div>' +
+                    '<div class="upload-status" id="bannerStatus"></div>' +
+                    '<div class="modal-actions">' +
+                    '<button class="btn-sm" onclick="closeModal()">Cancel</button>' +
+                    '<button class="btn-sm primary" onclick="uploadFile(\'banner\')">Save</button>' +
+                    '</div>';
+                var bannerInput = document.createElement('input');
+                bannerInput.type = 'file';
+                bannerInput.accept = 'image/*';
+                bannerInput.id = 'bannerFileInput';
+                bannerInput.style.cssText = 'position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;';
+                bannerInput.addEventListener('change', function() { previewFile('banner'); });
+                var bZone = document.getElementById('bannerZone');
+                bZone.style.position = 'relative';
+                bZone.appendChild(bannerInput);
+                var bImg = document.getElementById('bannerImg');
+                bImg.src = bannerPath;
+                bImg.onload = function() {
+                    this.classList.add('loaded');
+                    document.getElementById('heroPlaceholder').style.display = 'none';
+                };
+            } else {
+                document.getElementById('headerPlus').style.display = 'none';
+                document.getElementById('bannerModalTab').classList.add('disabled');
+                document.getElementById('bannerPanelInner').innerHTML =
+                    '<div class="plus-upsell">' +
+                    '<p>profile banners are a noir+ exclusive feature</p>' +
+                    '<a onclick="closeModal(); openPlusModal();">unlock with noir+</a>' +
+                    '</div>' +
+                    '<div class="modal-actions"><button class="btn-sm" onclick="closeModal()">Close</button></div>';
+            }
+
+            document.getElementById('avatarFileInput').addEventListener('change', function() {
+                previewFile('avatar');
+            });
+        })();
+
+        function logout() {
+            sessionStorage.removeItem('noir_user');
+            window.location.href = '/Log_In';
+        }
+
+        document.querySelectorAll('.tab-link').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.tab-link').forEach(function(l) { l.classList.remove('active'); });
+                document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+                this.classList.add('active');
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            });
+        });
+
+        function openModal(panel) {
+            document.getElementById('editModal').classList.add('open');
+            switchPanel(panel || 'avatar');
+        }
+        function closeModal() { document.getElementById('editModal').classList.remove('open'); }
+        document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+        
+        function handleBannerTab() {
+            if (!isPlus) {
+                document.querySelectorAll('.modal-tab').forEach(function(t) { t.classList.remove('active'); });
+                document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
+                document.getElementById('bannerModalTab').classList.add('active');
+                document.getElementById('panel-banner').classList.add('active');
+                return;
+            }
+            switchPanel('banner');
+        }
+
+        function switchPanel(name) {
+            document.querySelectorAll('.modal-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
+            document.querySelector('[data-panel="' + name + '"]').classList.add('active');
+            document.getElementById('panel-' + name).classList.add('active');
+        }
+
+        function openPlusModal() { document.getElementById('plusInfoModal').classList.add('open'); }
+        function closePlusModal() { document.getElementById('plusInfoModal').classList.remove('open'); }
+        document.getElementById('plusInfoModal').addEventListener('click', function(e) { if (e.target === this) closePlusModal(); });
+
+        function previewFile(type) {
+            var input = document.getElementById(type + 'FileInput');
+            var preview = document.getElementById(type + 'Preview');
+            var img = document.getElementById(type + 'PreviewImg');
+            if (input && input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) { img.src = e.target.result; preview.style.display = 'block'; };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function uploadFile(type) {
+            var input = document.getElementById(type + 'FileInput');
+            var status = document.getElementById(type + 'Status');
+            if (!input || !input.files || !input.files[0]) { status.innerText = 'no file selected'; return; }
+            var file = input.files[0];
+            var maxMB = type === 'banner' ? 8 : 5;
+            if (file.size > maxMB * 1024 * 1024) { status.innerText = 'file too large · max ' + maxMB + 'mb'; return; }
+            status.innerText = 'uploading...';
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('username', currentUsername.replace('@@', ''));
+            formData.append('type', type);
+            fetch('/api/upload-' + type, { method: 'POST', body: formData })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    status.innerText = 'saved successfully';
+                    var ts = '?t=' + Date.now();
+                    if (type === 'avatar') {
+                        var p = '/images/avatar/' + currentUsername.replace('@@', '') + '.jpg' + ts;
+                        var maEl = document.getElementById('mainAvatar');
+                        maEl.innerHTML = '';
+                        var newMaImg = document.createElement('img');
+                        newMaImg.src = p; newMaImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                        maEl.appendChild(newMaImg);
+                        var haEl = document.getElementById('headerAvatar');
+                        haEl.innerHTML = '';
+                        var newHaImg = document.createElement('img');
+                        newHaImg.src = p; newHaImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                        haEl.appendChild(newHaImg);
+                    } else {
+                        var bImg = document.getElementById('bannerImg');
+                        bImg.src = '/images/avatar/' + currentUsername.replace('@@', '') + '_banner.jpg' + ts;
+                        bImg.style.display = 'block';
+                        bImg.onload = function() { this.classList.add('loaded'); document.getElementById('heroPlaceholder').style.display = 'none'; };
+                    }
+                    setTimeout(closeModal, 1200);
+                } else { status.innerText = data.error || 'upload failed'; }
+            })
+            .catch(function() { status.innerText = 'server error · try again'; });
+        }
+    </script>
+</body>
+</html>

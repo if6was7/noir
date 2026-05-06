@@ -1,0 +1,365 @@
+﻿@page
+@using System.Linq
+@functions {
+    public class ShopItem
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = "";
+        public string Desc { get; set; } = "";
+        public int Price { get; set; }
+    }
+
+    public ShopItem[] GetAllItems()
+    {
+        return new[] {
+            new ShopItem { Id = 1, Title = "minimalist ceramic bowl",  Desc = "Hand-thrown organic stoneware with a matte white glaze.",                          Price = 450    },
+            new ShopItem { Id = 2, Title = "vintage leather chair",    Desc = "Mid-century modern lounge chair in aged leather.",                                  Price = 850    },
+            new ShopItem { Id = 3, Title = "niche perfume set",        Desc = "A curated selection of rare single-note fragrances from independent houses.",       Price = 1800   },
+            new ShopItem { Id = 4, Title = "rare vinyl collection",    Desc = "First pressings from obscure labels across three decades of underground music.",    Price = 4200   },
+            new ShopItem { Id = 5, Title = "silver mechanical watch",  Desc = "Hand-assembled Swiss movement in a brushed sterling silver case.",                  Price = 9500   },
+            new ShopItem { Id = 6, Title = "renaissance oil canvas",   Desc = "A 16th-century oil painting attributed to a Flemish master's workshop.",            Price = 65000  },
+            new ShopItem { Id = 8, Title = "the celestial sphere",     Desc = "A gold-plated astronomical instrument from the late 16th century.",                 Price = 740000 }
+        };
+    }
+
+    public ShopItem GetItem()
+    {
+        var all = GetAllItems();
+        int.TryParse(Request.Query["id"], out int id);
+        return all.FirstOrDefault(i => i.Id == id) ?? all[0];
+    }
+}
+@{
+    Layout = null;
+    var item = GetItem();
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>noir — purchase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #000;
+            --gray: #efefef;
+            --accent-gray: #888;
+            --accent-purple: #a855f7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { background-color: #000; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; min-height: 100vh; overscroll-behavior-y: none; }
+
+        /* ── Header ── */
+        header { background: #000; height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
+        .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; }
+        .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
+        .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
+        nav { display: flex; gap: 60px; }
+        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; }
+        nav a:hover { opacity: 1; }
+        .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
+        .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .header-avatar {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #1a1a1a; border: 1px solid #2a2a2a;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem; font-weight: 600; color: #fff;
+            overflow: hidden; font-family: 'Cinzel', serif;
+            transition: border-color 0.3s;
+        }
+        .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .header-avatar.plus-ring { border-color: var(--accent-purple); }
+        .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
+        .logout-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
+        .logout-btn:hover { opacity: 1; }
+
+        /* ── Content ── */
+        .container { max-width: 900px; margin: 80px auto; padding: 0 40px; }
+
+        .purchase-header { border-left: 2px solid #000; padding-left: 30px; margin-bottom: 60px; }
+        .purchase-header-label { font-family: 'Montserrat'; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 4px; opacity: 0.4; margin-bottom: 10px; }
+        .purchase-header h1 { font-family: 'Cinzel'; font-size: 2.8rem; letter-spacing: 4px; text-transform: lowercase; font-weight: normal; }
+
+        /* Item summary */
+        .item-summary {
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid #efefef; padding: 25px 30px; margin-bottom: 16px;
+        }
+        .item-summary-title { font-size: 1.1rem; text-transform: uppercase; font-family: 'Montserrat'; font-weight: 300; letter-spacing: 3px; opacity: 0.6; }
+        .item-summary-price { text-align: right; }
+        .item-summary-price-label { font-family: 'Montserrat'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.4; margin-bottom: 6px; }
+        .item-summary-price-value { font-family: 'Montserrat'; font-size: 1.1rem; font-weight: 600; }
+
+        /* Item desc */
+        .item-desc {
+            font-family: 'Montserrat'; font-size: 0.75rem; line-height: 1.8;
+            color: #888; letter-spacing: 0.5px; font-weight: 300;
+            padding: 0 2px; margin-bottom: 50px;
+        }
+
+        .section-label { font-family: 'Montserrat'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; color: var(--accent-gray); margin-bottom: 20px; display: block; }
+
+        /* Payment */
+        .payment-methods { display: flex; gap: 12px; margin-bottom: 50px; flex-wrap: wrap; }
+        .pay-option input { display: none; }
+        .pay-label {
+            display: flex; align-items: center; justify-content: center;
+            width: 110px; height: 76px; border: 1px solid var(--gray);
+            transition: border-color 0.3s; cursor: pointer;
+        }
+        .pay-label:hover { border-color: #aaa; }
+        .pay-option input:checked + .pay-label { border-color: #000; outline: 1px solid #000; }
+        .pay-img { width: 68px; height: 42px; object-fit: contain; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
+        .balance-label { font-family: 'Montserrat'; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 500; opacity: 0.5; }
+
+        .custom-pay-input { display: none; margin-bottom: 50px; }
+        .custom-pay-input.visible { display: block; }
+        .noir-input {
+            width: 100%; border: none; border-bottom: 1px solid var(--gray); background: transparent;
+            padding: 12px 0; font-family: 'Montserrat', sans-serif; font-size: 1.1rem;
+            outline: none; transition: 0.3s; font-weight: 300; color: #000;
+        }
+        .noir-input:focus { border-bottom-color: #000; }
+        .noir-input::placeholder { color: #ccc; }
+
+        /* Delivery */
+        .delivery-wrap { margin-bottom: 50px; }
+        .delivery-row { display: flex; gap: 20px; }
+        .noir-input-half {
+            flex: 1; border: none; border-bottom: 1px solid var(--gray); background: transparent;
+            padding: 12px 0; font-family: 'Montserrat', sans-serif; font-size: 0.95rem;
+            outline: none; transition: 0.3s; font-weight: 300; color: #000;
+        }
+        .noir-input-half:focus { border-bottom-color: #000; }
+        .noir-input-half::placeholder { color: #ccc; }
+        .delivery-spacer { height: 20px; }
+
+        /* Order summary */
+        .order-summary { border: 1px solid #efefef; padding: 30px; margin-bottom: 40px; }
+        .order-row { display: flex; justify-content: space-between; align-items: center; font-family: 'Montserrat'; font-size: 0.75rem; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+        .order-row:last-child { border-bottom: none; padding-top: 16px; }
+        .order-row-label { opacity: 0.45; text-transform: uppercase; letter-spacing: 2px; }
+        .order-row-value { font-weight: 600; }
+        .order-row.total .order-row-label { opacity: 1; font-weight: 600; font-size: 0.85rem; }
+        .order-row.total .order-row-value { font-size: 1rem; }
+
+        /* CTA */
+        .confirm-btn {
+            width: 100%; height: 80px; background: #000; color: #fff; border: none;
+            font-family: 'Montserrat'; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 6px;
+            cursor: pointer; transition: background 0.4s; margin-bottom: 20px;
+        }
+        .confirm-btn:hover { background: #222; }
+        .confirm-note { font-family: 'Montserrat'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.3; text-align: center; }
+
+        /* Success */
+        .success-screen { display: none; text-align: center; padding: 80px 0; }
+        .success-screen.visible { display: block; }
+        .success-icon { font-size: 3rem; margin-bottom: 30px; opacity: 0.15; font-family: 'Cinzel'; }
+        .success-title { font-family: 'Cinzel'; font-size: 2.5rem; letter-spacing: 6px; margin-bottom: 20px; }
+        .success-sub { font-family: 'Montserrat'; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.4; margin-bottom: 50px; }
+        .success-item { font-family: 'Montserrat'; font-size: 1.4rem; font-weight: 600; margin-bottom: 8px; }
+        .success-item-label { font-family: 'Montserrat'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; }
+        .back-btn {
+            display: inline-block; margin-top: 50px; padding: 16px 40px;
+            border: 1px solid #000; font-family: 'Montserrat'; font-size: 0.65rem;
+            text-transform: uppercase; letter-spacing: 3px; text-decoration: none;
+            color: #000; transition: 0.3s;
+        }
+        .back-btn:hover { background: #000; color: #fff; }
+
+        /* Footer */
+        .footer { margin-top: 120px; border-top: 1px solid #000; padding: 60px 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+        .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
+        .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
+        .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="brand-wrapper">
+            <span class="brand">noir</span>
+            <span id="headerPlus" class="plus-sticker">plus</span>
+        </a>
+        <nav>
+            <a href="/">Catalog</a>
+            <a href="/Auction">Auction</a>
+            <a href="/Archive">Archive</a>
+            <a href="/Upload">Upload</a>
+        </nav>
+        <div class="header-right">
+            <div class="header-avatar-wrap" onclick="window.location.href='/Account'">
+                <div class="header-avatar" id="headerAvatar"></div>
+                <span class="header-username" id="headerUsername"></span>
+            </div>
+            <button class="logout-btn" onclick="logout()">exit</button>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div id="purchaseForm">
+            <div class="purchase-header">
+                <div class="purchase-header-label">Archive Ref: 00@item.Id — Purchase</div>
+                <h1>@item.Title</h1>
+            </div>
+
+            <div class="item-summary">
+                <span class="item-summary-title">@item.Title</span>
+                <div class="item-summary-price">
+                    <div class="item-summary-price-label">Price</div>
+                    <div class="item-summary-price-value">EUR @item.Price.ToString("N0")</div>
+                </div>
+            </div>
+            <p class="item-desc">@item.Desc</p>
+
+            <span class="section-label">Payment method</span>
+            <div class="payment-methods">
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="paypal" checked onchange="hideCustom()">
+                    <span class="pay-label">
+                        <img class="pay-img" src="/images/paypal.jpg" alt="PayPal">
+                    </span>
+                </label>
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="visa" onchange="hideCustom()">
+                    <span class="pay-label">
+                        <img class="pay-img" src="/images/visa.jpg" alt="Visa">
+                    </span>
+                </label>
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="mastercard" onchange="hideCustom()">
+                    <span class="pay-label">
+                        <img class="pay-img" src="/images/mastercard.jpg" alt="Mastercard">
+                    </span>
+                </label>
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="applepay" onchange="hideCustom()">
+                    <span class="pay-label">
+                        <img class="pay-img" src="/images/applepay.jpg" alt="Apple Pay">
+                    </span>
+                </label>
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="balance" onchange="hideCustom()">
+                    <span class="pay-label">
+                        <span class="balance-label">Balance</span>
+                    </span>
+                </label>
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="custom" onchange="showCustom()">
+                    <span class="pay-label">
+                        <span style="font-size: 2rem; opacity: 0.25; line-height: 1;">＋</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="custom-pay-input" id="customPayInput">
+                <span class="section-label">Your payment method</span>
+                <input type="text" class="noir-input" placeholder="Describe your payment method...">
+            </div>
+
+            <div class="delivery-wrap">
+                <span class="section-label">Delivery address</span>
+                <div class="delivery-row">
+                    <input type="text" class="noir-input-half" placeholder="First name">
+                    <input type="text" class="noir-input-half" placeholder="Last name">
+                </div>
+                <div class="delivery-spacer"></div>
+                <input type="text" class="noir-input" placeholder="Street address" style="margin-bottom: 20px;">
+                <div class="delivery-row">
+                    <input type="text" class="noir-input-half" placeholder="City">
+                    <input type="text" class="noir-input-half" placeholder="Postal code">
+                </div>
+                <div class="delivery-spacer"></div>
+                <input type="text" class="noir-input" placeholder="Country">
+            </div>
+
+            <div class="order-summary">
+                <div class="order-row">
+                    <span class="order-row-label">Item</span>
+                    <span class="order-row-value">EUR @item.Price.ToString("N0")</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-row-label">Handling & Insurance</span>
+                    <span class="order-row-value">EUR @((int)(item.Price * 0.02)).ToString("N0")</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-row-label">Noir Commission (3%)</span>
+                    <span class="order-row-value">EUR @((int)(item.Price * 0.03)).ToString("N0")</span>
+                </div>
+                <div class="order-row total">
+                    <span class="order-row-label">Total</span>
+                    <span class="order-row-value">EUR @((int)(item.Price * 1.05)).ToString("N0")</span>
+                </div>
+            </div>
+
+            <button class="confirm-btn" onclick="confirmPurchase()">Complete Purchase</button>
+            <div class="confirm-note">By confirming you agree to our terms. All sales are final.</div>
+        </div>
+
+        <div class="success-screen" id="successScreen">
+            <div class="success-icon">✦</div>
+            <h2 class="success-title">acquired</h2>
+            <div class="success-sub">your acquisition has been confirmed</div>
+            <div class="success-item">@item.Title</div>
+            <div class="success-item-label">EUR @((int)(item.Price * 1.05)).ToString("N0") · including all fees</div>
+            <a href="/" class="back-btn">Return to Catalog</a>
+        </div>
+
+        <footer class="footer">
+            <span class="footer-brand">noir</span>
+            <span class="footer-copy">© 2026 noir private collection. all rights reserved.</span>
+            <span class="footer-tagline">objects of consequence</span>
+        </footer>
+    </main>
+
+    <script>
+        // ── Header auth ──
+        (function() {
+            var userData = sessionStorage.getItem('noir_user');
+            if (!userData) { window.location.href = '/Log_In'; return; }
+            var user = JSON.parse(userData);
+            var originalName = user.username || "";
+            var clean = originalName.replace('@@', '');
+            var initial = clean.charAt(0).toUpperCase() || 'U';
+            var avatarPath = '/images/avatar/' + clean + '.jpg';
+
+            var ha = document.getElementById('headerAvatar');
+            var haImg = document.createElement('img');
+            haImg.src = avatarPath;
+            haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            haImg.onerror = function() { ha.removeChild(haImg); ha.innerText = initial; };
+            ha.appendChild(haImg);
+
+            document.getElementById('headerUsername').innerText = originalName;
+
+            var low = originalName.toLowerCase();
+            var isPlus = low.indexOf('if6was7') !== -1 || user.hasPlus === true || user.hasPlus === "true";
+            if (isPlus) {
+                document.getElementById('headerPlus').style.display = 'inline';
+                ha.classList.add('plus-ring');
+            }
+        })();
+
+        function logout() {
+            sessionStorage.removeItem('noir_user');
+            window.location.href = '/Log_In';
+        }
+
+        function showCustom() {
+            document.getElementById('customPayInput').classList.add('visible');
+        }
+        function hideCustom() {
+            document.getElementById('customPayInput').classList.remove('visible');
+        }
+
+        function confirmPurchase() {
+            document.getElementById('purchaseForm').style.display = 'none';
+            document.getElementById('successScreen').classList.add('visible');
+        }
+    </script>
+</body>
+</html>
