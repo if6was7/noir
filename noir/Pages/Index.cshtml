@@ -3,14 +3,15 @@
 @{
     Layout = null;
     var displayItems = new[] {
-        new { Id = 1, Title = "minimalist ceramic bowl", Price = 450, IsAuction = false },
-        new { Id = 2, Title = "vintage leather chair", Price = 850, IsAuction = false },
-        new { Id = 3, Title = "niche perfume set", Price = 1800, IsAuction = false },
-        new { Id = 4, Title = "rare vinyl collection", Price = 4200, IsAuction = false },
-        new { Id = 5, Title = "silver mechanical watch", Price = 9500, IsAuction = false },
-        new { Id = 6, Title = "renaissance oil canvas", Price = 65000, IsAuction = false },
-        new { Id = 7, Title = "rare private island map", Price = 150000, IsAuction = false },
-        new { Id = 8, Title = "the celestial sphere", Price = 740000, IsAuction = false }
+        new { Id = 1, Title = "minimalist ceramic bowl", Price = 450, IsAuction = false, Seller = "if6was7", SellerRole = "admin" },
+        new { Id = 2, Title = "vintage leather chair", Price = 850, IsAuction = false, Seller = "if6was7", SellerRole = "admin" },
+        new { Id = 3, Title = "niche perfume set", Price = 1800, IsAuction = false, Seller = "if6was7", SellerRole = "admin" },
+        new { Id = 4, Title = "rare vinyl collection", Price = 4200, IsAuction = false, Seller = "if6was7", SellerRole = "admin" },
+        new { Id = 5, Title = "silver mechanical watch", Price = 9500, IsAuction = false, Seller = "if6was7", SellerRole = "admin" },
+        new { Id = 6, Title = "renaissance oil canvas", Price = 65000, IsAuction = false, Seller = "if6was7", SellerRole = "admin" },
+        new { Id = 7, Title = "rare private island map", Price = 150000, IsAuction = false, Seller = "if6was7", SellerRole = "admin" },
+        new { Id = 8, Title = "the celestial sphere", Price = 740000, IsAuction = false, Seller = "if6was7", SellerRole = "admin" },
+        new { Id = 9, Title = "handcrafted obsidian dagger", Price = 3200, IsAuction = false, Seller = "tornadomart1", SellerRole = "regular" }
     };
 }
 <!DOCTYPE html>
@@ -28,6 +29,7 @@
             --light-gray: #fdfdfd; 
             --accent-purple: #a855f7;
             --admin-gold: #c9a84c;
+            --plus-indigo: #4b0082;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -69,6 +71,7 @@
         }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
+        .header-avatar.gold-border { border-color: var(--admin-gold); }
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
         .auth-btn { 
             font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; 
@@ -77,27 +80,88 @@
         }
         .auth-btn:hover { opacity: 1; }
 
-        .container { max-width: 1800px; margin: 80px auto; padding: 0 40px; }
+        .container { max-width: 1800px; margin: 80px auto; padding: 0 40px; min-height: 80vh; }
 
-        .title-wrapper { position: relative; text-align: center; margin-bottom: 80px; }
+        .title-wrapper { position: relative; text-align: center; margin-bottom: 40px; }
         .page-label { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 5px; color: #000; font-weight: 600; opacity: 0.3; white-space: nowrap; }
         .page-title { font-family: 'Cinzel', serif; font-size: 3.2rem; letter-spacing: 12px; text-transform: uppercase; margin: 0; }
 
-        /* ── Admin bar ── */
+        .sort-wrap {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 50px;
+            padding: 0 0 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .sort-label {
+            font-family: 'Montserrat';
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #999;
+        }
+        .sort-select {
+            font-family: 'Montserrat';
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 8px 32px 8px 14px;
+            border: 1px solid #e0e0e0;
+            background: transparent;
+            color: #000;
+            cursor: pointer;
+            transition: 0.25s;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23999' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+        .sort-select:hover { border-color: #000; }
+        .sort-select:focus { outline: none; border-color: #000; }
+
         .admin-bar {
             display: none;
-            align-items: center; justify-content: space-between;
-            background: #000; padding: 12px 24px;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 9px 0;
             margin-bottom: 40px;
         }
-        .admin-bar-left { display: flex; align-items: center; gap: 14px; }
-        .admin-bar-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--admin-gold); }
-        .admin-bar-text { font-family: 'Montserrat'; font-size: 0.52rem; letter-spacing: 3px; text-transform: uppercase; color: var(--admin-gold); font-weight: 600; }
-        .admin-bar-note { font-family: 'Montserrat'; font-size: 0.48rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.25; }
+        .admin-bar-dot {
+            width: 4px; height: 4px; border-radius: 50%;
+            background: var(--admin-gold);
+            flex-shrink: 0;
+        }
+        .admin-bar-text {
+            font-family: 'Montserrat';
+            font-size: 0.48rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--admin-gold);
+            opacity: 0.7;
+        }
+        .admin-bar-sep {
+            width: 1px; height: 10px; background: #e0e0e0; flex-shrink: 0;
+        }
+        .admin-bar-note {
+            font-family: 'Montserrat';
+            font-size: 0.45rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #000;
+            opacity: 0.2;
+        }
 
-        .catalog-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 80px 30px; }
+        .catalog-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 80px 30px; 
+            margin-bottom: 80px;
+        }
 
-        /* ── Item card ── */
         .item-card { 
             text-decoration: none; color: inherit; 
             display: flex; flex-direction: column; 
@@ -105,6 +169,18 @@
         }
 
         .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; color: #ccc; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        
+        .seller-link {
+            font-family: 'Montserrat'; font-size: 0.45rem; letter-spacing: 1px;
+            text-transform: uppercase; text-decoration: none;
+            transition: color 0.2s, text-decoration 0.2s; cursor: pointer;
+        }
+        .seller-link.role-admin { color: #bbb; }
+        .seller-link.role-admin:hover { color: var(--admin-gold); text-decoration: underline; }
+        .seller-link.role-plus { color: #bbb; }
+        .seller-link.role-plus:hover { color: var(--plus-indigo); text-decoration: underline; }
+        .seller-link.role-regular { color: #bbb; }
+        .seller-link.role-regular:hover { color: #000; text-decoration: underline; }
 
         .image-wrapper { 
             width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); 
@@ -120,49 +196,71 @@
         .item-card:hover .image-wrapper::before { transform: scaleY(1); }
         .image-wrapper span { font-family: 'Cinzel', serif; font-size: 12rem; color: #f6f6f6; position: absolute; bottom: -40px; right: -30px; line-height: 1; }
 
-        /* ── Admin remove overlay ── */
-        .admin-remove-overlay {
-            position: absolute; inset: 0; z-index: 20;
-            background: rgba(0,0,0,0); 
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: background 0.25s, opacity 0.25s;
-            pointer-events: none;
-        }
-        .item-card.admin-mode .admin-remove-overlay { pointer-events: all; }
-        .item-card.admin-mode:hover .admin-remove-overlay { background: rgba(0,0,0,0.55); opacity: 1; }
-        .remove-btn {
-            font-family: 'Montserrat'; font-size: 0.6rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 3px;
-            padding: 12px 28px; border: 1px solid var(--admin-gold);
-            color: var(--admin-gold); background: transparent;
-            cursor: pointer; transition: 0.2s;
-        }
-        .remove-btn:hover { background: var(--admin-gold); color: #000; }
-
-        /* removed state */
-        .item-card.removed { opacity: 0; pointer-events: none; transition: opacity 0.4s; }
-
         .item-info { text-align: left; border-top: 1px solid #000; padding-top: 18px; }
         .item-title { font-size: 1.8rem; margin: 0 0 10px 0; text-transform: lowercase; font-weight: normal; }
         .item-price { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 600; }
         .item-price::before { content: "EST. VALUE: EUR "; font-weight: 400; opacity: 0.5; }
+
+        .remove-btn {
+            display: none;
+            margin-top: 14px;
+            font-family: 'Montserrat';
+            font-size: 0.48rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 7px 14px;
+            border: 1px solid #ddd;
+            color: #aaa;
+            background: transparent;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+            width: fit-content;
+        }
+        .remove-btn:hover {
+            border-color: #c0392b;
+            color: #c0392b;
+        }
+
+        .item-card.admin-mode .remove-btn { display: inline-block; }
+        .item-card.removed { display: none !important; }
 
         .footer { margin-top: 120px; border-top: 1px solid #000; padding: 60px 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
         .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
         .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
         .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
 
-        /* ── Toast ── */
         .toast {
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: #000; color: #fff;
-            font-family: 'Montserrat'; font-size: 0.55rem;
-            text-transform: uppercase; letter-spacing: 3px;
-            padding: 14px 28px; opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none; z-index: 9000;
+            background: #000; color: #fff; font-family: 'Montserrat'; font-size: 0.55rem;
+            text-transform: uppercase; letter-spacing: 3px; padding: 14px 28px; opacity: 0;
+            transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9000;
         }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .reset-removed-btn {
+            margin-left: 20px;
+            font-family: 'Montserrat';
+            font-size: 0.48rem;
+            letter-spacing: 2px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .reset-removed-btn:hover {
+            border-color: var(--admin-gold);
+            color: var(--admin-gold);
+        }
+
+        .item-count {
+            font-family: 'Montserrat';
+            font-size: 0.5rem;
+            letter-spacing: 2px;
+            color: #aaa;
+            margin-left: auto;
+        }
 
         @@media (max-width: 1400px) { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
         @@media (max-width: 900px) { .catalog-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -192,32 +290,45 @@
     <main class="container">
         <div class="title-wrapper">
             <span class="page-label">private collection</span>
-            <h1 class="page-title">all items</h1>
+            <h1 class="page-title" id="pageTitle">all items</h1>
         </div>
 
-        <!-- Admin mode bar -->
+        <div class="sort-wrap" id="sortWrap">
+            <span class="sort-label">Order</span>
+            <select class="sort-select" id="sortSelect" onchange="sortItems(this.value)">
+                <option value="id">Archive Ref</option>
+                <option value="price-asc">Price ↑</option>
+                <option value="price-desc">Price ↓</option>
+                <option value="title">Alphabetical</option>
+                <option value="rarity">Rarity</option>
+                <option value="seller">Seller</option>
+            </select>
+            <button class="reset-removed-btn" id="resetRemovedBtn" onclick="resetRemovedListings()" style="display:none;">⟳ Restore all items</button>
+            <span class="item-count" id="itemCount"></span>
+        </div>
+
         <div class="admin-bar" id="adminBar">
-            <div class="admin-bar-left">
-                <div class="admin-bar-dot"></div>
-                <span class="admin-bar-text">Admin mode</span>
-                <span class="admin-bar-note">Hover a card to remove a listing</span>
-            </div>
+            <div class="admin-bar-dot"></div>
+            <span class="admin-bar-text">Admin mode</span>
+            <div class="admin-bar-sep"></div>
+            <span class="admin-bar-note">Remove buttons visible below each listing</span>
         </div>
 
-        <div class="catalog-grid">
+        <div class="catalog-grid" id="catalogGrid">
             @foreach (var item in displayItems) 
             {
-                <div class="item-card" id="card-@item.Id" onclick="handleItemClick(@item.Id)">
-                    <span class="lot-tag">Archive Ref: 00@item.Id</span>
+                <div class="item-card" id="card-@item.Id" data-id="@item.Id" data-price="@item.Price" data-title="@item.Title" data-seller="@item.Seller" onclick="handleItemClick(@item.Id)">
+                    <span class="lot-tag">
+                        <span>Archive Ref: 00@item.Id</span>
+                        <a class="seller-link role-@item.SellerRole" href="/Seller?username=@item.Seller" onclick="event.stopPropagation()">by @@@item.Seller</a>
+                    </span>
                     <div class="image-wrapper">
                         <span>@item.Id</span>
-                        <div class="admin-remove-overlay">
-                            <button class="remove-btn" onclick="removeListing(event, @item.Id)">Remove</button>
-                        </div>
                     </div>
                     <div class="item-info">
                         <h3 class="item-title">@item.Title</h3>
                         <div class="item-price">@item.Price.ToString("N0")</div>
+                        <button class="remove-btn" onclick="removeListing(event, @item.Id)">— Remove listing</button>
                     </div>
                 </div>
             }
@@ -248,7 +359,6 @@
         }
 
         function handleItemClick(itemId) {
-            if (isAdminMode) return; // в режиме админа клик по карточке не переходит
             if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';
             } else {
@@ -260,11 +370,64 @@
             e.stopPropagation();
             var card = document.getElementById('card-' + itemId);
             card.classList.add('removed');
-            // Store removed IDs in localStorage
             var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
             if (removed.indexOf(itemId) === -1) removed.push(itemId);
             localStorage.setItem('noir_removed_listings', JSON.stringify(removed));
             showToast('Listing #' + itemId + ' removed');
+            updateItemCount();
+            if (isAdminMode) {
+                document.getElementById('resetRemovedBtn').style.display = 'inline-block';
+            }
+        }
+        
+        function resetRemovedListings() {
+            if (!isAdminMode) return;
+            localStorage.removeItem('noir_removed_listings');
+            document.querySelectorAll('.item-card.removed').forEach(function(card) {
+                card.classList.remove('removed');
+            });
+            document.getElementById('resetRemovedBtn').style.display = 'none';
+            updateItemCount();
+            showToast('All 9 items restored!');
+        }
+
+        function updateItemCount() {
+            var visibleItems = document.querySelectorAll('.item-card:not(.removed)').length;
+            var totalItems = document.querySelectorAll('.item-card').length;
+            var countSpan = document.getElementById('itemCount');
+            if (countSpan) {
+                countSpan.innerText = visibleItems + ' / ' + totalItems + ' items';
+            }
+        }
+
+        function sortItems(mode) {
+            var grid = document.getElementById('catalogGrid');
+            var cards = Array.from(grid.querySelectorAll('.item-card:not(.removed)'));
+
+            cards.sort(function(a, b) {
+                var priceA = parseInt(a.dataset.price);
+                var priceB = parseInt(b.dataset.price);
+                var idA = parseInt(a.dataset.id);
+                var idB = parseInt(b.dataset.id);
+                var titleA = a.dataset.title.toLowerCase();
+                var titleB = b.dataset.title.toLowerCase();
+                var sellerA = a.dataset.seller.toLowerCase();
+                var sellerB = b.dataset.seller.toLowerCase();
+
+                switch(mode) {
+                    case 'price-asc': return priceA - priceB;
+                    case 'price-desc': return priceB - priceA;
+                    case 'title': return titleA.localeCompare(titleB);
+                    case 'rarity': return priceB - priceA;
+                    case 'seller': return sellerA.localeCompare(sellerB) || idA - idB;
+                    case 'id':
+                    default: return idA - idB;
+                }
+            });
+
+            cards.forEach(function(card) {
+                grid.appendChild(card);
+            });
         }
 
         function loadUser() {
@@ -283,7 +446,7 @@
 
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
-            
+
             if (!isGuest) {
                 var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
                 var avatarPath = '/images/avatar/' + cleanName + '.jpg';
@@ -300,18 +463,25 @@
 
             document.getElementById('headerUsername').innerText = displayName;
 
-            var isPlus = !isGuest && (user.username === '@@if6was7');
-            document.getElementById('headerPlus').style.display = isPlus ? 'inline' : 'none';
-            if (isPlus) ha.classList.add('plus-border');
-            else ha.classList.remove('plus-border');
-
             var authBtn = document.getElementById('authBtn');
             authBtn.innerText = isGuest ? 'sign in' : 'exit';
 
-            // ── Admin mode ──
             if (!isGuest) {
                 var admins = getAdmins();
                 isAdminMode = admins.indexOf(user.username) !== -1;
+
+                var isSuperAdmin = (user.username === '@@if6was7');
+                var isPlus = isSuperAdmin;
+
+                if (isSuperAdmin) {
+                    ha.classList.add('gold-border');
+                } else if (isPlus) {
+                    ha.classList.add('plus-border');
+                }
+
+                if (isPlus) {
+                    document.getElementById('headerPlus').style.display = 'inline';
+                }
             }
 
             if (isAdminMode) {
@@ -321,14 +491,24 @@
                 });
             }
 
-            // Hide removed listings
             var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
             removed.forEach(function(id) {
                 var card = document.getElementById('card-' + id);
-                if (card) card.style.display = 'none';
+                if (card) card.classList.add('removed');
             });
+            
+            updateItemCount();
+
+            // ── РАНДОМНЫЙ ЗАГОЛОВОК ──
+            var titles = [
+                "all items", "the collection", "private gallery",
+                "rare objects", "curated pieces", "select artifacts",
+                "the archive", "just numbers", "funny money", "pocket change"
+            ];
+            var titleEl = document.getElementById('pageTitle');
+            if (titleEl) titleEl.textContent = titles[Math.floor(Math.random() * titles.length)];
         }
-        
+
         function handleAuth() {
             if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';

@@ -12,13 +12,13 @@
             --bg: #ffffff; 
             --text-main: #000000; 
             --header-bg: #000000; 
-            --accent-purple: #a855f7; 
+            --accent-purple: #a855f7;
+            --admin-gold: #c9a84c;
+            --danger: #c0392b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         html { background-color: #000; }
-
         body { 
             background-color: var(--bg); 
             color: var(--text-main); 
@@ -28,7 +28,6 @@
             overscroll-behavior-y: none;
         }
 
-        /* ── Header ── */
         header { 
             background-color: var(--header-bg); 
             height: 60px; 
@@ -58,71 +57,78 @@
         }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-ring { border-color: var(--accent-purple); }
+        .header-avatar.gold-ring { border-color: var(--admin-gold); }
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
         .logout-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
         .logout-btn:hover { opacity: 1; }
 
-        /* ── Hero / Banner ── */
-        .profile-hero {
-            position: relative;
-            width: 100%;
-            height: 240px;
-            background: #0d0d0d;
-            overflow: visible;
-        }
-        .profile-hero-bg {
-            width: 100%; height: 100%;
-            object-fit: cover; display: block;
-            opacity: 0; transition: opacity 0.5s;
-            position: absolute; inset: 0;
-        }
+        /* ── Hero ── */
+        .profile-hero { position: relative; width: 100%; height: 240px; background: #0d0d0d; overflow: visible; }
+        .profile-hero-bg { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity 0.5s; position: absolute; inset: 0; }
         .profile-hero-bg.loaded { opacity: 1; }
-        .profile-hero::after {
-            content: '';
-            position: absolute; bottom: 0; left: 0; right: 0;
-            height: 120px;
-            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.55));
-            pointer-events: none;
-        }
-        .hero-placeholder {
-            position: absolute; inset: 0;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .profile-hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.55)); pointer-events: none; }
+        .hero-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
         .hero-placeholder span { font-family: 'Montserrat'; font-size: 0.5rem; letter-spacing: 4px; text-transform: uppercase; color: #fff; opacity: 0.12; }
-
-        .avatar-overlap {
-            position: absolute; bottom: -50px; left: 60px; z-index: 10;
-        }
-        .avatar-circle {
-            width: 100px; height: 100px; border-radius: 50%;
-            border: 3px solid #fff; background: #1a1a1a;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Cinzel'; font-size: 2.4rem; color: #fff;
-            overflow: hidden; transition: border-color 0.3s;
-        }
+        .avatar-overlap { position: absolute; bottom: -50px; left: 60px; z-index: 10; }
+        .avatar-circle { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #fff; background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; font-size: 2.4rem; color: #fff; overflow: hidden; transition: border-color 0.3s; }
         .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-circle.plus-border { border-color: var(--accent-purple); }
+        .avatar-circle.gold-border { border-color: var(--admin-gold); }
 
-        /* ── Main content ── */
+        /* ── Main ── */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 40px 80px; font-family: 'Montserrat', sans-serif; }
 
-        .user-info-row {
-            display: flex; align-items: flex-end; gap: 24px;
-            padding-top: 70px; padding-left: 20px; margin-bottom: 40px;
-        }
+        .user-info-row { display: flex; align-items: flex-end; gap: 24px; padding-top: 70px; padding-left: 20px; margin-bottom: 40px; }
         .user-text { flex: 1; }
-        .user-name-line { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .user-name-line { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
         .user-name-line h1 { font-size: 1.6rem; font-weight: 600; }
         .plus-status-text { font-size: 0.6rem; letter-spacing: 2px; opacity: 0.3; text-transform: uppercase; }
         .plus-status-text.active { opacity: 1; color: var(--accent-purple); font-weight: 600; }
+        .admin-badge-inline {
+            font-size: 0.45rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--admin-gold); border: 1px solid var(--admin-gold);
+            padding: 3px 9px; line-height: 1.7; display: none;
+        }
         .stats-bar { display: flex; gap: 30px; font-size: 0.8rem; }
         .stat-item span { opacity: 0.5; margin-left: 4px; }
 
-        .actions { display: flex; gap: 10px; align-items: center; padding-bottom: 4px; }
+        .actions { display: flex; gap: 10px; align-items: center; padding-bottom: 4px; flex-wrap: wrap; }
         .btn { padding: 10px 22px; background: #fff; font-size: 0.7rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: 1px solid #000; font-family: 'Montserrat'; white-space: nowrap; }
         .btn:hover { background: #000; color: #fff; }
         .btn.following { background: #000; color: #fff; }
         .btn.following:hover { background: #222; }
+        .btn-outline {
+            padding: 10px 22px; background: transparent; font-size: 0.7rem; font-weight: 600;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+            border: 1px solid #ccc; color: #888; font-family: 'Montserrat'; white-space: nowrap;
+        }
+        .btn-outline:hover { border-color: #000; color: #000; }
+
+        /* ── Admin controls under name ── */
+        .admin-controls {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #f0f0f0;
+            flex-wrap: wrap;
+        }
+        .admin-controls.visible { display: flex; }
+        .admin-ctrl-label {
+            font-size: 0.45rem; letter-spacing: 3px; text-transform: uppercase;
+            color: var(--admin-gold); opacity: 0.6; font-weight: 600; margin-right: 4px;
+        }
+        .admin-ctrl-btn {
+            font-family: 'Montserrat'; font-size: 0.48rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 2px;
+            padding: 7px 16px; border: 1px solid;
+            cursor: pointer; transition: 0.2s; background: transparent;
+        }
+        .admin-ctrl-btn.rename { border-color: #ddd; color: #888; }
+        .admin-ctrl-btn.rename:hover { border-color: #000; color: #000; }
+        .admin-ctrl-btn.delete { border-color: #e0c0c0; color: var(--danger); opacity: 0.6; }
+        .admin-ctrl-btn.delete:hover { border-color: var(--danger); opacity: 1; }
 
         /* ── Tabs ── */
         .tabs-nav { display: flex; gap: 35px; border-bottom: 1px solid #eee; }
@@ -133,27 +139,12 @@
         .tab-content { display: none; margin-top: 40px; }
         .tab-content.active { display: block; }
 
-        /* ── Listings grid ── */
-        .listings-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 50px 30px;
-        }
-        .listing-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; position: relative; cursor: pointer; }
+        /* ── Listings ── */
+        .listings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px 30px; }
+        .listing-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; cursor: pointer; }
         .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; color: #ccc; margin-bottom: 12px; }
-        .image-wrapper { 
-            width: 100%; aspect-ratio: 3 / 4; 
-            background-color: #fdfdfd; 
-            display: flex; align-items: center; justify-content: center; 
-            position: relative; margin-bottom: 20px; overflow: hidden;
-            border: 1px solid #eee;
-        }
-        .image-wrapper::before { 
-            content: ""; position: absolute; left: 0; bottom: 0; 
-            width: 2px; height: 100%; background-color: #000; 
-            transform: scaleY(0); transform-origin: bottom; 
-            transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; 
-        }
+        .image-wrapper { width: 100%; aspect-ratio: 3/4; background-color: #fdfdfd; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; overflow: hidden; border: 1px solid #eee; }
+        .image-wrapper::before { content: ""; position: absolute; left: 0; bottom: 0; width: 2px; height: 100%; background-color: #000; transform: scaleY(0); transform-origin: bottom; transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; }
         .listing-card:hover .image-wrapper::before { transform: scaleY(1); }
         .image-wrapper span { font-family: 'Cinzel', serif; font-size: 10rem; color: #f6f6f6; position: absolute; bottom: -30px; right: -20px; line-height: 1; }
         .listing-info { border-top: 1px solid #000; padding-top: 15px; }
@@ -161,16 +152,46 @@
         .listing-price { font-family: 'Montserrat', sans-serif; font-size: 0.8rem; }
         .listing-price::before { content: "EUR "; font-weight: 400; opacity: 0.5; }
 
-        /* ── Empty state ── */
         .tab-empty { padding: 70px 0; text-align: center; }
         .tab-empty-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 5px; opacity: 0.25; margin-bottom: 12px; }
         .tab-empty-title { font-family: 'Cinzel'; font-size: 1.4rem; letter-spacing: 4px; opacity: 0.12; }
 
-        /* ── Reviews tab ── */
-        .review-item { border-bottom: 1px solid #eee; padding: 24px 0; display: flex; gap: 20px; align-items: flex-start; }
-        .review-stars { color: #000; font-size: 0.8rem; letter-spacing: 2px; }
-        .review-text { font-size: 0.85rem; line-height: 1.7; color: #444; font-family: 'Montserrat'; }
-        .review-meta { font-size: 0.6rem; opacity: 0.4; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; font-family: 'Montserrat'; }
+        /* ── Modals ── */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; align-items: center; justify-content: center; }
+        .modal-backdrop.open { display: flex; }
+        .modal { background: #fff; width: 440px; max-width: 95vw; padding: 44px 40px 36px; position: relative; }
+        .modal-close { position: absolute; top: 16px; right: 20px; font-size: 1rem; cursor: pointer; opacity: 0.3; background: none; border: none; font-family: 'Montserrat'; transition: 0.2s; }
+        .modal-close:hover { opacity: 1; }
+        .modal-title { font-family: 'Cinzel'; font-size: 0.9rem; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 8px; }
+        .modal-subtitle { font-family: 'Montserrat'; font-size: 0.58rem; letter-spacing: 1px; opacity: 0.35; margin-bottom: 28px; text-transform: uppercase; }
+        .modal-field-wrap { border-bottom: 1px solid #ddd; padding-bottom: 12px; margin-bottom: 24px; transition: border-color 0.25s; }
+        .modal-field-wrap:focus-within { border-bottom-color: #000; }
+        .modal-input { width: 100%; border: none; background: transparent; font-family: 'Montserrat'; font-size: 1rem; font-weight: 300; outline: none; color: #000; padding: 4px 0; }
+        .modal-input::placeholder { color: #ddd; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-btn { padding: 9px 24px; font-family: 'Montserrat'; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: 0.2s; border: 1px solid #000; background: #fff; }
+        .modal-btn:hover { background: #000; color: #fff; }
+        .modal-btn.primary { background: #000; color: #fff; }
+        .modal-btn.primary:hover { background: #333; }
+        .modal-btn.danger { border-color: var(--danger); color: var(--danger); background: #fff; }
+        .modal-btn.danger:hover { background: var(--danger); color: #fff; }
+
+        /* Delete confirmation */
+        .delete-warning { font-family: 'Montserrat'; font-size: 0.65rem; line-height: 1.8; opacity: 0.5; margin-bottom: 28px; }
+        .delete-warning strong { opacity: 1; color: var(--danger); }
+
+        /* ── Deleted overlay ── */
+        .deleted-overlay { display: none; position: fixed; inset: 0; z-index: 5000; background: #fff; align-items: center; justify-content: center; flex-direction: column; gap: 20px; }
+        .deleted-overlay.show { display: flex; }
+        .deleted-icon { font-family: 'Cinzel'; font-size: 3rem; opacity: 0.1; }
+        .deleted-title { font-family: 'Cinzel'; font-size: 2rem; letter-spacing: 6px; text-transform: uppercase; }
+        .deleted-sub { font-family: 'Montserrat'; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 4px; opacity: 0.3; }
+        .deleted-back { display: inline-block; margin-top: 20px; padding: 14px 36px; border: 1px solid #000; font-family: 'Montserrat'; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; text-decoration: none; color: #000; transition: 0.3s; }
+        .deleted-back:hover { background: #000; color: #fff; }
+
+        /* ── Toast ── */
+        .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px); background: #000; color: #fff; font-family: 'Montserrat'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; padding: 14px 28px; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9000; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* ── Footer ── */
         .page-spacer { height: 10vh; }
@@ -217,15 +238,25 @@
                 <div class="user-name-line">
                     <h1 id="sellerNameDisplay">—</h1>
                     <span id="sellerPlusStatus" class="plus-status-text">noir plus inactive</span>
+                    <span id="adminBadgeInline" class="admin-badge-inline">Admin</span>
                 </div>
                 <div class="stats-bar">
                     <div class="stat-item"><b>42</b><span>Transactions</span></div>
                     <div class="stat-item"><b>★★★★★</b><span>Rating</span></div>
                     <div class="stat-item"><b id="followerCount">0</b><span>Followers</span></div>
                 </div>
+
+                <!-- Admin controls — only visible for admins viewing someone else's profile -->
+                <div class="admin-controls" id="adminControls">
+                    <span class="admin-ctrl-label">Admin</span>
+                    <button class="admin-ctrl-btn rename" onclick="openRenameModal()">Rename</button>
+                    <button class="admin-ctrl-btn delete" onclick="openDeleteModal()">Delete account</button>
+                </div>
             </div>
             <div class="actions">
                 <button class="btn" id="followBtn" onclick="toggleFollow()">Follow</button>
+                <!-- View Account button — visible only when viewing your own seller page (if6was7 viewing if6was7) -->
+                <button class="btn-outline" id="viewAccountBtn" style="display:none;" onclick="window.location.href='/Account'">Edit Profile</button>
             </div>
         </div>
 
@@ -234,18 +265,14 @@
             <div class="tab-link" data-tab="reviews">Reviews</div>
         </nav>
 
-        <!-- Listings tab -->
         <div class="tab-content active" id="tab-listings">
-            <div class="listings-grid" id="listingsGrid">
-                <!-- populated by JS from the shared item list -->
-            </div>
+            <div class="listings-grid" id="listingsGrid"></div>
             <div class="tab-empty" id="listingsEmpty" style="display:none;">
                 <div class="tab-empty-label">no listings yet</div>
                 <div class="tab-empty-title">Nothing for sale</div>
             </div>
         </div>
 
-        <!-- Reviews tab -->
         <div class="tab-content" id="tab-reviews">
             <div class="tab-empty">
                 <div class="tab-empty-label">no feedback yet</div>
@@ -262,8 +289,49 @@
         <span class="footer-tagline">objects of consequence</span>
     </footer>
 
+    <!-- Rename modal -->
+    <div class="modal-backdrop" id="renameModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeRenameModal()">✕</button>
+            <div class="modal-title">Rename user</div>
+            <div class="modal-subtitle" id="renameSubtitle">Current: —</div>
+            <div class="modal-field-wrap">
+                <input type="text" class="modal-input" id="newUsernameInput" placeholder="New username">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" onclick="closeRenameModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="saveRename()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete confirmation modal -->
+    <div class="modal-backdrop" id="deleteModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeDeleteModal()">✕</button>
+            <div class="modal-title">Delete account</div>
+            <div class="modal-subtitle" id="deleteSubtitle">—</div>
+            <div class="delete-warning">
+                This action is <strong>irreversible</strong>. The account and all associated data will be permanently removed from the system.
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" onclick="closeDeleteModal()">Cancel</button>
+                <button class="modal-btn danger" onclick="confirmDelete()">Delete permanently</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deleted overlay -->
+    <div class="deleted-overlay" id="deletedOverlay">
+        <div class="deleted-icon">✕</div>
+        <div class="deleted-title">Account Deleted</div>
+        <div class="deleted-sub" id="deletedSubText">The account has been removed</div>
+        <a href="/" class="deleted-back">Return to Catalog</a>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
     <script>
-        // ── Shared item catalogue (same data as Product.cshtml) ──
         var ALL_ITEMS = [
             { id: 1,  title: "minimalist ceramic bowl",  price: 450,    isAuction: false },
             { id: 2,  title: "vintage leather chair",    price: 850,    isAuction: false },
@@ -283,15 +351,15 @@
             { id: 17, title: "czarist fabergé fragment", price: 310000, isAuction: true  }
         ];
 
-        // ── Seller Plus lookup (заглушка — потом заменить на реальный запрос) ──
         var PLUS_SELLERS = ["if6was7"];
+        var SUPERADMIN = '@@if6was7';
+        var currentSellerName = '';
 
-        function isSellerPlus(username) {
-            return PLUS_SELLERS.indexOf(username.toLowerCase()) !== -1;
-        }
+        function isSellerPlus(username) { return PLUS_SELLERS.indexOf(username.toLowerCase()) !== -1; }
+
+        function getAdmins() { return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]'); }
 
         (function init() {
-            // 1. Auth check
             var raw = sessionStorage.getItem('noir_user');
             if (!raw) { window.location.href = '/Log_In'; return; }
             var viewer = JSON.parse(raw);
@@ -299,99 +367,118 @@
             var viewerOriginal = viewer.username || "";
             var viewerClean = viewerOriginal.replace('@@', '').toLowerCase();
 
-            // 2. Get seller username from URL
             var params = new URLSearchParams(window.location.search);
-            var sellerName = (params.get('username') || '').replace('@@', '').toLowerCase();
+            currentSellerName = (params.get('username') || '').replace('@@', '').toLowerCase();
 
-            // 3. If viewing own profile → redirect to Account
-            if (!sellerName || sellerName === viewerClean) {
+            if (!currentSellerName) {
                 window.location.href = '/Account';
                 return;
             }
 
-            // ── Populate viewer header ──
-            var viewerInitial = viewerClean.charAt(0).toUpperCase() || 'U';
-            var viewerAvatarPath = '/images/avatar/' + viewerClean + '.jpg';
+            // If viewing your own seller page, show Edit Profile button
+            var isOwnProfile = (currentSellerName === viewerClean);
+            if (isOwnProfile) {
+                document.getElementById('viewAccountBtn').style.display = 'inline-block';
+            }
 
+            // Header
             var ha = document.getElementById('headerAvatar');
             var haImg = document.createElement('img');
-            haImg.src = viewerAvatarPath;
+            haImg.src = '/images/avatar/' + viewerClean + '.jpg';
             haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            haImg.onerror = function() { ha.removeChild(haImg); ha.innerText = viewerInitial; };
+            haImg.onerror = function() { ha.removeChild(haImg); ha.innerText = viewerClean.charAt(0).toUpperCase(); };
             ha.appendChild(haImg);
             document.getElementById('headerUsername').innerText = viewerOriginal;
 
-            var low = viewerOriginal.toLowerCase();
-            var viewerIsPlus = low.indexOf('if6was7') !== -1 || viewer.hasPlus === true || viewer.hasPlus === "true";
-            if (viewerIsPlus) {
-                document.getElementById('headerPlus').style.display = 'inline';
+            var viewerIsSuperAdmin = (viewerOriginal === SUPERADMIN);
+            var viewerIsPlus = viewerIsSuperAdmin || viewer.hasPlus === true || viewer.hasPlus === "true";
+
+            // Header border priority: gold for superadmin
+            if (viewerIsSuperAdmin) {
+                ha.classList.add('gold-ring');
+            } else if (viewerIsPlus) {
                 ha.classList.add('plus-ring');
             }
 
-            // ── Populate seller profile ──
-            var sellerInitial = sellerName.charAt(0).toUpperCase() || 'S';
-            var sellerAvatarPath = '/images/avatar/' + sellerName + '.jpg';
-            var sellerBannerPath = '/images/avatar/' + sellerName + '_banner.jpg';
+            if (viewerIsPlus) { document.getElementById('headerPlus').style.display = 'inline'; }
 
-            // Avatar
+            // Seller avatar
             var sa = document.getElementById('sellerAvatar');
             var saImg = document.createElement('img');
-            saImg.src = sellerAvatarPath;
+            saImg.src = '/images/avatar/' + currentSellerName + '.jpg';
             saImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            saImg.onerror = function() { sa.removeChild(saImg); sa.innerText = sellerInitial; };
+            saImg.onerror = function() { sa.removeChild(saImg); sa.innerText = currentSellerName.charAt(0).toUpperCase(); };
             sa.appendChild(saImg);
 
-            // Banner (only shown if seller has plus — banner upload is plus-exclusive)
-            if (isSellerPlus(sellerName)) {
+            // Check deleted accounts
+            var deletedAccounts = JSON.parse(localStorage.getItem('noir_deleted_accounts') || '[]');
+            if (deletedAccounts.indexOf(currentSellerName) !== -1) {
+                document.getElementById('deletedOverlay').classList.add('show');
+                document.getElementById('deletedSubText').innerText = '@@' + currentSellerName + ' has been removed';
+                return;
+            }
+
+            // Check renamed accounts
+            var renames = JSON.parse(localStorage.getItem('noir_renamed_accounts') || '{}');
+            var displayName = renames[currentSellerName] || currentSellerName;
+
+            // Check if seller is admin
+            var sellerIsSuperAdmin = (currentSellerName === 'if6was7');
+            var sellerIsAdmin = sellerIsSuperAdmin || getAdmins().indexOf('@@' + currentSellerName) !== -1;
+
+            // Banner (plus sellers)
+            if (isSellerPlus(currentSellerName)) {
                 var banner = document.getElementById('sellerBanner');
-                banner.src = sellerBannerPath;
-                banner.onload = function() {
-                    this.classList.add('loaded');
-                    document.getElementById('heroPlaceholder').style.display = 'none';
-                };
-                // Plus badge
-                sa.classList.add('plus-border');
+                banner.src = '/images/avatar/' + currentSellerName + '_banner.jpg';
+                banner.onload = function() { this.classList.add('loaded'); document.getElementById('heroPlaceholder').style.display = 'none'; };
                 var st = document.getElementById('sellerPlusStatus');
                 st.innerText = 'noir plus member';
                 st.classList.add('active');
             }
 
-            // Name
-            document.getElementById('sellerNameDisplay').innerText = '@@' + sellerName;
-            document.title = 'noir \u2014 @@' + sellerName;
-
-            // ── Follow state ──
-            var followKey = 'noir_follow_' + sellerName;
-            var following = sessionStorage.getItem(followKey) === '1';
-            updateFollowBtn(following);
-
-            // ── Listings: show all items as seller's listings (заглушка) ──
-            // Позже: fetch('/api/seller-items?username=' + sellerName)
-            var grid = document.getElementById('listingsGrid');
-            var items = ALL_ITEMS; // заглушка — все предметы принадлежат if6was7
-
-            if (items.length === 0) {
-                document.getElementById('listingsEmpty').style.display = 'block';
-            } else {
-                items.forEach(function(item) {
-                    var card = document.createElement('a');
-                    card.href = '/Product?id=' + item.id;
-                    card.className = 'listing-card';
-
-                    var priceFormatted = item.price.toLocaleString('de-DE');
-
-                    card.innerHTML =
-                        '<span class="lot-tag">Archive Ref: 00' + item.id + '</span>' +
-                        '<div class="image-wrapper"><span>' + item.id + '</span></div>' +
-                        '<div class="listing-info">' +
-                            '<h3 class="listing-title">' + item.title + '</h3>' +
-                            '<div class="listing-price">' + priceFormatted + '</div>' +
-                        '</div>';
-
-                    grid.appendChild(card);
-                });
+            // ── BORDER PRIORITY: Admin gold > Plus purple ──
+            if (sellerIsSuperAdmin) {
+                sa.classList.add('gold-border');
+            } else if (isSellerPlus(currentSellerName)) {
+                sa.classList.add('plus-border');
             }
 
+            // Show admin badge for admin sellers
+            if (sellerIsAdmin) {
+                document.getElementById('adminBadgeInline').style.display = 'inline-block';
+            }
+
+            document.getElementById('sellerNameDisplay').innerText = '@@' + displayName;
+            document.title = 'noir — @@' + displayName;
+
+            // Follow state
+            var followKey = 'noir_follow_' + currentSellerName;
+            updateFollowBtn(sessionStorage.getItem(followKey) === '1');
+
+            // Admin check — show controls if viewer is admin AND viewing someone else's profile
+            var admins = getAdmins();
+            var viewerIsAdmin = admins.indexOf(viewer.username) !== -1;
+            if (viewerIsAdmin && !isOwnProfile) {
+                document.getElementById('adminControls').classList.add('visible');
+                document.getElementById('renameSubtitle').innerText = 'Current: @@' + displayName;
+                document.getElementById('deleteSubtitle').innerText = 'User: @@' + displayName;
+            }
+
+            // Listings
+            var grid = document.getElementById('listingsGrid');
+            ALL_ITEMS.forEach(function(item) {
+                var card = document.createElement('a');
+                card.href = '/Product?id=' + item.id;
+                card.className = 'listing-card';
+                card.innerHTML =
+                    '<span class="lot-tag">Archive Ref: 00' + item.id + '</span>' +
+                    '<div class="image-wrapper"><span>' + item.id + '</span></div>' +
+                    '<div class="listing-info">' +
+                        '<h3 class="listing-title">' + item.title + '</h3>' +
+                        '<div class="listing-price">' + item.price.toLocaleString('de-DE') + '</div>' +
+                    '</div>';
+                grid.appendChild(card);
+            });
         })();
 
         // ── Tabs ──
@@ -406,34 +493,69 @@
 
         // ── Follow ──
         function toggleFollow() {
-            var params = new URLSearchParams(window.location.search);
-            var sellerName = (params.get('username') || '').replace('@@', '').toLowerCase();
-            var followKey = 'noir_follow_' + sellerName;
+            var followKey = 'noir_follow_' + currentSellerName;
             var isFollowing = sessionStorage.getItem(followKey) === '1';
             isFollowing = !isFollowing;
             sessionStorage.setItem(followKey, isFollowing ? '1' : '0');
             updateFollowBtn(isFollowing);
-
-            // Анимация счётчика
             var fc = document.getElementById('followerCount');
-            var current = parseInt(fc.innerText) || 0;
-            fc.innerText = isFollowing ? current + 1 : Math.max(0, current - 1);
+            fc.innerText = isFollowing ? parseInt(fc.innerText || 0) + 1 : Math.max(0, parseInt(fc.innerText || 0) - 1);
         }
-
         function updateFollowBtn(following) {
             var btn = document.getElementById('followBtn');
-            if (following) {
-                btn.innerText = 'Following';
-                btn.classList.add('following');
-            } else {
-                btn.innerText = 'Follow';
-                btn.classList.remove('following');
-            }
+            btn.innerText = following ? 'Following' : 'Follow';
+            following ? btn.classList.add('following') : btn.classList.remove('following');
         }
 
-        function logout() {
-            sessionStorage.removeItem('noir_user');
-            window.location.href = '/Log_In';
+        // ── Admin: Rename ──
+        function openRenameModal() {
+            document.getElementById('newUsernameInput').value = '';
+            document.getElementById('renameModal').classList.add('open');
+            setTimeout(function() { document.getElementById('newUsernameInput').focus(); }, 80);
+        }
+        function closeRenameModal() { document.getElementById('renameModal').classList.remove('open'); }
+        document.getElementById('renameModal').addEventListener('click', function(e) { if (e.target === this) closeRenameModal(); });
+
+        function saveRename() {
+            var newName = document.getElementById('newUsernameInput').value.trim();
+            if (!newName || newName.length < 2) return;
+            var renames = JSON.parse(localStorage.getItem('noir_renamed_accounts') || '{}');
+            renames[currentSellerName] = newName;
+            localStorage.setItem('noir_renamed_accounts', JSON.stringify(renames));
+            document.getElementById('sellerNameDisplay').innerText = '@@' + newName;
+            document.getElementById('renameSubtitle').innerText = 'Current: @@' + newName;
+            document.getElementById('deleteSubtitle').innerText = 'User: @@' + newName;
+            closeRenameModal();
+            showToast('User renamed to @@' + newName);
+        }
+
+        // ── Admin: Delete ──
+        function openDeleteModal() { document.getElementById('deleteModal').classList.add('open'); }
+        function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('open'); }
+        document.getElementById('deleteModal').addEventListener('click', function(e) { if (e.target === this) closeDeleteModal(); });
+
+        function confirmDelete() {
+            var deleted = JSON.parse(localStorage.getItem('noir_deleted_accounts') || '[]');
+            if (deleted.indexOf(currentSellerName) === -1) deleted.push(currentSellerName);
+            localStorage.setItem('noir_deleted_accounts', JSON.stringify(deleted));
+
+            // Also remove from registered users
+            var reg = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
+            reg = reg.filter(function(u) { return u.username.replace('@@','').toLowerCase() !== currentSellerName; });
+            localStorage.setItem('noir_registered_users', JSON.stringify(reg));
+
+            closeDeleteModal();
+            document.getElementById('deletedOverlay').classList.add('show');
+            document.getElementById('deletedSubText').innerText = '@@' + currentSellerName + ' has been permanently removed';
+        }
+
+        function logout() { sessionStorage.removeItem('noir_user'); window.location.href = '/Log_In'; }
+
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 2500);
         }
     </script>
 </body>

@@ -28,6 +28,7 @@
             --light-gray: #fdfdfd; 
             --sold-red-dark: #660000;
             --accent-purple: #a855f7;
+            --admin-gold: #c9a84c;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,7 +40,7 @@
             position: sticky; top: 0; z-index: 1000; 
         }
 
-        .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; }
+        .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; cursor: pointer; }
         .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
         .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
 
@@ -51,14 +52,13 @@
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .header-avatar { 
             width: 28px; height: 28px; border-radius: 50%; 
-            background: #1a1a1a; border: 1px solid #2a2a2a;
+            background: #000; border: 1px solid #2a2a2a;
             display: flex; align-items: center; justify-content: center; 
-            font-size: 0.6rem; font-weight: 600; color: #fff;
-            overflow: hidden; font-family: 'Cinzel', serif;
-            transition: border-color 0.3s;
+            overflow: hidden; transition: border-color 0.3s;
         }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
+        .header-avatar.gold-border { border-color: var(--admin-gold); }
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
         .auth-btn { 
             font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; 
@@ -95,22 +95,22 @@
 </head>
 <body>
     <header>
-        <a href="/" class="brand-wrapper">
+        <div class="brand-wrapper" onclick="window.location.href='/'">
             <span class="brand">noir</span>
             <span id="headerPlus" class="plus-sticker">plus</span>
-        </a>
+        </div>
         <nav>
-            <a href="/">Catalog</a>
-            <a href="/Auction">Auction</a>
-            <a href="/Archive">Archive</a>
-            <a onclick="handleUploadClick()">Upload</a>
+            <a onclick="window.location.href='/'">Catalog</a>
+            <a onclick="requireAuth('/Auction')">Auction</a>
+            <a onclick="requireAuth('/Archive')">Archive</a>
+            <a onclick="requireAuth('/Upload')">Upload</a>
         </nav>
         <div class="header-right">
-            <div class="header-avatar-wrap" onclick="handleAvatarClick()">
+            <div class="header-avatar-wrap" onclick="requireAuth('/Account')">
                 <div class="header-avatar" id="headerAvatar"></div>
                 <span class="header-username" id="headerUsername"></span>
             </div>
-            <button class="auth-btn" id="authBtn" onclick="handleAuth()">exit</button>
+            <button class="auth-btn" id="authBtn" onclick="handleAuth()">sign in</button>
         </div>
     </header>
 
@@ -141,104 +141,89 @@
     </main>
 
     <script>
-        function handleUploadClick() {
-            var userData = sessionStorage.getItem('noir_user');
-            if (!userData) {
-                window.location.href = '/Log_In';
-            } else {
-                window.location.href = '/Upload';
-            }
+        function getAdmins() {
+            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
         }
 
-        function handleAvatarClick() {
-            var userData = sessionStorage.getItem('noir_user');
-            if (!userData) {
+        function requireAuth(url) {
+            if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';
             } else {
-                window.location.href = '/Account';
+                window.location.href = url;
             }
         }
 
         function handleItemClick(itemId) {
-            var userData = sessionStorage.getItem('noir_user');
-            if (!userData) {
+            if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';
             } else {
-                window.location.href = '/Product?id=' + itemId;
+                window.location.href = '/Sold?id=' + itemId;
             }
         }
 
         function loadUser() {
             var userData = sessionStorage.getItem('noir_user');
-            var isGuest = false;
-            var user = null;
-            
-            if (!userData) {
-                isGuest = true;
-                user = { username: 'guest', role: 'guest', isGuest: true };
-            } else {
-                user = JSON.parse(userData);
-                user.isGuest = false;
+            var user = userData ? JSON.parse(userData) : null;
+            var isGuest = !user;
+
+            var displayName = 'guest';
+            if (!isGuest) {
+                if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
+                else if (user.displayName && user.displayName !== user.email) displayName = user.displayName;
+                else if (user.name) displayName = user.name;
+                else if (user.username) displayName = user.username.replace('@@', '');
+                else if (user.email) displayName = user.email.split('@@')[0];
             }
-            
-            var username = user.username || 'guest';
-            var displayName = user.isGuest ? '@@guest' : username;
-            
+
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
-            
-            if (!user.isGuest) {
-                var clean = username.replace('@@', '');
-                var avatarPath = '/images/avatar/' + clean + '.jpg';
-                var haImg = document.createElement('img');
-                haImg.src = avatarPath;
-                haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-                haImg.onerror = function() {
-                    ha.removeChild(haImg);
-                    ha.innerText = clean.charAt(0).toUpperCase() || 'U';
-                    ha.style.fontSize = '0.8rem';
-                    ha.style.fontWeight = '600';
+
+            if (!isGuest) {
+                var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
+                var avatarPath = '/images/avatar/' + cleanName + '.jpg';
+                var img = document.createElement('img');
+                img.src = avatarPath;
+                img.onerror = function() {
+                    ha.removeChild(img);
+                    ha.style.backgroundColor = '#000';
                 };
-                ha.appendChild(haImg);
+                ha.appendChild(img);
             } else {
-                ha.style.background = '#1a1a1a';
-                ha.innerText = '';
+                ha.style.backgroundColor = '#000';
             }
-            
+
             document.getElementById('headerUsername').innerText = displayName;
-            
-            var isPlus = false;
-            if (!user.isGuest) {
-                var low = username.toLowerCase();
-                isPlus = low.indexOf('if6was7') !== -1 || user.hasPlus === true || user.hasPlus === "true";
-            }
-            
-            if (isPlus) {
-                document.getElementById('headerPlus').style.display = 'inline';
-                document.getElementById('headerAvatar').classList.add('plus-border');
-            } else {
-                document.getElementById('headerPlus').style.display = 'none';
-                document.getElementById('headerAvatar').classList.remove('plus-border');
-            }
-            
+
             var authBtn = document.getElementById('authBtn');
-            if (user.isGuest) {
-                authBtn.innerText = 'sign in';
-            } else {
-                authBtn.innerText = 'exit';
+            authBtn.innerText = isGuest ? 'sign in' : 'exit';
+
+            if (!isGuest) {
+                var admins = getAdmins();
+                var isAdminMode = admins.indexOf(user.username) !== -1;
+                var isSuperAdmin = (user.username === '@@if6was7');
+                var isPlus = isSuperAdmin;
+
+                if (isSuperAdmin) {
+                    ha.classList.add('gold-border');
+                } else if (isPlus) {
+                    ha.classList.add('plus-border');
+                }
+
+                if (isPlus) {
+                    document.getElementById('headerPlus').style.display = 'inline';
+                }
             }
         }
-        
+
         function handleAuth() {
-            var userData = sessionStorage.getItem('noir_user');
-            if (!userData) {
+            if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';
             } else {
                 sessionStorage.removeItem('noir_user');
                 location.reload();
             }
         }
-        
+
         loadUser();
     </script>
 </body>

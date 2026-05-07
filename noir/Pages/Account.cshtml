@@ -56,6 +56,7 @@
         }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
+        .header-avatar.gold-border { border-color: var(--admin-gold); }
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
         .logout-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
         .logout-btn:hover { opacity: 1; }
@@ -88,6 +89,14 @@
             color: var(--admin-gold); border: 1px solid var(--admin-gold);
             padding: 3px 9px; line-height: 1.7; display: none;
         }
+
+        /* View public profile link */
+        .public-profile-link {
+            font-family: 'Montserrat'; font-size: 0.55rem; letter-spacing: 2px;
+            text-transform: uppercase; color: #999; text-decoration: none;
+            cursor: pointer; transition: color 0.2s; margin-left: 8px;
+        }
+        .public-profile-link:hover { color: #000; text-decoration: underline; text-underline-offset: 3px; }
 
         .stats-bar { display: flex; gap: 30px; font-size: 0.8rem; }
         .stat-item span { opacity: 0.5; margin-left: 4px; }
@@ -261,6 +270,7 @@
                     <h1 id="userNameDisplay">username</h1>
                     <span id="noirPlusStatus" class="plus-status-text">noir plus inactive</span>
                     <span id="adminBadgeInline" class="admin-badge-inline">Admin</span>
+                    <a class="public-profile-link" id="publicProfileLink" href="/Seller?username=if6was7">View public profile →</a>
                 </div>
                 <div class="stats-bar">
                     <div class="stat-item"><b>0</b><span>Transactions</span></div>
@@ -409,12 +419,12 @@
             var u = JSON.parse(raw);
             var cards = u.savedCards || [];
             var container = document.getElementById('cardsListContainer');
-            
+
             if (!cards.length) {
                 container.innerHTML = '<div class="empty-cards">No saved cards yet</div>';
                 return;
             }
-            
+
             var html = '<div class="cards-list">';
             for (var i = 0; i < cards.length; i++) {
                 var card = cards[i];
@@ -450,6 +460,10 @@
             var avatarPath = '/images/avatar/' + cleanUsername + '.jpg';
             var bannerPath = '/images/avatar/' + cleanUsername + '_banner.jpg';
 
+            // Check admin status FIRST (higher priority than Plus)
+            isSuperAdmin = (currentUsername === SUPERADMIN);
+            var userIsAdmin = isSuperAdmin || isAdminUser(currentUsername);
+
             // Header avatar
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
@@ -473,12 +487,11 @@
             document.getElementById('userNameDisplay').innerText = cleanUsername;
             document.getElementById('userBalance').innerText = u.balance || "0.00";
 
+            // Update public profile link to current user
+            document.getElementById('publicProfileLink').href = '/Seller?username=' + cleanUsername;
+
             // Plus — only @@if6was7
             isPlus = (currentUsername === SUPERADMIN);
-
-            // Admin check: superadmin OR in admins list
-            isSuperAdmin = (currentUsername === SUPERADMIN);
-            var userIsAdmin = isSuperAdmin || isAdminUser(currentUsername);
 
             if (!u.savedCards) u.savedCards = [];
             renderCards();
@@ -493,14 +506,23 @@
                 document.getElementById('adminBadgeInline').style.display = 'inline-block';
             }
 
+            // ── BORDER PRIORITY: Admin gold > Plus purple ──
+            if (isSuperAdmin) {
+                // Gold border for superadmin (highest priority)
+                document.getElementById('headerAvatar').classList.add('gold-border');
+                document.getElementById('mainAvatar').classList.add('gold-border');
+            } else if (isPlus) {
+                // Purple border only for non-admin Plus users
+                document.getElementById('headerAvatar').classList.add('plus-border');
+                document.getElementById('mainAvatar').classList.add('plus-border');
+            }
+
             if (isPlus) {
                 document.getElementById('headerPlus').style.display = 'inline';
                 var st = document.getElementById('noirPlusStatus');
                 st.innerText = 'noir plus member';
                 st.classList.add('active-plus');
                 st.addEventListener('click', openPlusModal);
-                document.getElementById('headerAvatar').classList.add('plus-border');
-                document.getElementById('mainAvatar').classList.add('plus-border');
                 document.getElementById('subBtn').style.display = 'none';
                 document.getElementById('plusModalCta').style.display = 'none';
                 document.getElementById('plusModalAlready').style.display = 'block';
@@ -571,7 +593,7 @@
         }
         function closeModal() { document.getElementById('editModal').classList.remove('open'); }
         document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-        
+
         function handleBannerTab() {
             if (!isPlus) {
                 document.querySelectorAll('.modal-tab').forEach(function(t) { t.classList.remove('active'); });
