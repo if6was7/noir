@@ -83,14 +83,12 @@
         .plus-status-text.active-plus { color: var(--accent-purple); opacity: 1; font-weight: 600; }
         .plus-status-text.active-plus:hover { opacity: 0.8; text-decoration: underline; text-underline-offset: 3px; }
 
-        /* Admin badge inline */
         .admin-badge-inline {
             font-size: 0.45rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
             color: var(--admin-gold); border: 1px solid var(--admin-gold);
             padding: 3px 9px; line-height: 1.7; display: none;
         }
 
-        /* View public profile link */
         .public-profile-link {
             font-family: 'Montserrat'; font-size: 0.55rem; letter-spacing: 2px;
             text-transform: uppercase; color: #999; text-decoration: none;
@@ -105,7 +103,6 @@
         .btn { padding: 10px 22px; background: #fff; font-size: 0.7rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: 1px solid #000; font-family: 'Montserrat'; white-space: nowrap; }
         .btn:hover { background: #000; color: #fff; }
 
-        /* Admin Panel button — gold accent */
         .btn-admin {
             padding: 10px 22px; font-size: 0.7rem; font-weight: 600; cursor: pointer;
             text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
@@ -270,7 +267,7 @@
                     <h1 id="userNameDisplay">username</h1>
                     <span id="noirPlusStatus" class="plus-status-text">noir plus inactive</span>
                     <span id="adminBadgeInline" class="admin-badge-inline">Admin</span>
-                    <a class="public-profile-link" id="publicProfileLink" href="/Seller?username=if6was7">View public profile →</a>
+                    <a class="public-profile-link" id="publicProfileLink" href="#">View public profile →</a>
                 </div>
                 <div class="stats-bar">
                     <div class="stat-item"><b>0</b><span>Transactions</span></div>
@@ -282,7 +279,6 @@
                 <button class="btn" id="subBtn" onclick="openPlusModal()">Get Noir Plus</button>
                 <button class="btn" onclick="location.href='/LinkCard'">Link card</button>
                 <button class="btn" onclick="openModal('avatar')">Edit</button>
-                <!-- Admin Panel button — only visible for @@if6was7 -->
                 <button class="btn-admin" id="adminPanelBtn" onclick="location.href='/AdminFunction'">Admin Panel</button>
             </div>
         </div>
@@ -460,20 +456,23 @@
             var avatarPath = '/images/avatar/' + cleanUsername + '.jpg';
             var bannerPath = '/images/avatar/' + cleanUsername + '_banner.jpg';
 
-            // Check admin status FIRST (higher priority than Plus)
+            // ── Определяем статусы ──
             isSuperAdmin = (currentUsername === SUPERADMIN);
             var userIsAdmin = isSuperAdmin || isAdminUser(currentUsername);
 
-            // Header avatar
+            // ── hasPlus читаем из сессии (там уже правильное значение после логина/подписки) ──
+            isPlus = (u.hasPlus === true || u.hasPlus === 'true') || isSuperAdmin;
+
+            // Header avatar — только картинка, без буквы
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
             var haImg = document.createElement('img');
             haImg.src = avatarPath;
             haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            haImg.onerror = function() { ha.removeChild(haImg); ha.style.backgroundColor = '#000'; };
+            haImg.onerror = function() { ha.removeChild(haImg); };
             ha.appendChild(haImg);
 
-            document.getElementById('headerUsername').innerText = u.displayName || u.username || cleanUsername;
+            document.getElementById('headerUsername').innerText = u.displayName || cleanUsername;
 
             // Main avatar
             var ma = document.getElementById('mainAvatar');
@@ -481,42 +480,36 @@
             var maImg = document.createElement('img');
             maImg.src = avatarPath;
             maImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            maImg.onerror = function() { ma.removeChild(maImg); ma.style.backgroundColor = '#000'; };
+            maImg.onerror = function() { ma.removeChild(maImg); };
             ma.appendChild(maImg);
 
             document.getElementById('userNameDisplay').innerText = cleanUsername;
             document.getElementById('userBalance').innerText = u.balance || "0.00";
-
-            // Update public profile link to current user
             document.getElementById('publicProfileLink').href = '/Seller?username=' + cleanUsername;
-
-            // Plus — only @@if6was7
-            isPlus = (currentUsername === SUPERADMIN);
 
             if (!u.savedCards) u.savedCards = [];
             renderCards();
 
-            // ── Superadmin: show Admin Panel button ──
+            // ── Admin Panel button ──
             if (isSuperAdmin) {
                 document.getElementById('adminPanelBtn').style.display = 'inline-block';
             }
 
-            // ── Admin badge (for admins that aren't superadmin) ──
+            // ── Admin badge (для обычных админов) ──
             if (userIsAdmin && !isSuperAdmin) {
                 document.getElementById('adminBadgeInline').style.display = 'inline-block';
             }
 
             // ── BORDER PRIORITY: Admin gold > Plus purple ──
             if (isSuperAdmin) {
-                // Gold border for superadmin (highest priority)
                 document.getElementById('headerAvatar').classList.add('gold-border');
                 document.getElementById('mainAvatar').classList.add('gold-border');
             } else if (isPlus) {
-                // Purple border only for non-admin Plus users
                 document.getElementById('headerAvatar').classList.add('plus-border');
                 document.getElementById('mainAvatar').classList.add('plus-border');
             }
 
+            // ── Plus UI ──
             if (isPlus) {
                 document.getElementById('headerPlus').style.display = 'inline';
                 var st = document.getElementById('noirPlusStatus');
@@ -526,6 +519,7 @@
                 document.getElementById('subBtn').style.display = 'none';
                 document.getElementById('plusModalCta').style.display = 'none';
                 document.getElementById('plusModalAlready').style.display = 'block';
+                // Unlock banner tab
                 var bt = document.getElementById('bannerModalTab');
                 bt.classList.remove('disabled');
                 document.getElementById('bannerLock').style.display = 'none';

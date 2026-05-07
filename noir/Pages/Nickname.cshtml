@@ -60,10 +60,7 @@
 
         var user = JSON.parse(userData);
 
-        // ── FIX: only skip nickname page if user explicitly set a nickname.
-        // Do NOT skip for Google users whose displayName is their real name —
-        // they still need to pick a noir nickname.
-        // We only skip if nickname field is already set (not null/empty).
+        // Пропускаем только если nickname уже задан
         if (user.nickname && user.nickname.trim().length > 0) {
             window.location.href = '/';
         }
@@ -96,12 +93,27 @@
 
             var currentUser = JSON.parse(sessionStorage.getItem('noir_user'));
 
-            // ── FIX: ensure savedCards and balance always exist ──
+            // Генерируем username из nickname если нет нормального
+            var finalUsername = currentUser.username;
+            if (!finalUsername || finalUsername === currentUser.email) {
+                finalUsername = '@@' + nickname;
+                // Проверяем уникальность
+                var reg = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
+                var base = finalUsername;
+                var counter = 1;
+                while (reg.some(function(u) { return u.username === finalUsername; })) {
+                    finalUsername = base + counter;
+                    counter++;
+                }
+            }
+
             var updatedUser = Object.assign({}, currentUser, {
+                username: finalUsername,
                 nickname: nickname,
                 displayName: nickname,
                 savedCards: currentUser.savedCards || [],
-                balance: currentUser.balance !== undefined ? currentUser.balance : 0
+                balance: currentUser.balance !== undefined ? currentUser.balance : 0,
+                hasPlus: currentUser.hasPlus || false
             });
 
             sessionStorage.setItem('noir_user', JSON.stringify(updatedUser));
@@ -109,29 +121,29 @@
             // Persist to localStorage
             var existingUsers = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
             var userIndex = existingUsers.findIndex(function(u) {
-                return u.username === currentUser.username;
+                return u.username === currentUser.username || u.email === currentUser.email;
             });
 
+            var userRecord = {
+                username: finalUsername,
+                email: currentUser.email || currentUser.username,
+                password: currentUser.googleAuth ? 'google_oauth' : (currentUser.appleAuth ? 'apple_oauth' : (currentUser.password || '')),
+                role: 'user',
+                nickname: nickname,
+                displayName: nickname,
+                hasPlus: false,
+                savedCards: [],
+                balance: 0,
+                googleAuth: currentUser.googleAuth || false,
+                appleAuth: currentUser.appleAuth || false
+            };
+
             if (userIndex !== -1) {
-                existingUsers[userIndex].nickname = nickname;
-                existingUsers[userIndex].displayName = nickname;
-                localStorage.setItem('noir_registered_users', JSON.stringify(existingUsers));
-            } else if ((currentUser.googleAuth || currentUser.appleAuth) && currentUser.username) {
-                // ── FIX: save new OAuth user with all required fields ──
-                var newUserRecord = {
-                    username: currentUser.username,
-                    email: currentUser.email || currentUser.username,
-                    password: currentUser.googleAuth ? 'google_oauth' : 'apple_oauth',
-                    role: 'user',
-                    nickname: nickname,
-                    displayName: nickname,
-                    hasPlus: false,
-                    savedCards: [],
-                    balance: 0
-                };
-                existingUsers.push(newUserRecord);
-                localStorage.setItem('noir_registered_users', JSON.stringify(existingUsers));
+                existingUsers[userIndex] = Object.assign({}, existingUsers[userIndex], userRecord);
+            } else {
+                existingUsers.push(userRecord);
             }
+            localStorage.setItem('noir_registered_users', JSON.stringify(existingUsers));
 
             window.location.href = '/';
         }

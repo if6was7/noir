@@ -35,23 +35,39 @@
         .divider-or { display: flex; align-items: center; gap: 16px; margin: 24px 0; font-size: 0.44rem; letter-spacing: 4px; text-transform: uppercase; color: #000; opacity: 0.22; }
         .divider-or::before, .divider-or::after { content: ''; flex: 1; height: 1px; background: #e0e0e0; }
 
-        .btn-outline { width: 100%; height: 48px; background: transparent; border: 1px solid #e0e0e0; color: #000; font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 500; text-transform: uppercase; letter-spacing: 3px; cursor: pointer; transition: border-color 0.25s, background 0.25s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; -webkit-appearance: none; }
+        /* Все кнопки соцсетей и "create account" одинакового стиля */
+        .btn-outline {
+            width: 100%; height: 48px; background: transparent;
+            border: 1px solid #e0e0e0; color: #000;
+            font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 3px; cursor: pointer;
+            transition: border-color 0.25s, background 0.25s;
+            text-decoration: none; display: flex; align-items: center; justify-content: center;
+            gap: 10px; margin-bottom: 8px; -webkit-appearance: none;
+        }
         .btn-outline:hover { border-color: #000; background: #fafafa; }
 
         .social-icon { width: 14px; height: 14px; flex-shrink: 0; }
 
+        /* Google — поверх кастомной кнопки */
         .google-btn-wrapper { position: relative; width: 100%; height: 48px; margin-bottom: 8px; }
-        .google-btn-visual { position: absolute; inset: 0; z-index: 2; pointer-events: none; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #e0e0e0; background: #fff; font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 500; text-transform: uppercase; letter-spacing: 3px; color: #000; transition: border-color 0.25s, background 0.25s; }
+        .google-btn-visual {
+            position: absolute; inset: 0; z-index: 2; pointer-events: none;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            border: 1px solid #e0e0e0; background: #fff;
+            font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 3px; color: #000;
+            transition: border-color 0.25s, background 0.25s;
+        }
         .google-btn-wrapper:hover .google-btn-visual { border-color: #000; background: #fafafa; }
         #googleBtnContainer { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
         #googleBtnContainer > div, #googleBtnContainer iframe { width: 100% !important; height: 48px !important; }
 
+        /* signup link — такая же кнопка-outline */
+        .signup-link { margin-top: 0; }
+
         .status { margin-top: 48px; display: flex; align-items: center; gap: 7px; font-size: 0.42rem; letter-spacing: 3px; text-transform: uppercase; color: #000; opacity: 0.18; }
         .status-dot { width: 5px; height: 5px; border-radius: 50%; background: #000; opacity: 0.5; }
-
-        .signup-link { text-align: center; margin-top: 20px; font-size: 0.45rem; letter-spacing: 3px; text-transform: uppercase; }
-        .signup-link a { color: #000; text-decoration: none; opacity: 0.4; transition: opacity 0.2s; }
-        .signup-link a:hover { opacity: 1; }
     </style>
 </head>
 <body>
@@ -74,7 +90,11 @@
             <div class="error-msg" id="errorMsg">Invalid credentials — access denied</div>
             <button class="btn-login" onclick="handleLogin()">Log In</button>
             <div class="divider-or">or</div>
-            <div class="signup-link"><a href="#" onclick="showSignupMode(); return false;">create an account →</a></div>
+
+            <!-- create account — same style as social buttons -->
+            <div class="signup-link">
+                <button class="btn-outline" onclick="showSignupMode()">Create an account →</button>
+            </div>
 
             <div class="google-btn-wrapper">
                 <div class="google-btn-visual">
@@ -114,7 +134,7 @@
             <div class="error-msg" id="signupErrorMsg"></div>
             <button class="btn-login" onclick="handleSignup()">Create Account</button>
             <div class="divider-or">or</div>
-            <div class="signup-link"><a href="#" onclick="showLoginMode(); return false;">← back to login</a></div>
+            <button class="btn-outline" onclick="showLoginMode()">← Back to login</button>
         </div>
 
     </div>
@@ -130,8 +150,8 @@
         }
 
         var HARDCODED_USERS = [
-            { username: '@@if6was7',      password: '67890', role: 'admin', hasPlus: true,  nickname: 'if6was7',      displayName: 'if6was7' },
-            { username: '@@tornadomart1', password: '12345', role: 'user',  hasPlus: false, nickname: 'tornadomart1', displayName: 'tornadomart1' }
+            { username: '@@if6was7',      password: '67890', role: 'admin', hasPlus: true,  nickname: 'if6was7',      displayName: 'if6was7',      savedCards: [], balance: 0 },
+            { username: '@@tornadomart1', password: '12345', role: 'user',  hasPlus: false, nickname: 'tornadomart1', displayName: 'tornadomart1', savedCards: [], balance: 0 }
         ];
 
         function getRegisteredUsers() {
@@ -140,7 +160,6 @@
 
         function getAllUsers() {
             var reg = getRegisteredUsers();
-            // Merge: registered overrides hardcoded by username
             var map = {};
             HARDCODED_USERS.forEach(function(u) { map[u.username] = Object.assign({}, u); });
             reg.forEach(function(u) { map[u.username] = Object.assign({}, map[u.username] || {}, u); });
@@ -149,11 +168,13 @@
 
         function saveUserToStorage(userObj) {
             var registered = getRegisteredUsers();
-            var exists = registered.some(function(u) { return u.username === userObj.username; });
-            if (!exists) {
+            var idx = registered.findIndex(function(u) { return u.username === userObj.username; });
+            if (idx === -1) {
                 registered.push(userObj);
-                localStorage.setItem('noir_registered_users', JSON.stringify(registered));
+            } else {
+                registered[idx] = Object.assign({}, registered[idx], userObj);
             }
+            localStorage.setItem('noir_registered_users', JSON.stringify(registered));
         }
 
         function showSignupMode() {
@@ -214,7 +235,7 @@
             };
             saveUserToStorage(newUser);
 
-            sessionStorage.setItem('noir_user', JSON.stringify({
+            var sessionUser = {
                 username: finalUsername,
                 email: email,
                 role: 'user',
@@ -223,8 +244,8 @@
                 hasPlus: false,
                 savedCards: [],
                 balance: 0
-            }));
-
+            };
+            sessionStorage.setItem('noir_user', JSON.stringify(sessionUser));
             window.location.href = '/';
         }
 
@@ -239,35 +260,33 @@
             var u = document.getElementById('username').value.trim();
             var p = document.getElementById('password').value;
             var err = document.getElementById('errorMsg');
+
+            // Добавляем @@ если не введён
+            if (u && !u.startsWith('@@')) u = '@@' + u;
+
             var users = getAllUsers();
             var match = null;
-
             for (var i = 0; i < users.length; i++) {
                 if (users[i].username === u && users[i].password === p) {
-                    match = users[i];
-                    break;
+                    match = users[i]; break;
                 }
             }
 
             if (match) {
                 var cleanNickname = match.nickname || match.username.replace('@@', '');
-
-                // ── FIX: read hasPlus and balance from stored data, not hardcoded ──
-                // For superadmin force hasPlus true; for others trust localStorage value
+                // hasPlus: для superadmin всегда true, иначе из данных
                 var hasPlus = (match.username === '@@if6was7') ? true : (match.hasPlus === true || match.hasPlus === 'true');
-                var balance = match.balance !== undefined ? match.balance : 0;
-
-                var user = {
+                var sessionUser = {
                     username: match.username,
                     email: match.email || match.username,
                     role: match.role || 'user',
                     nickname: cleanNickname,
                     displayName: match.displayName || cleanNickname,
-                    hasPlus: hasPlus,               // FIX: was always false for non-superadmin
+                    hasPlus: hasPlus,
                     savedCards: match.savedCards || [],
-                    balance: balance                 // FIX: was reset to 0 on every login
+                    balance: match.balance !== undefined ? match.balance : 0
                 };
-                sessionStorage.setItem('noir_user', JSON.stringify(user));
+                sessionStorage.setItem('noir_user', JSON.stringify(sessionUser));
                 window.location.href = '/';
             } else {
                 err.classList.add('visible');
@@ -293,18 +312,13 @@
             var payload = JSON.parse(atob(response.credential.split('.')[1]));
             var users = getAllUsers();
             var existing = null;
-
             for (var i = 0; i < users.length; i++) {
-                if (users[i].email === payload.email) {
-                    existing = users[i];
-                    break;
-                }
+                if (users[i].email === payload.email) { existing = users[i]; break; }
             }
 
             if (existing) {
-                // ── FIX: restore stored hasPlus and balance ──
                 var hasPlus = (existing.username === '@@if6was7') ? true : (existing.hasPlus === true || existing.hasPlus === 'true');
-                var user = {
+                var sessionUser = {
                     username: existing.username,
                     email: existing.email,
                     role: existing.role || 'user',
@@ -314,25 +328,34 @@
                     savedCards: existing.savedCards || [],
                     balance: existing.balance !== undefined ? existing.balance : 0
                 };
-                sessionStorage.setItem('noir_user', JSON.stringify(user));
+                sessionStorage.setItem('noir_user', JSON.stringify(sessionUser));
                 window.location.href = '/';
             } else {
-                // New Google user — send to Nickname page
-                // ── FIX: include savedCards and balance from the start ──
-                var user = {
-                    username: payload.email,
+                // Новый Google пользователь — генерируем уникальный username
+                var emailBase = payload.email.split('@@')[0].replace(/[^a-zA-Z0-9_]/g, '_');
+                var finalUsername = '@@' + emailBase;
+                // Проверяем уникальность
+                var allUsers = getAllUsers();
+                var counter = 1;
+                while (allUsers.some(function(u) { return u.username === finalUsername; })) {
+                    finalUsername = '@@' + emailBase + counter;
+                    counter++;
+                }
+
+                var sessionUser = {
+                    username: finalUsername,
                     email: payload.email,
                     role: 'user',
                     name: payload.name,
                     avatar: payload.picture,
                     googleAuth: true,
-                    nickname: null,          // will be set on Nickname page
-                    displayName: null,       // FIX: was payload.name which caused Nickname skip
+                    nickname: null,
+                    displayName: null,
                     hasPlus: false,
                     savedCards: [],
                     balance: 0
                 };
-                sessionStorage.setItem('noir_user', JSON.stringify(user));
+                sessionStorage.setItem('noir_user', JSON.stringify(sessionUser));
                 window.location.href = '/Nickname';
             }
         }
