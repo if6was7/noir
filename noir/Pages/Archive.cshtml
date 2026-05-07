@@ -68,7 +68,53 @@
         .auth-btn:hover { opacity: 1; }
 
         .container { max-width: 1800px; margin: 80px auto; padding: 0 40px; }
-        .page-title { font-family: 'Cinzel', serif; font-size: 3.2rem; letter-spacing: 12px; text-transform: uppercase; text-align: center; margin-bottom: 80px; }
+
+        .title-wrapper { position: relative; text-align: center; margin-bottom: 40px; }
+        .page-label { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 5px; color: #000; font-weight: 600; opacity: 0.3; white-space: nowrap; }
+        .page-title { font-family: 'Cinzel', serif; font-size: 3.2rem; letter-spacing: 12px; text-transform: uppercase; margin: 0; }
+
+        .sort-wrap {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 50px;
+            padding: 0 0 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .sort-label {
+            font-family: 'Montserrat';
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #999;
+        }
+        .sort-select {
+            font-family: 'Montserrat';
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 8px 32px 8px 14px;
+            border: 1px solid #e0e0e0;
+            background: transparent;
+            color: #000;
+            cursor: pointer;
+            transition: 0.25s;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23999' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+        .sort-select:hover { border-color: #000; }
+        .sort-select:focus { outline: none; border-color: #000; }
+        .item-count {
+            font-family: 'Montserrat';
+            font-size: 0.5rem;
+            letter-spacing: 2px;
+            color: #aaa;
+            margin-left: auto;
+        }
 
         .catalog-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 80px 30px; }
         .item-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; position: relative; cursor: pointer; }
@@ -115,11 +161,26 @@
     </header>
 
     <main class="container">
-        <h1 class="page-title">past collections</h1>
-        <div class="catalog-grid">
+        <div class="title-wrapper">
+            <span class="page-label">private collection</span>
+            <h1 class="page-title" id="pageTitle">past collections</h1>
+        </div>
+
+        <div class="sort-wrap">
+            <span class="sort-label">Order</span>
+            <select class="sort-select" id="sortSelect" onchange="sortItems(this.value)">
+                <option value="id">Archive Ref</option>
+                <option value="price-asc">Price ↑</option>
+                <option value="price-desc">Price ↓</option>
+                <option value="title">Alphabetical</option>
+            </select>
+            <span class="item-count" id="itemCount"></span>
+        </div>
+
+        <div class="catalog-grid" id="catalogGrid">
             @foreach (var item in archivedItems) 
             {
-                <div onclick="handleItemClick(@item.Id)" class="item-card">
+                <div class="item-card" id="card-@item.Id" data-id="@item.Id" data-price="@item.Price" data-title="@item.Title" onclick="handleItemClick(@item.Id)">
                     <span class="lot-tag">Archive Ref: 00@(item.Id)</span>
                     <div class="image-wrapper">
                         <div class="sold-badge">Sold Out</div> 
@@ -158,6 +219,40 @@
                 window.location.href = '/Log_In';
             } else {
                 window.location.href = '/Sold?id=' + itemId;
+            }
+        }
+
+        function sortItems(mode) {
+            var grid = document.getElementById('catalogGrid');
+            var cards = Array.from(grid.querySelectorAll('.item-card'));
+
+            cards.sort(function(a, b) {
+                var priceA = parseInt(a.dataset.price);
+                var priceB = parseInt(b.dataset.price);
+                var idA = parseInt(a.dataset.id);
+                var idB = parseInt(b.dataset.id);
+                var titleA = a.dataset.title.toLowerCase();
+                var titleB = b.dataset.title.toLowerCase();
+
+                switch(mode) {
+                    case 'price-asc': return priceA - priceB;
+                    case 'price-desc': return priceB - priceA;
+                    case 'title': return titleA.localeCompare(titleB);
+                    case 'id':
+                    default: return idA - idB;
+                }
+            });
+
+            cards.forEach(function(card) {
+                grid.appendChild(card);
+            });
+        }
+
+        function updateItemCount() {
+            var visibleItems = document.querySelectorAll('.item-card').length;
+            var countSpan = document.getElementById('itemCount');
+            if (countSpan) {
+                countSpan.innerText = visibleItems + ' items';
             }
         }
 
@@ -213,6 +308,16 @@
                     document.getElementById('headerPlus').style.display = 'inline';
                 }
             }
+
+            updateItemCount();
+
+            var titles = [
+                "past collections", "sold out", "gone forever",
+                "the archive", "closed lots", "no longer available",
+                "history", "previous sales", "the vault"
+            ];
+            var titleEl = document.getElementById('pageTitle');
+            if (titleEl) titleEl.textContent = titles[Math.floor(Math.random() * titles.length)];
         }
 
         function handleAuth() {

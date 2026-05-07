@@ -300,9 +300,7 @@
                 <option value="price-asc">Price ↑</option>
                 <option value="price-desc">Price ↓</option>
                 <option value="title">Alphabetical</option>
-                <option value="rarity">Rarity</option>
-                <option value="seller">Seller</option>
-            </select>
+                </select>
             <button class="reset-removed-btn" id="resetRemovedBtn" onclick="resetRemovedListings()" style="display:none;">⟳ Restore all items</button>
             <span class="item-count" id="itemCount"></span>
         </div>
@@ -411,15 +409,11 @@
                 var idB = parseInt(b.dataset.id);
                 var titleA = a.dataset.title.toLowerCase();
                 var titleB = b.dataset.title.toLowerCase();
-                var sellerA = a.dataset.seller.toLowerCase();
-                var sellerB = b.dataset.seller.toLowerCase();
-
+               
                 switch(mode) {
                     case 'price-asc': return priceA - priceB;
                     case 'price-desc': return priceB - priceA;
                     case 'title': return titleA.localeCompare(titleB);
-                    case 'rarity': return priceB - priceA;
-                    case 'seller': return sellerA.localeCompare(sellerB) || idA - idB;
                     case 'id':
                     default: return idA - idB;
                 }
