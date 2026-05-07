@@ -62,11 +62,9 @@
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .header-avatar { 
             width: 28px; height: 28px; border-radius: 50%;
-            background: #1a1a1a; border: 1px solid #2a2a2a;
+            background: #000; border: 1px solid #2a2a2a;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.6rem; font-weight: 600; color: #fff;
-            overflow: hidden; font-family: 'Cinzel', serif;
-            transition: border-color 0.3s;
+            overflow: hidden; transition: border-color 0.3s;
         }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
@@ -246,6 +244,9 @@
     </footer>
 
     <script>
+        // FIX: centralized superadmin constant (same as Index)
+        var SUPERADMIN = '@@if6was7';
+
         function getAdmins() {
             return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
         }
@@ -297,8 +298,9 @@
             if (!isGuest) {
                 var admins = getAdmins();
                 var isAdminMode = admins.indexOf(user.username) !== -1;
-                var isSuperAdmin = (user.username === '@@if6was7');
-                var isPlus = isSuperAdmin;
+                // FIX: correct isPlus check — same as Index.cshtml
+                var isSuperAdmin = (user.username === SUPERADMIN);
+                var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
 
                 if (isSuperAdmin) {
                     ha.classList.add('gold-border');

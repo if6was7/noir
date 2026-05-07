@@ -182,7 +182,7 @@
                     </div>
                     <div class="item-info" onclick="handleItemClick(@lot.LotId)">
                         <h3 class="item-title">@lot.Title</h3>
-                        <div class="item-price">@lot.Price.ToString("N0")</div>
+                        <div class="item-price" id="price-@lot.LotId">@lot.Price.ToString("N0")</div>
                     </div>
                 </div>
             }
@@ -195,6 +195,9 @@
     </main>
 
     <script>
+        // FIX: centralized superadmin constant (same as Index)
+        var SUPERADMIN = '@@if6was7';
+
         function getAdmins() {
             return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
         }
@@ -249,6 +252,29 @@
             }
         }
 
+        // ── FIX: load latest bid prices from localStorage ──
+        function loadBidPrices() {
+            var bids = JSON.parse(localStorage.getItem('noir_bids') || '{}');
+            var cards = document.querySelectorAll('.item-card');
+
+            cards.forEach(function(card) {
+                var lotId = parseInt(card.dataset.id);
+                var basePrice = parseInt(card.dataset.price);
+                var lotBids = bids[lotId];
+
+                if (lotBids && lotBids.length > 0) {
+                    var lastBid = lotBids[lotBids.length - 1];
+                    var currentPrice = lastBid.amount;
+                    var priceEl = document.getElementById('price-' + lotId);
+                    if (priceEl) {
+                        priceEl.innerText = currentPrice.toLocaleString('de-DE');
+                    }
+                    // update data-price for sorting
+                    card.dataset.price = currentPrice;
+                }
+            });
+        }
+
         function loadUser() {
             var userData = sessionStorage.getItem('noir_user');
             var user = userData ? JSON.parse(userData) : null;
@@ -288,8 +314,9 @@
             if (!isGuest) {
                 var admins = getAdmins();
                 var isAdminMode = admins.indexOf(user.username) !== -1;
-                var isSuperAdmin = (user.username === '@@if6was7');
-                var isPlus = isSuperAdmin;
+                // FIX: correct isPlus check — same as Index.cshtml
+                var isSuperAdmin = (user.username === SUPERADMIN);
+                var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
 
                 if (isSuperAdmin) {
                     ha.classList.add('gold-border');
@@ -319,6 +346,7 @@
         }
 
         loadUser();
+        loadBidPrices();
     </script>
 </body>
 </html>

@@ -202,6 +202,9 @@
     </main>
 
     <script>
+        // FIX: centralized superadmin constant (same as Index)
+        var SUPERADMIN = '@@if6was7';
+
         function getAdmins() {
             return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
         }
@@ -295,8 +298,9 @@
             if (!isGuest) {
                 var admins = getAdmins();
                 var isAdminMode = admins.indexOf(user.username) !== -1;
-                var isSuperAdmin = (user.username === '@@if6was7');
-                var isPlus = isSuperAdmin;
+                // FIX: correct isPlus check — same as Index.cshtml
+                var isSuperAdmin = (user.username === SUPERADMIN);
+                var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
 
                 if (isSuperAdmin) {
                     ha.classList.add('gold-border');

@@ -146,21 +146,6 @@
         .confirm-btn:hover { background: var(--purple); }
         .confirm-note { font-family: 'Montserrat'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.3; text-align: center; }
 
-        .success-screen { display: none; text-align: center; padding: 80px 0; }
-        .success-screen.visible { display: block; }
-        .success-icon { font-size: 3rem; margin-bottom: 30px; opacity: 0.15; font-family: 'Cinzel'; }
-        .success-title { font-family: 'Cinzel'; font-size: 2.5rem; letter-spacing: 6px; margin-bottom: 20px; }
-        .success-sub { font-family: 'Montserrat'; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.4; margin-bottom: 50px; }
-        .success-new-bid { font-family: 'Montserrat'; font-size: 1.4rem; font-weight: 600; margin-bottom: 8px; }
-        .success-new-bid-label { font-family: 'Montserrat'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; }
-        .back-btn {
-            display: inline-block; margin-top: 50px; padding: 16px 40px;
-            border: 1px solid #000; font-family: 'Montserrat'; font-size: 0.65rem;
-            text-transform: uppercase; letter-spacing: 3px; text-decoration: none;
-            color: #000; transition: 0.3s;
-        }
-        .back-btn:hover { background: #000; color: #fff; }
-
         .footer { margin-top: 120px; border-top: 1px solid #000; padding: 60px 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
         .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
         .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
@@ -262,15 +247,6 @@
             <div class="confirm-note">By confirming you agree to our terms. All bids are binding.</div>
         </div>
 
-        <div class="success-screen" id="successScreen">
-            <div class="success-icon">✦</div>
-            <h2 class="success-title">bid placed</h2>
-            <div class="success-sub">your offer has been registered</div>
-            <div class="success-new-bid" id="successBidValue"></div>
-            <div class="success-new-bid-label">your bid on @lot.Title</div>
-            <a href="/Auction" class="back-btn">Return to Auction</a>
-        </div>
-
         <footer class="footer">
             <span class="footer-brand">noir</span>
             <span class="footer-copy">© 2026 noir private collection. all rights reserved.</span>
@@ -279,6 +255,9 @@
     </main>
 
     <script>
+        var LOT_ID = @lot.Id;
+        var LOT_TITLE = "@lot.Title";
+
         // ── Header auth ──
         (function() {
             var userData = sessionStorage.getItem('noir_user');
@@ -319,6 +298,7 @@
             document.getElementById('customPayInput').classList.remove('visible');
         }
 
+        // FIX: redirect to Payment.cshtml with source=auction + lotId
         function confirmBid(currentBid, minBid) {
             var input = document.getElementById('bidInput');
             var val = parseInt(input.value);
@@ -330,9 +310,8 @@
                 return;
             }
 
-            document.getElementById('bidForm').style.display = 'none';
-            document.getElementById('successScreen').classList.add('visible');
-            document.getElementById('successBidValue').textContent = 'EUR ' + val.toLocaleString('de-DE');
+            var selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+            window.location.href = '/Payment?source=auction&method=' + encodeURIComponent(selectedPayment) + '&amount=' + val + '&lotId=' + LOT_ID;
         }
     </script>
 </body>

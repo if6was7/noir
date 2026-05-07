@@ -130,36 +130,24 @@
             padding: 9px 0;
             margin-bottom: 40px;
         }
-        .admin-bar-dot {
-            width: 4px; height: 4px; border-radius: 50%;
-            background: var(--admin-gold);
-            flex-shrink: 0;
-        }
-        .admin-bar-text {
-            font-family: 'Montserrat';
-            font-size: 0.48rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--admin-gold);
-            opacity: 0.7;
-        }
-        .admin-bar-sep {
-            width: 1px; height: 10px; background: #e0e0e0; flex-shrink: 0;
-        }
-        .admin-bar-note {
-            font-family: 'Montserrat';
-            font-size: 0.45rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #000;
-            opacity: 0.2;
-        }
+        .admin-bar-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--admin-gold); flex-shrink: 0; }
+        .admin-bar-text { font-family: 'Montserrat'; font-size: 0.48rem; letter-spacing: 3px; text-transform: uppercase; color: var(--admin-gold); opacity: 0.7; }
+        .admin-bar-sep { width: 1px; height: 10px; background: #e0e0e0; flex-shrink: 0; }
+        .admin-bar-note { font-family: 'Montserrat'; font-size: 0.45rem; letter-spacing: 2px; text-transform: uppercase; color: #000; opacity: 0.2; }
 
         .catalog-grid { 
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
             gap: 80px 30px; 
             margin-bottom: 80px;
+        }
+
+        /* FIX: user-uploaded listings section */
+        .user-listings-section { margin-bottom: 60px; }
+        .user-listings-label {
+            font-family: 'Montserrat'; font-size: 0.5rem; text-transform: uppercase;
+            letter-spacing: 4px; opacity: 0.3; margin-bottom: 30px; display: block;
+            padding-bottom: 12px; border-bottom: 1px solid #f0f0f0;
         }
 
         .item-card { 
@@ -169,7 +157,7 @@
         }
 
         .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; color: #ccc; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        
+
         .seller-link {
             font-family: 'Montserrat'; font-size: 0.45rem; letter-spacing: 1px;
             text-transform: uppercase; text-decoration: none;
@@ -217,13 +205,12 @@
             transition: border-color 0.2s, color 0.2s;
             width: fit-content;
         }
-        .remove-btn:hover {
-            border-color: #c0392b;
-            color: #c0392b;
-        }
+        .remove-btn:hover { border-color: #c0392b; color: #c0392b; }
 
         .item-card.admin-mode .remove-btn { display: inline-block; }
         .item-card.removed { display: none !important; }
+        /* FIX: purchased items also hidden */
+        .item-card.purchased { display: none !important; }
 
         .footer { margin-top: 120px; border-top: 1px solid #000; padding: 60px 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
         .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
@@ -249,10 +236,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .reset-removed-btn:hover {
-            border-color: var(--admin-gold);
-            color: var(--admin-gold);
-        }
+        .reset-removed-btn:hover { border-color: var(--admin-gold); color: var(--admin-gold); }
 
         .item-count {
             font-family: 'Montserrat';
@@ -300,7 +284,7 @@
                 <option value="price-asc">Price ↑</option>
                 <option value="price-desc">Price ↓</option>
                 <option value="title">Alphabetical</option>
-                </select>
+            </select>
             <button class="reset-removed-btn" id="resetRemovedBtn" onclick="resetRemovedListings()" style="display:none;">⟳ Restore all items</button>
             <span class="item-count" id="itemCount"></span>
         </div>
@@ -310,6 +294,12 @@
             <span class="admin-bar-text">Admin mode</span>
             <div class="admin-bar-sep"></div>
             <span class="admin-bar-note">Remove buttons visible below each listing</span>
+        </div>
+
+        <!-- FIX: user-uploaded listings shown above hardcoded ones -->
+        <div class="user-listings-section" id="userListingsSection" style="display:none;">
+            <span class="user-listings-label">Recently uploaded</span>
+            <div class="catalog-grid" id="userListingsGrid"></div>
         </div>
 
         <div class="catalog-grid" id="catalogGrid">
@@ -344,6 +334,9 @@
     <script>
         var isAdminMode = false;
 
+        // FIX: centralized superadmin constant
+        var SUPERADMIN = '@@if6was7';
+
         function getAdmins() {
             return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
         }
@@ -377,7 +370,7 @@
                 document.getElementById('resetRemovedBtn').style.display = 'inline-block';
             }
         }
-        
+
         function resetRemovedListings() {
             if (!isAdminMode) return;
             localStorage.removeItem('noir_removed_listings');
@@ -386,11 +379,11 @@
             });
             document.getElementById('resetRemovedBtn').style.display = 'none';
             updateItemCount();
-            showToast('All 9 items restored!');
+            showToast('All items restored!');
         }
 
         function updateItemCount() {
-            var visibleItems = document.querySelectorAll('.item-card:not(.removed)').length;
+            var visibleItems = document.querySelectorAll('.item-card:not(.removed):not(.purchased)').length;
             var totalItems = document.querySelectorAll('.item-card').length;
             var countSpan = document.getElementById('itemCount');
             if (countSpan) {
@@ -400,7 +393,7 @@
 
         function sortItems(mode) {
             var grid = document.getElementById('catalogGrid');
-            var cards = Array.from(grid.querySelectorAll('.item-card:not(.removed)'));
+            var cards = Array.from(grid.querySelectorAll('.item-card:not(.removed):not(.purchased)'));
 
             cards.sort(function(a, b) {
                 var priceA = parseInt(a.dataset.price);
@@ -409,7 +402,7 @@
                 var idB = parseInt(b.dataset.id);
                 var titleA = a.dataset.title.toLowerCase();
                 var titleB = b.dataset.title.toLowerCase();
-               
+
                 switch(mode) {
                     case 'price-asc': return priceA - priceB;
                     case 'price-desc': return priceB - priceA;
@@ -422,6 +415,64 @@
             cards.forEach(function(card) {
                 grid.appendChild(card);
             });
+        }
+
+        // FIX: load and render user-uploaded listings from localStorage
+        function loadUserListings() {
+            var listings = JSON.parse(localStorage.getItem('noir_user_listings') || '[]');
+            if (!listings.length) return;
+
+            var grid = document.getElementById('userListingsGrid');
+            var section = document.getElementById('userListingsSection');
+            section.style.display = 'block';
+
+            listings.slice().reverse().forEach(function(listing) {
+                var card = document.createElement('div');
+                card.className = 'item-card';
+                card.setAttribute('data-id', 'u' + listing.id);
+                card.setAttribute('data-price', listing.price);
+                card.setAttribute('data-title', listing.title);
+                card.onclick = function() {
+                    if (!sessionStorage.getItem('noir_user')) {
+                        window.location.href = '/Log_In';
+                    } else {
+                        showToast('User listing — product page coming soon');
+                    }
+                };
+
+                var sellerName = (listing.sellerDisplay || listing.seller || 'unknown').replace('@@','');
+
+                card.innerHTML =
+                    '<span class="lot-tag">' +
+                        '<span>User Upload</span>' +
+                        '<a class="seller-link role-regular" href="/Seller?username=' + sellerName + '" onclick="event.stopPropagation()">by @@' + sellerName + '</a>' +
+                    '</span>' +
+                    '<div class="image-wrapper">' +
+                        '<span style="font-size:4rem;opacity:0.08;font-family:Montserrat">' + (listing.isAuction ? '⌖' : '◎') + '</span>' +
+                    '</div>' +
+                    '<div class="item-info">' +
+                        '<h3 class="item-title">' + listing.title + '</h3>' +
+                        '<div class="item-price">' + Number(listing.price).toLocaleString('de-DE') + '</div>' +
+                    '</div>';
+
+                grid.appendChild(card);
+            });
+        }
+
+        // FIX: hide purchased items from catalog
+        function hidePurchasedItems() {
+            try {
+                var purchases = JSON.parse(localStorage.getItem('noir_purchases') || '[]');
+                var purchasedLotIds = purchases.map(function(p) { return parseInt(p.lotId); });
+                purchasedLotIds.forEach(function(lotId) {
+                    var card = document.getElementById('card-' + lotId);
+                    if (card) {
+                        card.classList.add('purchased');
+                    }
+                });
+            } catch(e) {
+                console.error('hidePurchasedItems error:', e);
+            }
         }
 
         function loadUser() {
@@ -464,8 +515,9 @@
                 var admins = getAdmins();
                 isAdminMode = admins.indexOf(user.username) !== -1;
 
-                var isSuperAdmin = (user.username === '@@if6was7');
-                var isPlus = isSuperAdmin;
+                var isSuperAdmin = (user.username === SUPERADMIN);
+                // FIX: correct isPlus check — superadmin OR hasPlus flag
+                var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
 
                 if (isSuperAdmin) {
                     ha.classList.add('gold-border');
@@ -490,10 +542,17 @@
                 var card = document.getElementById('card-' + id);
                 if (card) card.classList.add('removed');
             });
-            
+
+            // FIX: also hide purchased items
+            hidePurchasedItems();
+
+            // Show reset button if there are removed items and user is admin
+            if (isAdminMode && removed.length > 0) {
+                document.getElementById('resetRemovedBtn').style.display = 'inline-block';
+            }
+
             updateItemCount();
 
-            // ── РАНДОМНЫЙ ЗАГОЛОВОК ──
             var titles = [
                 "all items", "the collection", "private gallery",
                 "rare objects", "curated pieces", "select artifacts",
@@ -520,6 +579,7 @@
         }
 
         loadUser();
+        loadUserListings();
     </script>
 </body>
 </html>

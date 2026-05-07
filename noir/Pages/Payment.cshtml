@@ -333,16 +333,21 @@
         var params = new URLSearchParams(window.location.search);
         var source = params.get('source') || 'subscription';
         var method = params.get('method') || 'visa';
-        
+        var lotId = params.get('lotId') || '';
+        var itemTitle = params.get('title') || '';
+
+        // FIX: amount taken directly from URL without any commission math
         var amount = 10.99;
         if (source === 'linkcard') { amount = 0; }
         else if (source === 'topup') { amount = parseFloat(params.get('amount')) || 0; }
         else if (source === 'auction') { amount = parseFloat(params.get('amount')) || 0; }
+        else if (source === 'purchase') { amount = parseFloat(params.get('amount')) || 0; }
 
         var isLinking = (source === 'linkcard');
         var isTopup = (source === 'topup');
         var isAuction = (source === 'auction');
-        var isSubscription = (!isLinking && !isTopup && !isAuction);
+        var isPurchase = (source === 'purchase');
+        var isSubscription = (!isLinking && !isTopup && !isAuction && !isPurchase);
 
         var netConfig = {
             visa:       { bgClass: 'card-bg-visa',       imgSrc: '/images/visa.jpg',       label: 'Visa' },
@@ -386,10 +391,20 @@
                 document.getElementById('orderSecondLine').style.display = 'none';
             } else if (isAuction) {
                 document.getElementById('payBtn').innerText = 'Pay ' + fmt;
-                document.getElementById('orderName').innerText = 'Auction payment';
+                document.getElementById('orderName').innerText = itemTitle || 'Auction payment';
                 document.getElementById('orderSubtitle').innerText = 'noir private collection';
                 document.getElementById('orderIcon').innerHTML = '⌖';
                 document.getElementById('orderLineLabel').innerText = 'Bid amount';
+                document.getElementById('orderPrice').innerHTML = fmt;
+                document.getElementById('orderTotal').innerHTML = fmt;
+                document.getElementById('orderSecondLine').style.display = 'none';
+            } else if (isPurchase) {
+                // FIX: display clean item price — no commission added
+                document.getElementById('payBtn').innerText = 'Pay ' + fmt;
+                document.getElementById('orderName').innerText = itemTitle || 'Purchase';
+                document.getElementById('orderSubtitle').innerText = 'noir private collection';
+                document.getElementById('orderIcon').innerHTML = '◈';
+                document.getElementById('orderLineLabel').innerText = 'Item price';
                 document.getElementById('orderPrice').innerHTML = fmt;
                 document.getElementById('orderTotal').innerHTML = fmt;
                 document.getElementById('orderSecondLine').style.display = 'none';
@@ -453,7 +468,6 @@
                     return r;
                 });
                 if (!found) {
-                    // New user not yet in localStorage (e.g. Google/Apple auth)
                     reg.push({
                         username: u.username,
                         email: u.email || u.username,
@@ -472,12 +486,44 @@
             }
         }
 
+        // ── FIX: save auction bid to localStorage ──
+        function saveAuctionBid(lotId, amount, bidder) {
+            try {
+                var bids = JSON.parse(localStorage.getItem('noir_bids') || '{}');
+                if (!bids[lotId]) bids[lotId] = [];
+                bids[lotId].push({
+                    amount: amount,
+                    bidder: bidder,
+                    time: Date.now()
+                });
+                localStorage.setItem('noir_bids', JSON.stringify(bids));
+            } catch(e) {
+                console.error('saveAuctionBid error:', e);
+            }
+        }
+
+        // ── FIX: save purchased item to localStorage ──
+        function savePurchase(lotId, title, amount) {
+            try {
+                var purchases = JSON.parse(localStorage.getItem('noir_purchases') || '[]');
+                purchases.push({
+                    lotId: lotId,
+                    title: title,
+                    amount: amount,
+                    time: Date.now()
+                });
+                localStorage.setItem('noir_purchases', JSON.stringify(purchases));
+            } catch(e) {
+                console.error('savePurchase error:', e);
+            }
+        }
+
         function handlePay() {
             var num    = document.getElementById('cardNumber').value.replace(/\s/g, '');
             var holder = document.getElementById('cardHolder').value.trim();
             var expiry = document.getElementById('cardExpiry').value.replace(/\s/g, '');
             var cvv    = document.getElementById('cardCvv').value.trim();
-            
+
             var hasError = false;
             if (!num)   { document.getElementById('cardNumber').classList.add('error'); hasError = true; }
             else        { document.getElementById('cardNumber').classList.remove('error'); }
@@ -487,7 +533,7 @@
             else        { document.getElementById('cardExpiry').classList.remove('error'); }
             if (!cvv || cvv.length < 3) { document.getElementById('cardCvv').classList.add('error'); hasError = true; }
             else        { document.getElementById('cardCvv').classList.remove('error'); }
-            
+
             if (hasError && !isLinking) return;
 
             var raw = sessionStorage.getItem('noir_user');
@@ -518,6 +564,24 @@
                         });
                     }
 
+                    // ── FIX: Auction — save bid to localStorage ──
+                    if (isAuction && amount > 0) {
+                        var bidderName = u.username || u.email || 'anonymous';
+                        var bidLotId = lotId || '';
+                        if (bidLotId) {
+                            saveAuctionBid(bidLotId, amount, bidderName);
+                        }
+                    }
+
+                    // ── FIX: Purchase — save purchased item to localStorage ──
+                    if (isPurchase && amount > 0) {
+                        var purchaseLotId = lotId || '';
+                        var purchaseTitle = itemTitle || 'Unknown item';
+                        if (purchaseLotId) {
+                            savePurchase(purchaseLotId, purchaseTitle, amount);
+                        }
+                    }
+
                     // Save to sessionStorage
                     sessionStorage.setItem('noir_user', JSON.stringify(u));
 
@@ -542,6 +606,10 @@
                 document.getElementById('successTitle').innerText = 'Payment confirmed';
                 document.getElementById('successSub').innerText = 'Your payment has been processed successfully';
                 document.getElementById('successBackBtn').href = '/Auction';
+            } else if (isPurchase) {
+                document.getElementById('successTitle').innerText = 'Purchase confirmed';
+                document.getElementById('successSub').innerText = itemTitle ? 'You acquired: ' + itemTitle : 'Your purchase has been completed';
+                document.getElementById('successBackBtn').href = '/';
             } else {
                 document.getElementById('successTitle').innerText = 'noir plus activated!';
                 document.getElementById('successSub').innerText = 'Your noir+ membership is now active. Purple perks unlocked.';
