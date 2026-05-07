@@ -1,8 +1,6 @@
 ﻿@page
 @model noir.Pages.NicknameModel
-@{
-    Layout = null;
-}
+@{ Layout = null; }
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -12,151 +10,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #fff; color: #000; font-family: 'Montserrat', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
 
-        body {
-            background: #fff;
-            color: #000;
-            font-family: 'Montserrat', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-        }
+        .logo { font-family: 'Cinzel', serif; font-size: 4rem; letter-spacing: 14px; text-transform: lowercase; color: #000; text-align: center; margin-bottom: 8px; }
+        .logo-sub { font-size: 0.48rem; letter-spacing: 6px; text-transform: uppercase; color: #000; opacity: 0.28; font-weight: 600; text-align: center; margin-bottom: 56px; }
 
-        .logo {
-            font-family: 'Cinzel', serif;
-            font-size: 4rem;
-            letter-spacing: 14px;
-            text-transform: lowercase;
-            color: #000;
-            text-align: center;
-            margin-bottom: 8px;
-        }
+        .panel { width: 100%; max-width: 380px; }
 
-        .logo-sub {
-            font-size: 0.48rem;
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            color: #000;
-            opacity: 0.28;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 56px;
-        }
-
-        .panel {
-            width: 100%;
-            max-width: 380px;
-        }
-
-        .field {
-            position: relative;
-            margin-bottom: 36px;
-        }
-
-        .field label {
-            position: absolute;
-            left: 0;
-            top: 32px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.72rem;
-            font-weight: 500;
-            letter-spacing: 0.05em;
-            color: #bbb;
-            pointer-events: none;
-            transition: top 0.2s ease, font-size 0.2s ease;
-        }
-
-        .field input:focus ~ label,
-        .field input:not(:placeholder-shown) ~ label {
-            top: 0px;
-            font-size: 0.44rem;
-            letter-spacing: 3.5px;
-            text-transform: uppercase;
-            color: #888;
-            font-weight: 600;
-        }
-
-        .field input {
-            width: 100%;
-            border: none;
-            border-bottom: 1px solid #ddd;
-            padding: 28px 0 10px 0;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 400;
-            color: #000;
-            background: transparent;
-            outline: none;
-        }
-
+        .field { position: relative; margin-bottom: 36px; }
+        .field label { position: absolute; left: 0; top: 32px; font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.05em; color: #bbb; pointer-events: none; transition: top 0.2s ease, font-size 0.2s ease; }
+        .field input:focus ~ label, .field input:not(:placeholder-shown) ~ label { top: 0px; font-size: 0.44rem; letter-spacing: 3.5px; text-transform: uppercase; color: #888; font-weight: 600; }
+        .field input { width: 100%; border: none; border-bottom: 1px solid #ddd; padding: 28px 0 10px 0; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 400; color: #000; background: transparent; outline: none; }
         .field input::placeholder { color: transparent; }
         .field input:focus { border-bottom-color: #000; }
 
-        .error-msg {
-            font-size: 0.44rem;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: #c0392b;
-            margin-top: -20px;
-            margin-bottom: 20px;
-            display: none;
-        }
+        .error-msg { font-size: 0.44rem; letter-spacing: 2.5px; text-transform: uppercase; color: #c0392b; margin-top: -20px; margin-bottom: 20px; display: none; }
         .error-msg.visible { display: block; }
 
-        .btn-next {
-            width: 100%;
-            height: 52px;
-            background: #000;
-            color: #fff;
-            border: none;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.58rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+        .btn-next { width: 100%; height: 52px; background: #000; color: #fff; border: none; font-family: 'Montserrat', sans-serif; font-size: 0.58rem; font-weight: 600; text-transform: uppercase; letter-spacing: 5px; cursor: pointer; transition: background 0.2s; }
         .btn-next:hover { background: #1a1a1a; }
 
-        .status {
-            margin-top: 48px;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            font-size: 0.42rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #000;
-            opacity: 0.18;
-        }
-        .status-dot {
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            background: #000;
-        }
+        .status { margin-top: 48px; display: flex; align-items: center; gap: 7px; font-size: 0.42rem; letter-spacing: 3px; text-transform: uppercase; color: #000; opacity: 0.18; }
+        .status-dot { width: 5px; height: 5px; border-radius: 50%; background: #000; }
     </style>
 </head>
 <body>
-
     <div class="logo">noir</div>
     <div class="logo-sub">choose your identity</div>
 
     <div class="panel">
         <div class="field">
-            <input type="text"
-                   id="nickname"
-                   placeholder=" "
-                   autocomplete="off"
-                   maxlength="30">
+            <input type="text" id="nickname" placeholder=" " autocomplete="off" maxlength="30">
             <label for="nickname">Nickname</label>
         </div>
-
         <div class="error-msg" id="errorMsg">Nickname must be at least 2 characters</div>
-
         <button class="btn-next" onclick="saveNickname()">Continue →</button>
     </div>
 
@@ -166,33 +53,18 @@
     </div>
 
     <script>
-        console.log('Nickname page loaded');
-
-        // Проверяем пользователя в сессии
         var userData = sessionStorage.getItem('noir_user');
-        console.log('userData from storage:', userData);
-        
         if (!userData) {
-            console.log('No user found, redirecting to login');
             window.location.href = '/Log_In';
         }
 
         var user = JSON.parse(userData);
-        console.log('User object:', user);
 
-        // Если у пользователя УЖЕ ЕСТЬ nickname - сразу на главную
-        var hasNickname = false;
-        
-        if (user.nickname && user.nickname.length > 0) {
-            hasNickname = true;
-            console.log('User has nickname:', user.nickname);
-        } else if (user.displayName && user.displayName.length > 0 && user.displayName !== user.email) {
-            hasNickname = true;
-            console.log('User has displayName:', user.displayName);
-        }
-        
-        if (hasNickname) {
-            console.log('Has nickname, redirecting to home');
+        // ── FIX: only skip nickname page if user explicitly set a nickname.
+        // Do NOT skip for Google users whose displayName is their real name —
+        // they still need to pick a noir nickname.
+        // We only skip if nickname field is already set (not null/empty).
+        if (user.nickname && user.nickname.trim().length > 0) {
             window.location.href = '/';
         }
 
@@ -201,22 +73,17 @@
             var nickname = nicknameInput.value.trim();
             var errorMsg = document.getElementById('errorMsg');
 
-            console.log('Saving nickname:', nickname);
-
             if (nickname.length < 2) {
+                errorMsg.textContent = 'Nickname must be at least 2 characters';
                 errorMsg.classList.add('visible');
-                console.log('Nickname too short');
                 return;
             }
-
             if (nickname.length > 30) {
                 errorMsg.textContent = 'Nickname must be less than 30 characters';
                 errorMsg.classList.add('visible');
                 setTimeout(function() { errorMsg.classList.remove('visible'); }, 3000);
                 return;
             }
-
-            // Проверка на разрешенные символы
             var validRegex = /^[a-zA-Z0-9_]+$/;
             if (!validRegex.test(nickname)) {
                 errorMsg.textContent = 'Only letters, numbers and underscores allowed';
@@ -227,38 +94,34 @@
 
             errorMsg.classList.remove('visible');
 
-            // Получаем актуального пользователя
             var currentUser = JSON.parse(sessionStorage.getItem('noir_user'));
-            console.log('Current user before update:', currentUser);
 
-            // Обновляем объект пользователя
-            var updatedUser = {
-                ...currentUser,
+            // ── FIX: ensure savedCards and balance always exist ──
+            var updatedUser = Object.assign({}, currentUser, {
                 nickname: nickname,
-                displayName: nickname
-            };
-
-            console.log('Updated user:', updatedUser);
+                displayName: nickname,
+                savedCards: currentUser.savedCards || [],
+                balance: currentUser.balance !== undefined ? currentUser.balance : 0
+            });
 
             sessionStorage.setItem('noir_user', JSON.stringify(updatedUser));
-            
-            // Сохраняем в localStorage для постоянных пользователей
+
+            // Persist to localStorage
             var existingUsers = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
-            var userIndex = existingUsers.findIndex(function(u) { 
-                return u.username === currentUser.username; 
+            var userIndex = existingUsers.findIndex(function(u) {
+                return u.username === currentUser.username;
             });
-            
+
             if (userIndex !== -1) {
                 existingUsers[userIndex].nickname = nickname;
                 existingUsers[userIndex].displayName = nickname;
                 localStorage.setItem('noir_registered_users', JSON.stringify(existingUsers));
-                console.log('Saved nickname to localStorage');
-            } else if (currentUser.googleAuth && currentUser.username) {
-                // Сохраняем нового Google пользователя
+            } else if ((currentUser.googleAuth || currentUser.appleAuth) && currentUser.username) {
+                // ── FIX: save new OAuth user with all required fields ──
                 var newUserRecord = {
                     username: currentUser.username,
-                    email: currentUser.email,
-                    password: 'google_oauth',
+                    email: currentUser.email || currentUser.username,
+                    password: currentUser.googleAuth ? 'google_oauth' : 'apple_oauth',
                     role: 'user',
                     nickname: nickname,
                     displayName: nickname,
@@ -268,20 +131,15 @@
                 };
                 existingUsers.push(newUserRecord);
                 localStorage.setItem('noir_registered_users', JSON.stringify(existingUsers));
-                console.log('Created new user record with nickname');
             }
-            
+
             window.location.href = '/';
         }
 
-        // Enter key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                saveNickname();
-            }
+            if (e.key === 'Enter') saveNickname();
         });
-        
-        // Автофокус на поле ввода
+
         document.getElementById('nickname').focus();
     </script>
 </body>
