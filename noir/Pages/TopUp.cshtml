@@ -10,157 +10,55 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: #111113; color: #fff;
-            min-height: 100vh; display: flex; flex-direction: column;
-        }
-
-        /* ─── TOP BAR ─── */
-        .topbar {
-            height: 52px; background: #1c1c1e;
-            border-bottom: 0.5px solid rgba(255,255,255,0.07);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 32px;
-        }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #111113; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar { height: 52px; background: #1c1c1e; border-bottom: 0.5px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
         .topbar-left { display: flex; align-items: center; gap: 10px; }
-        .topbar-back {
-            display: flex; align-items: center; gap: 7px;
-            font-size: 13px; color: rgba(255,255,255,0.4);
-            cursor: pointer; background: none; border: none; padding: 0;
-            transition: color 0.2s;
-        }
+        .topbar-back { display: flex; align-items: center; gap: 7px; font-size: 13px; color: rgba(255,255,255,0.4); cursor: pointer; background: none; border: none; padding: 0; transition: color 0.2s; }
         .topbar-back:hover { color: rgba(255,255,255,0.8); }
         .topbar-back svg { width: 14px; height: 14px; }
         .topbar-sep { width: 0.5px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 4px; }
         .topbar-merchant { font-size: 13px; color: rgba(255,255,255,0.35); }
         .topbar-merchant strong { color: rgba(255,255,255,0.65); font-weight: 500; }
-        .topbar-secure { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,0.3); }
-        .topbar-secure svg { width: 12px; height: 12px; }
-
-        /* ─── MAIN ─── */
-        .main {
-            flex: 1; display: flex; align-items: flex-start;
-            justify-content: center; padding: 3rem 1rem; gap: 1.5rem;
-        }
-
-        /* ─── LEFT PANEL ─── */
-        .panel-card {
-            background: #1c1c1e; border-radius: 18px;
-            border: 0.5px solid rgba(255,255,255,0.07);
-            padding: 1.6rem; width: 360px; flex-shrink: 0;
-        }
-        .panel-title {
-            font-size: 10px; font-weight: 600; letter-spacing: 0.13em;
-            text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 1.4rem;
-        }
-
-        /* Amount presets */
+        .main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 3rem 1rem; gap: 1.5rem; }
+        .panel-card { background: #1c1c1e; border-radius: 18px; border: 0.5px solid rgba(255,255,255,0.07); padding: 1.6rem; width: 360px; flex-shrink: 0; }
+        .panel-title { font-size: 10px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 1.4rem; }
         .amount-section { margin-bottom: 1.4rem; }
         .amount-label { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.45); margin-bottom: 10px; display: block; }
         .amount-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-        .preset-btn {
-            height: 42px; background: #2c2c2e;
-            border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px;
-            color: rgba(255,255,255,0.6); font-family: 'Inter', sans-serif;
-            font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-        }
+        .preset-btn { height: 42px; background: #2c2c2e; border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px; color: rgba(255,255,255,0.6); font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
         .preset-btn:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
         .preset-btn.selected { border-color: #4f46e5; background: rgba(79,70,229,0.15); color: #fff; }
-
         .custom-amount-wrap { position: relative; }
-        .currency-prefix {
-            position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-            font-size: 15px; color: rgba(255,255,255,0.4); font-family: 'Courier New', monospace;
-            pointer-events: none;
-        }
-        .amount-input {
-            width: 100%; height: 44px;
-            background: #2c2c2e; border: 0.5px solid rgba(255,255,255,0.1);
-            border-radius: 10px; padding: 0 13px 0 28px;
-            font-size: 15px; color: #fff;
-            font-family: 'Courier New', monospace;
-            outline: none; transition: border-color 0.2s, background 0.2s;
-            -webkit-appearance: none;
-        }
-        .amount-input::-webkit-outer-spin-button,
-        .amount-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .currency-prefix { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 15px; color: rgba(255,255,255,0.4); font-family: 'Courier New', monospace; pointer-events: none; }
+        .amount-input { width: 100%; height: 44px; background: #2c2c2e; border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0 13px 0 28px; font-size: 15px; color: #fff; font-family: 'Courier New', monospace; outline: none; transition: border-color 0.2s, background 0.2s; -webkit-appearance: none; }
+        .amount-input::-webkit-outer-spin-button, .amount-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .amount-input[type=number] { -moz-appearance: textfield; }
         .amount-input:focus { border-color: rgba(99,102,241,0.7); background: #333336; }
         .amount-input.error { border-color: rgba(239,68,68,0.7) !important; }
-
-        /* Method selector */
         .methods-label { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.45); margin-bottom: 10px; display: block; }
         .methods-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.4rem; }
-
         .method-opt { cursor: pointer; }
         .method-opt input { display: none; }
-        .method-opt-label {
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 6px;
-            height: 70px; background: #2c2c2e;
-            border: 0.5px solid rgba(255,255,255,0.1); border-radius: 12px;
-            cursor: pointer; transition: all 0.2s; padding: 8px 6px;
-        }
+        .method-opt-label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; height: 70px; background: #2c2c2e; border: 0.5px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; transition: all 0.2s; padding: 8px 6px; }
         .method-opt-label:hover { border-color: rgba(255,255,255,0.3); }
-        .method-opt input:checked + .method-opt-label {
-            border-color: #4f46e5; background: rgba(79,70,229,0.12);
-        }
-        .method-img-box {
-            width: 46px; height: 28px; background: #fff; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
+        .method-opt input:checked + .method-opt-label { border-color: #4f46e5; background: rgba(79,70,229,0.12); }
+        .method-img-box { width: 46px; height: 28px; background: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .method-img-box img { width: 100%; height: 100%; object-fit: contain; }
-        .method-icon-box {
-            width: 46px; height: 28px; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6);
-            background: #3a3a3c; letter-spacing: 0.05em;
-        }
+        .method-icon-box { width: 46px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); background: #3a3a3c; letter-spacing: 0.05em; }
         .method-opt-name { font-size: 10px; color: rgba(255,255,255,0.45); font-weight: 500; text-align: center; }
-
-        /* Buttons */
-        .action-btn {
-            width: 100%; height: 50px; background: #4f46e5; color: #fff;
-            border: none; border-radius: 11px;
-            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
-            letter-spacing: 0.03em; cursor: pointer; margin-top: 4px;
-            transition: background 0.2s, transform 0.1s;
-        }
+        .action-btn { width: 100%; height: 50px; background: #4f46e5; color: #fff; border: none; border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.03em; cursor: pointer; margin-top: 4px; transition: background 0.2s, transform 0.1s; }
         .action-btn:hover { background: #4338ca; }
         .action-btn:active { transform: scale(0.99); }
-
         .secure-row { display: flex; gap: 7px; margin-top: 13px; flex-wrap: wrap; }
-        .secure-tag {
-            display: flex; align-items: center; gap: 5px;
-            font-size: 10px; color: rgba(255,255,255,0.28);
-            background: rgba(255,255,255,0.04); border-radius: 20px;
-            padding: 3px 9px; border: 0.5px solid rgba(255,255,255,0.07);
-        }
+        .secure-tag { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.04); border-radius: 20px; padding: 3px 9px; border: 0.5px solid rgba(255,255,255,0.07); }
         .secure-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
-
-        /* ─── RIGHT: INFO ─── */
         .info-panel { width: 280px; flex-shrink: 0; }
-        .info-card {
-            background: #1c1c1e; border-radius: 18px;
-            border: 0.5px solid rgba(255,255,255,0.07); overflow: hidden;
-            margin-bottom: 12px;
-        }
-        .info-header {
-            background: #111113; border-bottom: 0.5px solid rgba(255,255,255,0.06);
-            padding: 1.1rem 1.2rem; display: flex; align-items: center; gap: 10px;
-        }
-        .info-icon {
-            width: 36px; height: 36px; border-radius: 50%;
-            background: rgba(99,102,241,0.2);
-            display: flex; align-items: center; justify-content: center; font-size: 16px;
-        }
+        .info-card { background: #1c1c1e; border-radius: 18px; border: 0.5px solid rgba(255,255,255,0.07); overflow: hidden; margin-bottom: 12px; }
+        .info-header { background: #111113; border-bottom: 0.5px solid rgba(255,255,255,0.06); padding: 1.1rem 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .info-icon { width: 36px; height: 36px; border-radius: 50%; background: rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
         .info-header-title { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); }
         .info-header-sub { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 1px; }
         .info-body { padding: 1.2rem; }
-
-        /* Balance card */
         .bal-current-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.25); margin-bottom: 6px; }
         .bal-current-value { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 16px; }
         .bal-divider { border: none; border-top: 0.5px solid rgba(255,255,255,0.07); margin: 14px 0; }
@@ -168,79 +66,39 @@
         .bal-after-row { display: flex; align-items: baseline; gap: 8px; }
         .bal-after-value { font-size: 22px; font-weight: 600; color: #4f46e5; }
         .bal-after-note { font-size: 11px; color: rgba(255,255,255,0.25); }
-
-        /* Link card info rows */
-        .info-row {
-            display: flex; align-items: flex-start; gap: 10px;
-            padding: 10px 0; border-bottom: 0.5px solid rgba(255,255,255,0.05);
-        }
+        .info-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid rgba(255,255,255,0.05); }
         .info-row:last-child { border-bottom: none; padding-bottom: 0; }
         .info-dot { width: 4px; height: 4px; border-radius: 50%; background: #4f46e5; flex-shrink: 0; margin-top: 5px; }
         .info-text { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; }
         .info-text strong { color: rgba(255,255,255,0.7); font-weight: 500; }
-
-        /* ─── SUCCESS ─── */
         #successScreen { display: none; flex: 1; align-items: center; justify-content: center; }
         #successScreen.show { display: flex; }
-        .success-box {
-            text-align: center; padding: 3rem 2rem; background: #1c1c1e;
-            border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.07);
-            max-width: 380px; width: 100%;
-        }
-        .success-check {
-            width: 60px; height: 60px; background: rgba(34,197,94,0.12);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; color: #22c55e; margin: 0 auto 1.2rem;
-        }
+        .success-box { text-align: center; padding: 3rem 2rem; background: #1c1c1e; border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.07); max-width: 380px; width: 100%; }
+        .success-check { width: 60px; height: 60px; background: rgba(34,197,94,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #22c55e; margin: 0 auto 1.2rem; }
         .success-amount { font-size: 36px; font-weight: 600; color: #fff; margin-bottom: 6px; }
         .success-title { font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.5); margin-bottom: 9px; }
         .success-sub { font-size: 13px; color: rgba(255,255,255,0.3); margin-bottom: 2rem; line-height: 1.6; }
-        .success-back {
-            display: inline-block; padding: 11px 26px;
-            background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.12);
-            border-radius: 10px; font-size: 13px; font-weight: 500;
-            color: rgba(255,255,255,0.7); text-decoration: none; transition: background 0.2s;
-        }
+        .success-back { display: inline-block; padding: 11px 26px; background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 10px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); text-decoration: none; transition: background 0.2s; }
         .success-back:hover { background: rgba(255,255,255,0.1); }
-
-        /* ─── FOOTER ─── */
-        .footer {
-            padding: 20px 32px; display: flex; align-items: center;
-            justify-content: center; gap: 20px;
-            border-top: 0.5px solid rgba(255,255,255,0.05);
-        }
+        .footer { padding: 20px 32px; display: flex; align-items: center; justify-content: center; gap: 20px; border-top: 0.5px solid rgba(255,255,255,0.05); }
         .footer-text { font-size: 11px; color: rgba(255,255,255,0.18); }
         .footer-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.12); }
     </style>
 </head>
 <body>
-
     <div class="topbar">
         <div class="topbar-left">
             <button class="topbar-back" onclick="history.back()">
-                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M9 11L5 7l4-4"/>
-                </svg>
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11L5 7l4-4"/></svg>
                 Back
             </button>
             <div class="topbar-sep"></div>
             <span class="topbar-merchant" id="topbarTitle">Top up · <strong>noir account</strong></span>
         </div>
-        <div class="topbar-secure">
-            <svg viewBox="0 0 12 12" fill="none" stroke="#22c55e" stroke-width="1.5">
-                <path d="M6 1L2 3v4c0 2 1.8 3.5 4 4 2.2-.5 4-2 4-4V3L6 1z"/>
-            </svg>
-            Secure connection
-        </div>
     </div>
-
     <div class="main" id="mainLayout">
-
-        <!-- LEFT -->
         <div class="panel-card">
             <div class="panel-title" id="panelTitle">Top up balance</div>
-
-            <!-- Amount section — hidden in linkcard mode -->
             <div class="amount-section" id="amountSection">
                 <span class="amount-label">Select amount</span>
                 <div class="amount-presets">
@@ -253,13 +111,9 @@
                 </div>
                 <div class="custom-amount-wrap">
                     <span class="currency-prefix">€</span>
-                    <input type="number" class="amount-input" id="amountInput"
-                           placeholder="Enter custom amount" min="1" max="10000"
-                           oninput="onCustomAmount()">
+                    <input type="number" class="amount-input" id="amountInput" placeholder="Enter custom amount" min="1" max="10000" oninput="onCustomAmount()">
                 </div>
             </div>
-
-            <!-- Payment method -->
             <span class="methods-label">Payment method</span>
             <div class="methods-grid">
                 <label class="method-opt">
@@ -305,20 +159,14 @@
                     </span>
                 </label>
             </div>
-
             <button class="action-btn" id="actionBtn" onclick="handleAction()">Continue</button>
-
             <div class="secure-row">
                 <div class="secure-tag"><div class="secure-dot"></div>256-bit SSL</div>
                 <div class="secure-tag"><div class="secure-dot"></div>PCI DSS</div>
                 <div class="secure-tag"><div class="secure-dot"></div>Encrypted</div>
             </div>
         </div>
-
-        <!-- RIGHT -->
         <div class="info-panel">
-
-            <!-- Topup mode: balance card -->
             <div class="info-card" id="balanceCard">
                 <div class="info-header">
                     <div class="info-icon">◎</div>
@@ -329,7 +177,7 @@
                 </div>
                 <div class="info-body">
                     <div class="bal-current-label">Current balance</div>
-                    <div class="bal-current-value">€ <span id="currentBalanceDisplay">0.00</span></div>
+                    <div class="bal-current-value">€ <span id="currentBalanceDisplay">@Model.CurrentBalance.ToString("F2")</span></div>
                     <hr class="bal-divider">
                     <div class="bal-after-label">After top up</div>
                     <div class="bal-after-row">
@@ -338,40 +186,8 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Linkcard mode: info card -->
-            <div class="info-card" id="linkcardInfo" style="display:none;">
-                <div class="info-header">
-                    <div class="info-icon">◎</div>
-                    <div>
-                        <div class="info-header-title">Link a card</div>
-                        <div class="info-header-sub">Saved for future payments</div>
-                    </div>
-                </div>
-                <div class="info-body">
-                    <div class="info-row">
-                        <div class="info-dot"></div>
-                        <div class="info-text"><strong>No charge</strong> — linking a card does not debit any funds</div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-dot"></div>
-                        <div class="info-text"><strong>Fast checkout</strong> — use your linked card for top-ups and purchases</div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-dot"></div>
-                        <div class="info-text"><strong>Secure storage</strong> — card data is encrypted and never stored in plain text</div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-dot"></div>
-                        <div class="info-text"><strong>Remove anytime</strong> — you can unlink the card from your account settings</div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
-
-    <!-- Success (topup balance payment) -->
     <div id="successScreen">
         <div class="success-box">
             <div class="success-check">✓</div>
@@ -381,7 +197,6 @@
             <a class="success-back" href="/Account">Return to account</a>
         </div>
     </div>
-
     <div class="footer">
         <span class="footer-text">© 2026 Noir Payments Ltd.</span>
         <div class="footer-dot"></div>
@@ -389,35 +204,9 @@
         <div class="footer-dot"></div>
         <span class="footer-text">PCI DSS Level 1 compliant</span>
     </div>
-
     <script>
-        var params = new URLSearchParams(window.location.search);
-        var source = params.get('source') || 'topup'; // 'topup' or 'linkcard'
-        var isLinkCard = source === 'linkcard';
-
-        var currentBalance = 0;
+        var currentBalance = @(Model.CurrentBalance.ToString(System.Globalization.CultureInfo.InvariantCulture));
         var selectedAmount = 0;
-
-        // ── Adapt UI for mode ──
-        if (isLinkCard) {
-            document.getElementById('amountSection').style.display = 'none';
-            document.getElementById('balanceCard').style.display = 'none';
-            document.getElementById('linkcardInfo').style.display = 'block';
-            document.getElementById('panelTitle').innerText = 'Choose payment method';
-            document.getElementById('topbarTitle').innerHTML = 'Link card · <strong>noir account</strong>';
-            document.getElementById('actionBtn').innerText = 'Continue';
-        }
-
-        // ── Load user (topup mode only needs balance) ──
-        (function() {
-            var raw = sessionStorage.getItem('noir_user');
-            if (!raw) { window.location.href = '/Log_In'; return; }
-            var u = JSON.parse(raw);
-            currentBalance = parseFloat(u.balance || '0') || 0;
-            document.getElementById('currentBalanceDisplay').innerText = currentBalance.toFixed(2);
-            document.getElementById('usernameDisplay').innerText = (u.username || '').replace('@@','') || 'noir account';
-        })();
-
         function selectPreset(btn, amount) {
             document.querySelectorAll('.preset-btn').forEach(function(b) { b.classList.remove('selected'); });
             btn.classList.add('selected');
@@ -426,7 +215,6 @@
             updateAfterBalance();
             updateBtn();
         }
-
         function onCustomAmount() {
             document.querySelectorAll('.preset-btn').forEach(function(b) { b.classList.remove('selected'); });
             var v = parseFloat(document.getElementById('amountInput').value) || 0;
@@ -434,7 +222,6 @@
             updateAfterBalance();
             updateBtn();
         }
-
         function updateAfterBalance() {
             var after = currentBalance + selectedAmount;
             if (selectedAmount > 0) {
@@ -445,9 +232,7 @@
                 document.getElementById('afterBalanceNote').innerText = '';
             }
         }
-
         function updateBtn() {
-            if (isLinkCard) return;
             var btn = document.getElementById('actionBtn');
             if (selectedAmount > 0) {
                 btn.innerText = 'Top Up €' + selectedAmount.toFixed(2);
@@ -455,23 +240,11 @@
                 btn.innerText = 'Top Up';
             }
         }
-
         function handleAction() {
             var method = document.querySelector('input[name="topup-method"]:checked').value;
-
-            // ── LINKCARD MODE ──
-            if (isLinkCard) {
-                location.href = '/LinkCard?source=linkcard&method=' + method;
-                return;
-            }
-
-            // ── TOPUP MODE ──
             var inp = document.getElementById('amountInput');
             if (selectedAmount <= 0) { inp.classList.add('error'); return; }
             inp.classList.remove('error');
-
-            // All methods (including Apple Pay and PayPal) go to Payment page
-            // so the user can confirm the transaction with their credentials
             location.href = '/Payment?source=topup&method=' + method + '&amount=' + selectedAmount.toFixed(2);
         }
     </script>

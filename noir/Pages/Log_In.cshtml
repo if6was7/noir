@@ -12,12 +12,9 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #fff; color: #000; font-family: 'Montserrat', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
-
         .logo { font-family: 'Cinzel', serif; font-size: 4rem; letter-spacing: 14px; text-transform: lowercase; color: #000; text-decoration: none; text-align: center; line-height: 1; margin-bottom: 8px; }
         .logo-sub { font-size: 0.48rem; letter-spacing: 6px; text-transform: uppercase; color: #000; opacity: 0.28; font-weight: 600; text-align: center; margin-bottom: 56px; }
-
         .panel { width: 100%; max-width: 380px; }
-
         .field { position: relative; margin-bottom: 36px; }
         .field label { position: absolute; left: 0; top: 32px; font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.05em; color: #bbb; pointer-events: none; transition: top 0.2s ease, font-size 0.2s ease, color 0.2s ease, letter-spacing 0.2s ease; white-space: nowrap; }
         .field input:focus ~ label, .field input:not(:placeholder-shown) ~ label { top: 0px; font-size: 0.44rem; letter-spacing: 3.5px; text-transform: uppercase; color: #888; font-weight: 600; }
@@ -25,59 +22,30 @@
         .field input::placeholder { color: transparent; }
         .field input:focus { border-bottom-color: #000; }
         .field input:-webkit-autofill, .field input:-webkit-autofill:hover, .field input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0px 1000px #fff inset !important; -webkit-text-fill-color: #000 !important; transition: background-color 9999s 0s; }
-
         .error-msg { font-size: 0.44rem; letter-spacing: 2.5px; text-transform: uppercase; color: #c0392b; margin-top: -20px; margin-bottom: 20px; display: none; }
         .error-msg.visible { display: block; }
-
         .btn-login { width: 100%; height: 52px; background: #000; color: #fff; border: none; font-family: 'Montserrat', sans-serif; font-size: 0.58rem; font-weight: 600; text-transform: uppercase; letter-spacing: 5px; cursor: pointer; transition: background 0.2s; -webkit-appearance: none; }
         .btn-login:hover { background: #1a1a1a; }
-
         .divider-or { display: flex; align-items: center; gap: 16px; margin: 24px 0; font-size: 0.44rem; letter-spacing: 4px; text-transform: uppercase; color: #000; opacity: 0.22; }
         .divider-or::before, .divider-or::after { content: ''; flex: 1; height: 1px; background: #e0e0e0; }
-
-        /* Все кнопки соцсетей и "create account" одинакового стиля */
-        .btn-outline {
-            width: 100%; height: 48px; background: transparent;
-            border: 1px solid #e0e0e0; color: #000;
-            font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 500;
-            text-transform: uppercase; letter-spacing: 3px; cursor: pointer;
-            transition: border-color 0.25s, background 0.25s;
-            text-decoration: none; display: flex; align-items: center; justify-content: center;
-            gap: 10px; margin-bottom: 8px; -webkit-appearance: none;
-        }
+        .btn-outline { width: 100%; height: 48px; background: transparent; border: 1px solid #e0e0e0; color: #000; font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 500; text-transform: uppercase; letter-spacing: 3px; cursor: pointer; transition: border-color 0.25s, background 0.25s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; -webkit-appearance: none; }
         .btn-outline:hover { border-color: #000; background: #fafafa; }
-
         .social-icon { width: 14px; height: 14px; flex-shrink: 0; }
-
-        /* Google — поверх кастомной кнопки */
         .google-btn-wrapper { position: relative; width: 100%; height: 48px; margin-bottom: 8px; }
-        .google-btn-visual {
-            position: absolute; inset: 0; z-index: 2; pointer-events: none;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            border: 1px solid #e0e0e0; background: #fff;
-            font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 500;
-            text-transform: uppercase; letter-spacing: 3px; color: #000;
-            transition: border-color 0.25s, background 0.25s;
-        }
+        .google-btn-visual { position: absolute; inset: 0; z-index: 2; pointer-events: none; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #e0e0e0; background: #fff; font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 500; text-transform: uppercase; letter-spacing: 3px; color: #000; transition: border-color 0.25s, background 0.25s; }
         .google-btn-wrapper:hover .google-btn-visual { border-color: #000; background: #fafafa; }
-        #googleBtnContainer { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
+        #googleBtnContainer { position: absolute; inset: 0; z-index: 3; }
         #googleBtnContainer > div, #googleBtnContainer iframe { width: 100% !important; height: 48px !important; }
-
-        /* signup link — такая же кнопка-outline */
         .signup-link { margin-top: 0; }
-
         .status { margin-top: 48px; display: flex; align-items: center; gap: 7px; font-size: 0.42rem; letter-spacing: 3px; text-transform: uppercase; color: #000; opacity: 0.18; }
         .status-dot { width: 5px; height: 5px; border-radius: 50%; background: #000; opacity: 0.5; }
     </style>
 </head>
 <body>
-
     <a href="/" class="logo">noir</a>
     <div class="logo-sub">private collection</div>
 
     <div class="panel">
-
-        <!-- Login Mode -->
         <div id="loginMode">
             <div class="field">
                 <input type="text" id="username" placeholder=" " autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly')">
@@ -91,7 +59,6 @@
             <button class="btn-login" onclick="handleLogin()">Log In</button>
             <div class="divider-or">or</div>
 
-            <!-- create account — same style as social buttons -->
             <div class="signup-link">
                 <button class="btn-outline" onclick="showSignupMode()">Create an account →</button>
             </div>
@@ -117,7 +84,6 @@
             </button>
         </div>
 
-        <!-- Signup Mode -->
         <div id="signupMode" style="display: none;">
             <div class="field">
                 <input type="text" id="signupUsername" placeholder=" " autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
@@ -136,7 +102,6 @@
             <div class="divider-or">or</div>
             <button class="btn-outline" onclick="showLoginMode()">← Back to login</button>
         </div>
-
     </div>
 
     <div class="status">
@@ -149,34 +114,6 @@
             window.location.href = '/';
         }
 
-        var HARDCODED_USERS = [
-            { username: '@@if6was7',      password: '67890', role: 'admin', hasPlus: true,  nickname: 'if6was7',      displayName: 'if6was7',      savedCards: [], balance: 0 },
-            { username: '@@tornadomart1', password: '12345', role: 'user',  hasPlus: false, nickname: 'tornadomart1', displayName: 'tornadomart1', savedCards: [], balance: 0 }
-        ];
-
-        function getRegisteredUsers() {
-            return JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
-        }
-
-        function getAllUsers() {
-            var reg = getRegisteredUsers();
-            var map = {};
-            HARDCODED_USERS.forEach(function(u) { map[u.username] = Object.assign({}, u); });
-            reg.forEach(function(u) { map[u.username] = Object.assign({}, map[u.username] || {}, u); });
-            return Object.values(map);
-        }
-
-        function saveUserToStorage(userObj) {
-            var registered = getRegisteredUsers();
-            var idx = registered.findIndex(function(u) { return u.username === userObj.username; });
-            if (idx === -1) {
-                registered.push(userObj);
-            } else {
-                registered[idx] = Object.assign({}, registered[idx], userObj);
-            }
-            localStorage.setItem('noir_registered_users', JSON.stringify(registered));
-        }
-
         function showSignupMode() {
             document.getElementById('loginMode').style.display = 'none';
             document.getElementById('signupMode').style.display = 'block';
@@ -187,9 +124,36 @@
             document.getElementById('signupErrorMsg').classList.remove('visible');
         }
 
+        function handleLogin() {
+            var u = document.getElementById('username').value.trim();
+            var p = document.getElementById('password').value;
+            var err = document.getElementById('errorMsg');
+
+            if (u && !u.startsWith('@@')) u = '@@' + u;
+
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: u, password: p })
+            })
+            .then(function(r) {
+                if (!r.ok) throw new Error('Invalid credentials');
+                return r.json();
+            })
+            .then(function(user) {
+                sessionStorage.setItem('noir_user', JSON.stringify(user));
+                window.location.href = '/';
+            })
+            .catch(function() {
+                err.classList.add('visible');
+                document.getElementById('password').value = '';
+                setTimeout(function() { err.classList.remove('visible'); }, 3000);
+            });
+        }
+
         function handleSignup() {
             var username = document.getElementById('signupUsername').value.trim();
-            var email    = document.getElementById('signupEmail').value.trim();
+            var email = document.getElementById('signupEmail').value.trim();
             var password = document.getElementById('signupPassword').value;
             var err = document.getElementById('signupErrorMsg');
 
@@ -213,40 +177,24 @@
             }
 
             var finalUsername = username.startsWith('@@') ? username : '@@' + username;
-            var users = getAllUsers();
-            if (users.some(function(u) { return u.username === finalUsername; })) {
-                err.textContent = 'Username already taken';
+
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: finalUsername, email: email, password: password })
+            })
+            .then(function(r) {
+                if (!r.ok) return r.json().then(function(j) { throw new Error(j.error); });
+                return r.json();
+            })
+            .then(function() {
+                window.location.href = '/Log_In';
+            })
+            .catch(function(e) {
+                err.textContent = e.message;
                 err.classList.add('visible');
                 setTimeout(function() { err.classList.remove('visible'); }, 3000);
-                return;
-            }
-
-            var cleanNickname = username.replace('@@', '');
-            var newUser = {
-                username: finalUsername,
-                email: email,
-                password: password,
-                role: 'user',
-                hasPlus: false,
-                nickname: cleanNickname,
-                displayName: cleanNickname,
-                savedCards: [],
-                balance: 0
-            };
-            saveUserToStorage(newUser);
-
-            var sessionUser = {
-                username: finalUsername,
-                email: email,
-                role: 'user',
-                nickname: cleanNickname,
-                displayName: cleanNickname,
-                hasPlus: false,
-                savedCards: [],
-                balance: 0
-            };
-            sessionStorage.setItem('noir_user', JSON.stringify(sessionUser));
-            window.location.href = '/';
+            });
         }
 
         document.addEventListener('keydown', function(e) {
@@ -256,50 +204,12 @@
             }
         });
 
-        function handleLogin() {
-            var u = document.getElementById('username').value.trim();
-            var p = document.getElementById('password').value;
-            var err = document.getElementById('errorMsg');
-
-            // Добавляем @@ если не введён
-            if (u && !u.startsWith('@@')) u = '@@' + u;
-
-            var users = getAllUsers();
-            var match = null;
-            for (var i = 0; i < users.length; i++) {
-                if (users[i].username === u && users[i].password === p) {
-                    match = users[i]; break;
-                }
-            }
-
-            if (match) {
-                var cleanNickname = match.nickname || match.username.replace('@@', '');
-                // hasPlus: для superadmin всегда true, иначе из данных
-                var hasPlus = (match.username === '@@if6was7') ? true : (match.hasPlus === true || match.hasPlus === 'true');
-                var sessionUser = {
-                    username: match.username,
-                    email: match.email || match.username,
-                    role: match.role || 'user',
-                    nickname: cleanNickname,
-                    displayName: match.displayName || cleanNickname,
-                    hasPlus: hasPlus,
-                    savedCards: match.savedCards || [],
-                    balance: match.balance !== undefined ? match.balance : 0
-                };
-                sessionStorage.setItem('noir_user', JSON.stringify(sessionUser));
-                window.location.href = '/';
-            } else {
-                err.classList.add('visible');
-                document.getElementById('password').value = '';
-                setTimeout(function() { err.classList.remove('visible'); }, 3000);
-            }
-        }
-
         window.addEventListener('load', function() {
             if (typeof google !== 'undefined') {
                 google.accounts.id.initialize({
                     client_id: '1037431245707-8uv7spq3us84nffkins4jt0tiu7ksihe.apps.googleusercontent.com',
-                    callback: handleGoogleLogin
+                    callback: handleGoogleLogin,
+                    use_fedcm_for_prompt: true
                 });
                 google.accounts.id.renderButton(
                     document.getElementById('googleBtnContainer'),
@@ -309,55 +219,23 @@
         });
 
         function handleGoogleLogin(response) {
-            var payload = JSON.parse(atob(response.credential.split('.')[1]));
-            var users = getAllUsers();
-            var existing = null;
-            for (var i = 0; i < users.length; i++) {
-                if (users[i].email === payload.email) { existing = users[i]; break; }
-            }
-
-            if (existing) {
-                var hasPlus = (existing.username === '@@if6was7') ? true : (existing.hasPlus === true || existing.hasPlus === 'true');
-                var sessionUser = {
-                    username: existing.username,
-                    email: existing.email,
-                    role: existing.role || 'user',
-                    nickname: existing.nickname || existing.username.replace('@@', ''),
-                    displayName: existing.displayName || existing.nickname || existing.username.replace('@@', ''),
-                    hasPlus: hasPlus,
-                    savedCards: existing.savedCards || [],
-                    balance: existing.balance !== undefined ? existing.balance : 0
-                };
-                sessionStorage.setItem('noir_user', JSON.stringify(sessionUser));
+            fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ credential: response.credential })
+            })
+            .then(function(r) {
+                if (!r.ok) return r.json().then(function(j) { throw new Error(j.error || 'Server error'); });
+                return r.json();
+            })
+            .then(function(data) {
+                sessionStorage.setItem('noir_user', JSON.stringify(data));
                 window.location.href = '/';
-            } else {
-                // Новый Google пользователь — генерируем уникальный username
-                var emailBase = payload.email.split('@@')[0].replace(/[^a-zA-Z0-9_]/g, '_');
-                var finalUsername = '@@' + emailBase;
-                // Проверяем уникальность
-                var allUsers = getAllUsers();
-                var counter = 1;
-                while (allUsers.some(function(u) { return u.username === finalUsername; })) {
-                    finalUsername = '@@' + emailBase + counter;
-                    counter++;
-                }
-
-                var sessionUser = {
-                    username: finalUsername,
-                    email: payload.email,
-                    role: 'user',
-                    name: payload.name,
-                    avatar: payload.picture,
-                    googleAuth: true,
-                    nickname: null,
-                    displayName: null,
-                    hasPlus: false,
-                    savedCards: [],
-                    balance: 0
-                };
-                sessionStorage.setItem('noir_user', JSON.stringify(sessionUser));
-                window.location.href = '/Nickname';
-            }
+            })
+            .catch(function(e) {
+                console.error('Google auth error:', e);
+                alert('Google authentication failed: ' + e.message);
+            });
         }
     </script>
 </body>

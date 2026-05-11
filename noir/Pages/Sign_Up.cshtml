@@ -24,7 +24,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ─── LOGO ─── */
         .logo {
             font-family: 'Cinzel', serif;
             font-size: 4rem;
@@ -48,13 +47,11 @@
             margin-bottom: 56px;
         }
 
-        /* ─── PANEL ─── */
         .panel {
             width: 100%;
             max-width: 380px;
         }
 
-        /* ─── FLOATING LABEL FIELD ─── */
         .field {
             position: relative;
             margin-bottom: 36px;
@@ -107,7 +104,6 @@
             border-bottom-color: #000;
         }
 
-        /* chrome autofill fix */
         .field input:-webkit-autofill,
         .field input:-webkit-autofill:hover,
         .field input:-webkit-autofill:focus {
@@ -116,7 +112,6 @@
             transition: background-color 9999s 0s;
         }
 
-        /* ─── STRENGTH ─── */
         .strength-wrap {
             display: flex;
             gap: 4px;
@@ -132,7 +127,6 @@
         .strength-bar.medium { background: #e67e22; }
         .strength-bar.strong { background: #2d5a27; }
 
-        /* ─── ERROR / SUCCESS ─── */
         .error-msg {
             font-size: 0.44rem;
             letter-spacing: 2.5px;
@@ -156,7 +150,6 @@
         }
         .success-msg.visible { display: block; }
 
-        /* ─── PRIMARY BUTTON ─── */
         .btn-login {
             width: 100%;
             height: 52px;
@@ -175,7 +168,6 @@
         }
         .btn-login:hover { background: #1a1a1a; }
 
-        /* ─── OR ─── */
         .divider-or {
             display: flex;
             align-items: center;
@@ -195,7 +187,6 @@
             background: #e0e0e0;
         }
 
-        /* ─── OUTLINE BUTTON ─── */
         .btn-outline {
             width: 100%;
             height: 48px;
@@ -219,7 +210,6 @@
         }
         .btn-outline:hover { border-color: #000; background: #fafafa; }
 
-        /* ─── STATUS ─── */
         .status {
             margin-top: 48px;
             display: flex;
@@ -305,16 +295,6 @@
     </div>
 
     <script>
-        var hardcodedUsers = [
-            { username: '@@if6was7', password: '67890', role: 'admin' },
-            { username: '@@tornadomart1', password: '12345', role: 'user' }
-        ];
-
-        function getAllUsers() {
-            var registered = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
-            return hardcodedUsers.concat(registered);
-        }
-
         function clearErrors() {
             document.getElementById('errorMsg').classList.remove('visible');
         }
@@ -348,32 +328,34 @@
             if (p.length < 3) errors.push('Password must be at least 3 characters');
             if (p !== pc)     errors.push('Passwords do not match');
 
-            // проверка что ник не занят
-            if (u.length >= 3) {
-                var existing = getAllUsers();
-                for (var i = 0; i < existing.length; i++) {
-                    if (existing[i].username === u) {
-                        errors.push('Username already taken');
-                        break;
-                    }
-                }
-            }
-
             if (errors.length > 0) {
                 err.innerHTML = errors.join('<br>');
                 err.classList.add('visible');
                 return;
             }
 
-            // сохраняем нового юзера
-            var registered = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
-            registered.push({ username: u, password: p, role: 'user' });
-            localStorage.setItem('noir_registered_users', JSON.stringify(registered));
+            var finalUsername = u.startsWith('@@') ? u : '@@' + u;
+            var email = finalUsername + '@@noir.com';
 
-            ok.classList.add('visible');
-            setTimeout(function() {
-                window.location.href = '/Log_In';
-            }, 1500);
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: finalUsername, email: email, password: p })
+            })
+            .then(function(r) {
+                if (!r.ok) return r.json().then(function(j) { throw new Error(j.error); });
+                return r.json();
+            })
+            .then(function() {
+                ok.classList.add('visible');
+                setTimeout(function() {
+                    window.location.href = '/Log_In';
+                }, 1500);
+            })
+            .catch(function(e) {
+                err.innerHTML = e.message;
+                err.classList.add('visible');
+            });
         }
 
         document.addEventListener('keydown', function(e) {

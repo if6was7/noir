@@ -1,4 +1,5 @@
 ﻿@page
+@model noir.Pages.AdminFunctionModel
 @{ Layout = null; }
 <!DOCTYPE html>
 <html lang="ru">
@@ -8,39 +9,10 @@
     <title>noir — admin panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #ffffff;
-            --text-main: #000000;
-            --header-bg: #000000;
-            --accent-purple: #a855f7;
-            --accent-dim: #7c3aed;
-            --admin-gold: #c9a84c;
-            --admin-gold-dim: #a07c2a;
-            --danger: #c0392b;
-        }
-
+        :root { --bg: #ffffff; --text-main: #000000; --header-bg: #000000; --accent-purple: #a855f7; --accent-dim: #7c3aed; --admin-gold: #c9a84c; --admin-gold-dim: #a07c2a; --danger: #c0392b; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Goudy Old Style', serif;
-            -webkit-font-smoothing: antialiased;
-            min-height: 100vh;
-        }
-
-        /* ── Header ── */
-        header {
-            background-color: var(--header-bg);
-            height: 60px;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            padding: 0 60px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+        body { background-color: var(--bg); color: var(--text-main); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        header { background-color: var(--header-bg); height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
         .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; }
         .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
         .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
@@ -49,141 +21,54 @@
         nav a:hover { opacity: 1; }
         .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .header-avatar {
-            width: 28px; height: 28px; border-radius: 50%;
-            background: #000; border: 1px solid #2a2a2a;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.6rem; font-weight: 600; color: #fff;
-            overflow: hidden; font-family: 'Cinzel', serif;
-            transition: border-color 0.3s;
-        }
+        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background: #000; border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 600; color: #fff; overflow: hidden; font-family: 'Cinzel', serif; transition: border-color 0.3s; }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
         .logout-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
         .logout-btn:hover { opacity: 1; }
-
-        /* ── Page ── */
         .container { max-width: 1000px; margin: 0 auto; padding: 60px 40px 100px; font-family: 'Montserrat', sans-serif; }
-
-        .page-header {
-            display: flex; align-items: flex-end; justify-content: space-between;
-            border-bottom: 1px solid #000; padding-bottom: 24px; margin-bottom: 50px;
-        }
-        .page-header-left { }
+        .page-header { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid #000; padding-bottom: 24px; margin-bottom: 50px; }
         .page-eyebrow { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 5px; opacity: 0.3; margin-bottom: 10px; }
         .page-title-wrap { display: flex; align-items: center; gap: 16px; }
         .page-title { font-family: 'Cinzel', serif; font-size: 2.4rem; letter-spacing: 6px; text-transform: uppercase; font-weight: 700; }
-        .admin-crown {
-            font-size: 0.45rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
-            color: var(--admin-gold); border: 1px solid var(--admin-gold);
-            padding: 4px 10px; line-height: 1.7;
-        }
+        .admin-crown { font-size: 0.45rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--admin-gold); border: 1px solid var(--admin-gold); padding: 4px 10px; line-height: 1.7; }
         .superadmin-note { font-size: 0.52rem; letter-spacing: 2px; opacity: 0.35; margin-top: 8px; text-transform: uppercase; }
-
-        /* ── Search ── */
-        .search-wrap {
-            position: relative; margin-bottom: 40px;
-        }
-        .search-input {
-            width: 100%; border: none; border-bottom: 1px solid #ddd;
-            padding: 14px 0 12px 0;
-            font-family: 'Montserrat', sans-serif; font-size: 0.85rem;
-            color: #000; background: transparent; outline: none;
-            transition: border-color 0.25s; letter-spacing: 1px;
-        }
+        .search-wrap { position: relative; margin-bottom: 40px; }
+        .search-input { width: 100%; border: none; border-bottom: 1px solid #ddd; padding: 14px 0 12px 0; font-family: 'Montserrat', sans-serif; font-size: 0.85rem; color: #000; background: transparent; outline: none; transition: border-color 0.25s; letter-spacing: 1px; }
         .search-input:focus { border-bottom-color: #000; }
         .search-input::placeholder { color: #ccc; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; }
-
-        /* ── Section labels ── */
         .section-block { margin-bottom: 50px; }
-        .section-label-row {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 16px; margin-top: 14px;
-        }
-        .section-label {
-            font-size: 0.5rem; text-transform: uppercase; letter-spacing: 4px;
-            opacity: 0.35; font-weight: 600;
-        }
-        .section-count {
-            font-size: 0.5rem; letter-spacing: 2px; opacity: 0.25;
-        }
-
-        /* ── User rows ── */
+        .section-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; margin-top: 14px; }
+        .section-label { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 4px; opacity: 0.35; font-weight: 600; }
+        .section-count { font-size: 0.5rem; letter-spacing: 2px; opacity: 0.25; }
         .user-list { border-top: 1px solid #eee; }
-
-        .user-row {
-            display: flex; align-items: center; gap: 20px;
-            padding: 18px 0;
-            border-bottom: 1px solid #eee;
-            transition: background 0.15s;
-        }
+        .user-row { display: flex; align-items: center; gap: 20px; padding: 18px 0; border-bottom: 1px solid #eee; transition: background 0.15s; }
         .user-row:hover { background: #fafafa; margin: 0 -20px; padding: 18px 20px; }
-
-        .user-avatar-small {
-            width: 38px; height: 38px; border-radius: 50%;
-            background: #000; border: 2px solid #000;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Cinzel'; font-size: 0.85rem; color: #fff;
-            overflow: hidden; flex-shrink: 0; transition: border-color 0.3s;
-        }
+        .user-avatar-small { width: 38px; height: 38px; border-radius: 50%; background: #000; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; font-size: 0.85rem; color: #fff; overflow: hidden; flex-shrink: 0; transition: border-color 0.3s; }
         .user-avatar-small img { width: 100%; height: 100%; object-fit: cover; }
         .user-avatar-small.plus-ring { border-color: var(--accent-purple); }
         .user-avatar-small.gold-ring { border-color: var(--admin-gold); }
-
         .user-info { flex: 1; }
         .user-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 3px; }
         .user-name { font-size: 0.85rem; font-weight: 600; }
-        .badge {
-            font-size: 0.42rem; font-weight: 600; letter-spacing: 2px;
-            text-transform: uppercase; padding: 2px 8px; line-height: 1.7;
-            border-radius: 2px; flex-shrink: 0;
-        }
+        .badge { font-size: 0.42rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 2px 8px; line-height: 1.7; border-radius: 2px; flex-shrink: 0; }
         .badge-admin { color: var(--admin-gold); border: 1px solid var(--admin-gold); }
         .badge-superadmin { color: var(--admin-gold); border: 1px solid var(--admin-gold); background: rgba(201,168,76,0.08); }
         .badge-plus { color: var(--accent-purple); border: 1px solid var(--accent-purple); }
         .user-meta { font-size: 0.6rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 1px; }
-
         .user-actions { display: flex; gap: 8px; flex-shrink: 0; }
-
-        .action-btn-sm {
-            padding: 7px 16px; border: 1px solid #000; background: #fff;
-            font-family: 'Montserrat'; font-size: 0.55rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 1.5px;
-            cursor: pointer; transition: 0.2s; white-space: nowrap;
-        }
+        .action-btn-sm { padding: 7px 16px; border: 1px solid #000; background: #fff; font-family: 'Montserrat'; font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
         .action-btn-sm:hover { background: #000; color: #fff; }
         .action-btn-sm.promote { border-color: var(--admin-gold); color: var(--admin-gold); }
         .action-btn-sm.promote:hover { background: var(--admin-gold); color: #fff; }
         .action-btn-sm.demote { border-color: var(--danger); color: var(--danger); }
         .action-btn-sm.demote:hover { background: var(--danger); color: #fff; }
         .action-btn-sm:disabled { opacity: 0.2; cursor: not-allowed; background: #fff; color: #000; border-color: #ccc; }
-
-        /* ── Empty state ── */
-        .empty-row {
-            padding: 40px 0; text-align: center;
-            font-size: 0.55rem; text-transform: uppercase; letter-spacing: 4px;
-            opacity: 0.2; border-bottom: 1px solid #eee;
-        }
-
-        /* ── Toast ── */
-        .toast {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: #000; color: #fff;
-            font-family: 'Montserrat'; font-size: 0.55rem;
-            text-transform: uppercase; letter-spacing: 3px;
-            padding: 14px 28px; opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none; z-index: 9000;
-        }
+        .empty-row { padding: 40px 0; text-align: center; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 4px; opacity: 0.2; border-bottom: 1px solid #eee; }
+        .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px); background: #000; color: #fff; font-family: 'Montserrat'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; padding: 14px 28px; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9000; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* ── Footer ── */
-        .footer-main {
-            border-top: 1px solid #000; padding: 60px;
-            display: grid; grid-template-columns: 1fr auto 1fr;
-            align-items: center; background: #fff;
-        }
+        .footer-main { border-top: 1px solid #000; padding: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: #fff; }
         .footer-brand { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 5px; text-transform: lowercase; }
         .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
         .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
@@ -224,22 +109,70 @@
 
         <input type="text" class="search-input" id="searchInput" placeholder="Search users..." oninput="renderAll()">
 
-        <!-- Admins section -->
         <div class="section-block">
             <div class="section-label-row">
                 <span class="section-label">Administrators</span>
-                <span class="section-count" id="adminCount">0 users</span>
+                <span class="section-count" id="adminCount">@Model.AdminUsers.Count users</span>
             </div>
-            <div class="user-list" id="adminList"></div>
+            <div class="user-list" id="adminList">
+                @foreach (var u in Model.AdminUsers)
+                {
+                    var clean = u.Username.Replace("@", "");
+                    var isSuper = u.Username == "@if6was7";
+                    <div class="user-row" data-username="@u.Username">
+                        <div class="user-avatar-small @(isSuper ? "gold-ring" : (u.HasPlus ? "plus-ring" : ""))">
+                            <img src="/images/avatar/@(clean).jpg" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentNode.innerText='@(clean.Substring(0,1).ToUpper())'">
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name-row">
+                                <span class="user-name">@u.Username</span>
+                                @if (isSuper) { <span class="badge badge-superadmin">Admin</span> }
+                                else { <span class="badge badge-admin">Admin</span> }
+                                @if (u.HasPlus) { <span class="badge badge-plus">plus</span> }
+                            </div>
+                            <div class="user-meta">@(u.Email ?? "—")</div>
+                        </div>
+                        <div class="user-actions">
+                            @if (isSuper)
+                            {
+                                <button class="action-btn-sm" disabled>Protected</button>
+                            }
+                            else
+                            {
+                                <button class="action-btn-sm demote" onclick="demoteUser('@u.Username')">Revoke</button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
 
-        <!-- Regular users section -->
         <div class="section-block">
             <div class="section-label-row">
                 <span class="section-label">All Users</span>
-                <span class="section-count" id="userCount">0 users</span>
+                <span class="section-count" id="userCount">@Model.AllUsers.Count users</span>
             </div>
-            <div class="user-list" id="userList"></div>
+            <div class="user-list" id="userList">
+                @foreach (var u in Model.AllUsers)
+                {
+                    var clean = u.Username.Replace("@", "");
+                    <div class="user-row" data-username="@u.Username">
+                        <div class="user-avatar-small @(u.HasPlus ? "plus-ring" : "")">
+                            <img src="/images/avatar/@(clean).jpg" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentNode.innerText='@(clean.Substring(0,1).ToUpper())'">
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name-row">
+                                <span class="user-name">@u.Username</span>
+                                @if (u.HasPlus) { <span class="badge badge-plus">plus</span> }
+                            </div>
+                            <div class="user-meta">@(u.Email ?? "—")</div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="action-btn-sm promote" onclick="promoteUser('@u.Username')">Make Admin</button>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </main>
 
@@ -253,15 +186,11 @@
 
     <script>
         var SUPERADMIN = '@@if6was7';
-
-        // ── Auth guard: only superadmin can access ──
         (function() {
             var raw = sessionStorage.getItem('noir_user');
             if (!raw) { window.location.href = '/Log_In'; return; }
             var u = JSON.parse(raw);
             if (u.username !== SUPERADMIN) { window.location.href = '/'; return; }
-
-            // Header
             var clean = u.username.replace('@@', '');
             var ha = document.getElementById('headerAvatar');
             var img = document.createElement('img');
@@ -274,150 +203,38 @@
             document.getElementById('headerPlus').style.display = 'inline';
         })();
 
-        // ── Data helpers ──
-        var HARDCODED = [
-            { username: '@@if6was7',      password: '67890',  role: 'admin', hasPlus: true,  displayName: 'if6was7' },
-            { username: '@@tornadomart1', password: '12345',  role: 'user',  hasPlus: false, displayName: 'tornadomart1' }
-        ];
-
-        function getAllUsers() {
-            var reg = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
-            // Merge: registered overrides hardcoded for same username
-            var map = {};
-            HARDCODED.forEach(function(u) { map[u.username] = Object.assign({}, u); });
-            reg.forEach(function(u) { map[u.username] = Object.assign({}, map[u.username] || {}, u); });
-            return Object.values(map);
-        }
-
-        function getAdmins() {
-            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
-        }
-
-        function setAdmins(list) {
-            // Superadmin always stays
-            if (list.indexOf(SUPERADMIN) === -1) list.push(SUPERADMIN);
-            localStorage.setItem('noir_admins', JSON.stringify(list));
-        }
-
-        function isAdmin(username) {
-            return getAdmins().indexOf(username) !== -1;
-        }
-
-        function promoteUser(username) {
+        async function promoteUser(username) {
             if (username === SUPERADMIN) return;
-            var admins = getAdmins();
-            if (admins.indexOf(username) === -1) admins.push(username);
-            setAdmins(admins);
-            // Update role in registered_users if exists
-            updateUserRole(username, 'admin');
-            showToast(username + ' promoted to admin');
-            renderAll();
+            try {
+                var res = await fetch('/api/admin/promote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username })
+                });
+                if (res.ok) { showToast(username + ' promoted to admin'); setTimeout(function() { location.reload(); }, 800); }
+            } catch(e) {}
         }
-
-        function demoteUser(username) {
+        async function demoteUser(username) {
             if (username === SUPERADMIN) return;
-            var admins = getAdmins().filter(function(a) { return a !== username; });
-            setAdmins(admins);
-            updateUserRole(username, 'user');
-            showToast(username + ' removed from admins');
-            renderAll();
+            try {
+                var res = await fetch('/api/admin/demote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username })
+                });
+                if (res.ok) { showToast(username + ' removed from admins'); setTimeout(function() { location.reload(); }, 800); }
+            } catch(e) {}
         }
+        function showToast(msg) { var t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 2500); }
+        function logout() { sessionStorage.removeItem('noir_user'); window.location.href = '/Log_In'; }
 
-        function updateUserRole(username, role) {
-            var reg = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
-            var found = false;
-            reg = reg.map(function(u) {
-                if (u.username === username) { found = true; return Object.assign({}, u, { role: role }); }
-                return u;
-            });
-            if (!found) {
-                // It's a hardcoded user — store override
-                reg.push({ username: username, role: role });
-            }
-            localStorage.setItem('noir_registered_users', JSON.stringify(reg));
-        }
-
-        // ── Render ──
         function renderAll() {
             var query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-            var users = getAllUsers();
-            var admins = getAdmins();
-
-            var adminUsers = users.filter(function(u) { return admins.indexOf(u.username) !== -1; });
-            var regularUsers = users.filter(function(u) { return admins.indexOf(u.username) === -1; });
-
-            if (query) {
-                adminUsers = adminUsers.filter(function(u) { return u.username.toLowerCase().indexOf(query) !== -1; });
-                regularUsers = regularUsers.filter(function(u) { return u.username.toLowerCase().indexOf(query) !== -1; });
-            }
-
-            document.getElementById('adminCount').innerText = adminUsers.length + ' user' + (adminUsers.length !== 1 ? 's' : '');
-            document.getElementById('userCount').innerText = regularUsers.length + ' user' + (regularUsers.length !== 1 ? 's' : '');
-
-            renderList(document.getElementById('adminList'), adminUsers, true);
-            renderList(document.getElementById('userList'), regularUsers, false);
-        }
-
-        function renderList(container, users, isAdminSection) {
-            if (users.length === 0) {
-                container.innerHTML = '<div class="empty-row">' + (isAdminSection ? 'No administrators' : 'No users') + '</div>';
-                return;
-            }
-
-            var html = '';
-            users.forEach(function(u) {
-                var clean = u.username.replace('@@', '');
-                var isSuperAdmin = u.username === SUPERADMIN;
-                var hasPlus = u.hasPlus === true || u.hasPlus === 'true';
-
-                var badges = '';
-                if (isSuperAdmin) badges += '<span class="badge badge-superadmin">Admin</span>';
-                else if (isAdminSection) badges += '<span class="badge badge-admin">Admin</span>';
-                if (hasPlus) badges += '<span class="badge badge-plus">plus</span>';
-
-                var ringClass = isSuperAdmin ? 'gold-ring' : (hasPlus ? 'plus-ring' : '');
-
-                var actions = '';
-                if (isSuperAdmin) {
-                    actions = '<button class="action-btn-sm" disabled>Protected</button>';
-                } else if (isAdminSection) {
-                    actions = '<button class="action-btn-sm demote" onclick="demoteUser(\'' + u.username + '\')">Revoke</button>';
-                } else {
-                    actions = '<button class="action-btn-sm promote" onclick="promoteUser(\'' + u.username + '\')">Make Admin</button>';
-                }
-
-                html += '<div class="user-row">' +
-                    '<div class="user-avatar-small ' + ringClass + '" id="av_' + clean + '">' +
-                        '<img src="/images/avatar/' + clean + '.jpg" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.removeChild(this);this.parentNode.innerText=\'' + clean.charAt(0).toUpperCase() + '\'">' +
-                    '</div>' +
-                    '<div class="user-info">' +
-                        '<div class="user-name-row">' +
-                            '<span class="user-name">' + u.username + '</span>' +
-                            badges +
-                        '</div>' +
-                        '<div class="user-meta">' + (u.email || '—') + '</div>' +
-                    '</div>' +
-                    '<div class="user-actions">' + actions + '</div>' +
-                '</div>';
+            document.querySelectorAll('.user-row').forEach(function(row) {
+                var name = (row.dataset.username || '').toLowerCase();
+                row.style.display = (!query || name.indexOf(query) !== -1) ? 'flex' : 'none';
             });
-
-            container.innerHTML = html;
         }
-
-        // ── Toast ──
-        function showToast(msg) {
-            var t = document.getElementById('toast');
-            t.innerText = msg;
-            t.classList.add('show');
-            setTimeout(function() { t.classList.remove('show'); }, 2500);
-        }
-
-        function logout() {
-            sessionStorage.removeItem('noir_user');
-            window.location.href = '/Log_In';
-        }
-
-        renderAll();
     </script>
 </body>
 </html>

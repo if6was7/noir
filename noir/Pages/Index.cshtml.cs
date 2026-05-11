@@ -1,28 +1,34 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using noir.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace noir.Pages
 {
 	public class IndexModel : PageModel
 	{
-		public List<AntiqueItem> Items { get; set; } = new();
+		private readonly NoirDbContext _context;
 
-		public void OnGet()
+		public IndexModel(NoirDbContext context)
 		{
-			Items = new List<AntiqueItem>
-			{
-				new AntiqueItem { Id = 1, Title = "Leica III (1933) — Special Edition", Price = 18500 },
-				new AntiqueItem { Id = 2, Title = "Vacheron Constantin — Pocket Gold", Price = 42000 },
-				new AntiqueItem { Id = 3, Title = "S.T. Dupont — Ligne 1 Briquet", Price = 15200 },
-				new AntiqueItem { Id = 4, Title = "Original Hermes Kelly (1950s)", Price = 27000 }
-			};
+			_context = context;
 		}
-	}
 
-	public class AntiqueItem
-	{
-		public int Id { get; set; }
-		public string Title { get; set; }
-		public decimal Price { get; set; }
+		public List<Listing> Listings { get; set; } = new();
+		public User? CurrentUser { get; set; }
+
+		public async Task OnGetAsync()
+		{
+			Listings = await _context.Listings
+				.Include(l => l.Seller)
+				.Where(l => !l.IsRemoved && l.Status != "sold")
+				.OrderBy(l => l.Id)
+				.ToListAsync();
+
+			var userId = HttpContext.Session.GetInt32("UserId");
+			if (userId.HasValue)
+				CurrentUser = await _context.Users.FindAsync(userId.Value);
+		}
 	}
 }

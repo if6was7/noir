@@ -1,32 +1,30 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using noir.Models;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace noir.Pages
 {
 	public class ArchiveModel : PageModel
 	{
-		// Модель данных для архивного товара
-		public class SoldItem
+		private readonly NoirDbContext _context;
+
+		public ArchiveModel(NoirDbContext context)
 		{
-			public int Id { get; set; }
-			public string Title { get; set; }
-			public int Price { get; set; }
-			public string Date { get; set; }
+			_context = context;
 		}
 
-		public List<SoldItem> SoldItems { get; set; }
+		public List<Listing> ArchivedItems { get; set; } = new();
 
-		public void OnGet()
+		public async Task OnGetAsync()
 		{
-			// Имитация базы данных проданных товаров
-			SoldItems = new List<SoldItem>
-			{
-				new SoldItem { Id = 50, Title = "ancient obsidian mask", Price = 12500, Date = "Sold Oct 2025" },
-				new SoldItem { Id = 51, Title = "fragmented marble torso", Price = 42000, Date = "Sold Dec 2025" },
-				new SoldItem { Id = 52, Title = "silver occult medallion", Price = 3100, Date = "Sold Jan 2026" },
-				new SoldItem { Id = 53, Title = "first edition 'the void'", Price = 8900, Date = "Sold Feb 2026" },
-				new SoldItem { Id = 54, Title = "rusted knight gauntlet", Price = 15600, Date = "Sold Mar 2026" }
-			};
+			ArchivedItems = await _context.Listings
+				.Include(l => l.Seller)
+				.Where(l => l.Status == "sold" || l.IsRemoved)
+				.OrderBy(l => l.Id)
+				.ToListAsync();
 		}
 	}
 }

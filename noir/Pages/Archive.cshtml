@@ -1,18 +1,6 @@
 ﻿@page
 @model noir.Pages.ArchiveModel
-@{
-    Layout = null;
-    var archivedItems = new[] {
-        new { Id = 101, Title = "opium heavy glass bottle", Price = 3200 },
-        new { Id = 102, Title = "ivory chess set (19th c.)", Price = 12500 },
-        new { Id = 103, Title = "faded polaroid collection", Price = 850 },
-        new { Id = 104, Title = "brass astronomical clock", Price = 45000 },
-        new { Id = 105, Title = "jade emperor ring", Price = 28000 },
-        new { Id = 106, Title = "edwardian vanity mirror", Price = 6700 },
-        new { Id = 107, Title = "hand-bound grimoire", Price = 9400 },
-        new { Id = 108, Title = "naval officer compass", Price = 5100 }
-    };
-}
+@{ Layout = null; }
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -22,100 +10,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #ffffff; 
-            --text-main: #000000; 
-            --header-bg: #000000; 
-            --light-gray: #fdfdfd; 
-            --sold-red-dark: #660000;
-            --accent-purple: #a855f7;
-            --admin-gold: #c9a84c;
+            --bg: #ffffff; --text-main: #000000; --header-bg: #000000; 
+            --light-gray: #fdfdfd; --sold-red-dark: #660000;
+            --accent-purple: #a855f7; --admin-gold: #c9a84c;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: var(--text-main); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; }
-
-        header { 
-            background-color: var(--header-bg); height: 60px; display: grid; 
-            grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; 
-            position: sticky; top: 0; z-index: 1000; 
-        }
-
+        header { background-color: var(--header-bg); height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
         .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; cursor: pointer; }
         .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
         .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
-
         nav { display: flex; gap: 60px; }
         nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; cursor: pointer; }
         nav a:hover, nav a.active { opacity: 1; }
-
         .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .header-avatar { 
-            width: 28px; height: 28px; border-radius: 50%; 
-            background: #000; border: 1px solid #2a2a2a;
-            display: flex; align-items: center; justify-content: center; 
-            overflow: hidden; transition: border-color 0.3s;
-        }
+        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background: #000; border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: border-color 0.3s; }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
         .header-avatar.gold-border { border-color: var(--admin-gold); }
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
-        .auth-btn { 
-            font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; 
-            text-transform: uppercase; color: #fff; opacity: 0.3; 
-            background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; 
-        }
+        .auth-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
         .auth-btn:hover { opacity: 1; }
-
         .container { max-width: 1800px; margin: 80px auto; padding: 0 40px; }
-
         .title-wrapper { position: relative; text-align: center; margin-bottom: 40px; }
         .page-label { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 5px; color: #000; font-weight: 600; opacity: 0.3; white-space: nowrap; }
         .page-title { font-family: 'Cinzel', serif; font-size: 3.2rem; letter-spacing: 12px; text-transform: uppercase; margin: 0; }
-
-        .sort-wrap {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 50px;
-            padding: 0 0 20px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .sort-label {
-            font-family: 'Montserrat';
-            font-size: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: #999;
-        }
-        .sort-select {
-            font-family: 'Montserrat';
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            padding: 8px 32px 8px 14px;
-            border: 1px solid #e0e0e0;
-            background: transparent;
-            color: #000;
-            cursor: pointer;
-            transition: 0.25s;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23999' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-        }
+        .sort-wrap { display: flex; justify-content: flex-start; align-items: center; gap: 14px; margin-bottom: 50px; padding: 0 0 20px 0; border-bottom: 1px solid #eee; }
+        .sort-label { font-family: 'Montserrat'; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 3px; color: #999; }
+        .sort-select { font-family: 'Montserrat'; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; padding: 8px 32px 8px 14px; border: 1px solid #e0e0e0; background: transparent; color: #000; cursor: pointer; transition: 0.25s; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23999' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
         .sort-select:hover { border-color: #000; }
         .sort-select:focus { outline: none; border-color: #000; }
-        .item-count {
-            font-family: 'Montserrat';
-            font-size: 0.5rem;
-            letter-spacing: 2px;
-            color: #aaa;
-            margin-left: auto;
-        }
-
+        .item-count { font-family: 'Montserrat'; font-size: 0.5rem; letter-spacing: 2px; color: #aaa; margin-left: auto; }
         .catalog-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 80px 30px; }
         .item-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; position: relative; cursor: pointer; }
         .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; color: #ccc; margin-bottom: 12px; }
@@ -129,12 +55,10 @@
         .item-title { font-size: 1.8rem; margin: 0 0 10px 0; text-transform: lowercase; font-weight: normal; color: #000; }
         .item-price { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 600; }
         .item-price::before { content: "SOLD FOR: EUR "; font-weight: 400; opacity: 0.5; }
-
         .footer { margin-top: 120px; border-top: 1px solid #000; padding: 60px 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
         .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
         .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
         .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
-
         @@media (max-width: 1400px) { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
         @@media (max-width: 900px) { .catalog-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
@@ -178,7 +102,7 @@
         </div>
 
         <div class="catalog-grid" id="catalogGrid">
-            @foreach (var item in archivedItems) 
+            @foreach (var item in Model.ArchivedItems) 
             {
                 <div class="item-card" id="card-@item.Id" data-id="@item.Id" data-price="@item.Price" data-title="@item.Title" onclick="handleItemClick(@item.Id)">
                     <span class="lot-tag">Archive Ref: 00@(item.Id)</span>
@@ -202,68 +126,40 @@
     </main>
 
     <script>
-        // FIX: centralized superadmin constant (same as Index)
         var SUPERADMIN = '@@if6was7';
-
-        function getAdmins() {
-            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
-        }
-
+        function getAdmins() { return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]'); }
         function requireAuth(url) {
-            if (!sessionStorage.getItem('noir_user')) {
-                window.location.href = '/Log_In';
-            } else {
-                window.location.href = url;
-            }
+            if (!sessionStorage.getItem('noir_user')) { window.location.href = '/Log_In'; }
+            else { window.location.href = url; }
         }
-
         function handleItemClick(itemId) {
-            if (!sessionStorage.getItem('noir_user')) {
-                window.location.href = '/Log_In';
-            } else {
-                window.location.href = '/Sold?id=' + itemId;
-            }
+            if (!sessionStorage.getItem('noir_user')) { window.location.href = '/Log_In'; }
+            else { window.location.href = '/Sold?id=' + itemId; }
         }
-
         function sortItems(mode) {
             var grid = document.getElementById('catalogGrid');
             var cards = Array.from(grid.querySelectorAll('.item-card'));
-
             cards.sort(function(a, b) {
-                var priceA = parseInt(a.dataset.price);
-                var priceB = parseInt(b.dataset.price);
-                var idA = parseInt(a.dataset.id);
-                var idB = parseInt(b.dataset.id);
-                var titleA = a.dataset.title.toLowerCase();
-                var titleB = b.dataset.title.toLowerCase();
-
+                var priceA = parseInt(a.dataset.price); var priceB = parseInt(b.dataset.price);
+                var idA = parseInt(a.dataset.id); var idB = parseInt(b.dataset.id);
+                var titleA = a.dataset.title.toLowerCase(); var titleB = b.dataset.title.toLowerCase();
                 switch(mode) {
                     case 'price-asc': return priceA - priceB;
                     case 'price-desc': return priceB - priceA;
                     case 'title': return titleA.localeCompare(titleB);
-                    case 'id':
-                    default: return idA - idB;
+                    case 'id': default: return idA - idB;
                 }
             });
-
-            cards.forEach(function(card) {
-                grid.appendChild(card);
-            });
+            cards.forEach(function(card) { grid.appendChild(card); });
         }
-
         function updateItemCount() {
-            var visibleItems = document.querySelectorAll('.item-card').length;
             var countSpan = document.getElementById('itemCount');
-            if (countSpan) {
-                countSpan.innerText = visibleItems + ' items';
-            }
+            if (countSpan) countSpan.innerText = document.querySelectorAll('.item-card').length + ' items';
         }
-
         function loadUser() {
             var userData = sessionStorage.getItem('noir_user');
             var user = userData ? JSON.parse(userData) : null;
             var isGuest = !user;
-
             var displayName = 'guest';
             if (!isGuest) {
                 if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
@@ -272,67 +168,33 @@
                 else if (user.username) displayName = user.username.replace('@@', '');
                 else if (user.email) displayName = user.email.split('@@')[0];
             }
-
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
-
             if (!isGuest) {
                 var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
-                var avatarPath = '/images/avatar/' + cleanName + '.jpg';
                 var img = document.createElement('img');
-                img.src = avatarPath;
-                img.onerror = function() {
-                    ha.removeChild(img);
-                    ha.style.backgroundColor = '#000';
-                };
+                img.src = '/images/avatar/' + cleanName + '.jpg';
+                img.onerror = function() { ha.removeChild(img); ha.style.backgroundColor = '#000'; };
                 ha.appendChild(img);
-            } else {
-                ha.style.backgroundColor = '#000';
-            }
-
+            } else { ha.style.backgroundColor = '#000'; }
             document.getElementById('headerUsername').innerText = displayName;
-
-            var authBtn = document.getElementById('authBtn');
-            authBtn.innerText = isGuest ? 'sign in' : 'exit';
-
+            document.getElementById('authBtn').innerText = isGuest ? 'sign in' : 'exit';
             if (!isGuest) {
-                var admins = getAdmins();
-                var isAdminMode = admins.indexOf(user.username) !== -1;
-                // FIX: correct isPlus check — same as Index.cshtml
                 var isSuperAdmin = (user.username === SUPERADMIN);
                 var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
-
-                if (isSuperAdmin) {
-                    ha.classList.add('gold-border');
-                } else if (isPlus) {
-                    ha.classList.add('plus-border');
-                }
-
-                if (isPlus) {
-                    document.getElementById('headerPlus').style.display = 'inline';
-                }
+                if (isSuperAdmin) ha.classList.add('gold-border');
+                else if (isPlus) ha.classList.add('plus-border');
+                if (isPlus) document.getElementById('headerPlus').style.display = 'inline';
             }
-
             updateItemCount();
-
-            var titles = [
-                "past collections", "sold out", "gone forever",
-                "the archive", "closed lots", "no longer available",
-                "history", "previous sales", "the vault"
-            ];
+            var titles = ["past collections", "sold out", "gone forever", "the archive", "closed lots", "no longer available", "history", "previous sales", "the vault"];
             var titleEl = document.getElementById('pageTitle');
             if (titleEl) titleEl.textContent = titles[Math.floor(Math.random() * titles.length)];
         }
-
         function handleAuth() {
-            if (!sessionStorage.getItem('noir_user')) {
-                window.location.href = '/Log_In';
-            } else {
-                sessionStorage.removeItem('noir_user');
-                location.reload();
-            }
+            if (!sessionStorage.getItem('noir_user')) { window.location.href = '/Log_In'; }
+            else { sessionStorage.removeItem('noir_user'); location.reload(); }
         }
-
         loadUser();
     </script>
 </body>

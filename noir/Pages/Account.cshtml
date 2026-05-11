@@ -9,51 +9,19 @@
     <title>noir — account</title>
     <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --bg: #ffffff; 
-            --text-main: #000000; 
-            --header-bg: #000000; 
-            --accent-purple: #a855f7;
-            --accent-dim: #7c3aed;
-            --admin-gold: #c9a84c;
-        }
-
+        :root { --bg: #ffffff; --text-main: #000000; --header-bg: #000000; --accent-purple: #a855f7; --accent-dim: #7c3aed; --admin-gold: #c9a84c; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body { 
-            background-color: var(--bg); 
-            color: var(--text-main); 
-            font-family: 'Goudy Old Style', serif; 
-            -webkit-font-smoothing: antialiased; 
-            min-height: 100vh;
-        }
-
-        header { 
-            background-color: var(--header-bg); 
-            height: 60px; 
-            display: grid; 
-            grid-template-columns: 1fr auto 1fr; 
-            align-items: center; 
-            padding: 0 60px; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-        }
+        body { background-color: var(--bg); color: var(--text-main); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        header { background-color: var(--header-bg); height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
         .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; }
         .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
         .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
         nav { display: flex; gap: 60px; }
         nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; }
         nav a:hover { opacity: 1; }
-
         .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .header-avatar { 
-            width: 28px; height: 28px; border-radius: 50%; background: #000;
-            border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center; 
-            font-size: 0.6rem; font-weight: 600; color: #fff; overflow: hidden; 
-            font-family: 'Cinzel', serif; transition: border-color 0.3s;
-        }
+        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background: #000; border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 600; color: #fff; overflow: hidden; font-family: 'Cinzel', serif; transition: border-color 0.3s; }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
         .header-avatar.gold-border { border-color: var(--admin-gold); }
@@ -82,34 +50,15 @@
         .plus-status-text { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; font-family: 'Montserrat', sans-serif; cursor: pointer; transition: opacity 0.2s; }
         .plus-status-text.active-plus { color: var(--accent-purple); opacity: 1; font-weight: 600; }
         .plus-status-text.active-plus:hover { opacity: 0.8; text-decoration: underline; text-underline-offset: 3px; }
-
-        .admin-badge-inline {
-            font-size: 0.45rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
-            color: var(--admin-gold); border: 1px solid var(--admin-gold);
-            padding: 3px 9px; line-height: 1.7; display: none;
-        }
-
-        .public-profile-link {
-            font-family: 'Montserrat'; font-size: 0.55rem; letter-spacing: 2px;
-            text-transform: uppercase; color: #999; text-decoration: none;
-            cursor: pointer; transition: color 0.2s; margin-left: 8px;
-        }
+        .admin-badge-inline { font-size: 0.45rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--admin-gold); border: 1px solid var(--admin-gold); padding: 3px 9px; line-height: 1.7; display: none; }
+        .public-profile-link { font-family: 'Montserrat'; font-size: 0.55rem; letter-spacing: 2px; text-transform: uppercase; color: #999; text-decoration: none; cursor: pointer; transition: color 0.2s; margin-left: 8px; }
         .public-profile-link:hover { color: #000; text-decoration: underline; text-underline-offset: 3px; }
-
         .stats-bar { display: flex; gap: 30px; font-size: 0.8rem; }
         .stat-item span { opacity: 0.5; margin-left: 4px; }
-
         .actions { display: flex; gap: 10px; align-items: center; padding-bottom: 4px; flex-wrap: wrap; }
         .btn { padding: 10px 22px; background: #fff; font-size: 0.7rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: 1px solid #000; font-family: 'Montserrat'; white-space: nowrap; }
         .btn:hover { background: #000; color: #fff; }
-
-        .btn-admin {
-            padding: 10px 22px; font-size: 0.7rem; font-weight: 600; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
-            border: 1px solid var(--admin-gold); color: var(--admin-gold);
-            background: #fff; font-family: 'Montserrat'; white-space: nowrap;
-            display: none;
-        }
+        .btn-admin { padding: 10px 22px; font-size: 0.7rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: 1px solid var(--admin-gold); color: var(--admin-gold); background: #fff; font-family: 'Montserrat'; white-space: nowrap; display: none; }
         .btn-admin:hover { background: var(--admin-gold); color: #fff; }
 
         .saved-cards-section { border: 1px solid #eee; margin-bottom: 40px; padding: 0; }
@@ -139,16 +88,14 @@
         .tab-link:hover { opacity: 0.7; }
         .tab-link.active { opacity: 1; font-weight: 600; }
         .tab-link.active::after { content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #000; }
-
         .tab-content { display: none; margin-top: 40px; }
         .tab-content.active { display: block; }
         .tab-empty { padding: 70px 0; text-align: center; }
         .tab-empty-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 5px; opacity: 0.25; margin-bottom: 12px; }
         .tab-empty-title { font-family: 'Cinzel'; font-size: 1.4rem; letter-spacing: 4px; opacity: 0.12; }
-
         .page-spacer { height: 20vh; }
         .footer-main { border-top: 1px solid #000; padding: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: #fff; }
-        .footer-brand { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 5px; text-transform: uppercase; font-weight: 700; }
+        .footer-brand { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 5px; text-transform: lowercase; }
         .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
         .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
 
@@ -158,7 +105,6 @@
         .modal-close { position: absolute; top: 18px; right: 22px; font-size: 1.1rem; cursor: pointer; opacity: 0.35; background: none; border: none; font-family: 'Montserrat'; transition: 0.2s; }
         .modal-close:hover { opacity: 1; }
         .modal-title { font-family: 'Cinzel'; font-size: 1rem; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 28px; }
-
         .modal-tabs { display: flex; border-bottom: 1px solid #eee; margin-bottom: 28px; }
         .modal-tab { width: 140px; text-align: center; padding: 10px 0; font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; opacity: 0.4; position: relative; transition: 0.2s; font-family: 'Montserrat'; font-weight: 600; user-select: none; }
         .modal-tab:hover:not(.disabled) { opacity: 0.75; }
@@ -166,33 +112,26 @@
         .modal-tab.active::after { content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #000; }
         .modal-tab.disabled { opacity: 0.35; cursor: default; }
         .modal-tab .lock { font-size: 0.55rem; margin-left: 4px; }
-
         .modal-panel { display: none; }
         .modal-panel.active { display: block; }
-
         .upload-zone { border: 1px dashed #ccc; padding: 36px; text-align: center; cursor: pointer; transition: 0.2s; position: relative; }
         .upload-zone:hover { border-color: #000; }
         .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
         .upload-zone-icon { font-size: 1.6rem; opacity: 0.18; margin-bottom: 10px; }
         .upload-zone-text { font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; opacity: 0.4; }
         .upload-zone-sub { font-size: 0.52rem; opacity: 0.22; margin-top: 6px; letter-spacing: 1px; }
-
         .upload-preview { margin-top: 18px; display: none; }
         .upload-preview img { max-width: 100%; max-height: 150px; object-fit: cover; display: block; margin: 0 auto; }
-
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
         .btn-sm { width: 130px; text-align: center; padding: 9px 0; font-size: 0.65rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: 1px solid #000; background: #fff; font-family: 'Montserrat'; }
         .btn-sm:hover { background: #000; color: #fff; }
         .btn-sm.primary { background: #000; color: #fff; }
         .btn-sm.primary:hover { background: #333; }
-
         .upload-status { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; text-align: center; opacity: 0.45; min-height: 16px; }
-
         .plus-upsell { padding: 30px; text-align: center; border: 1px dashed #e0d0ff; background: #faf7ff; }
         .plus-upsell p { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; margin-bottom: 14px; }
         .plus-upsell a { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-purple); font-weight: 600; text-decoration: none; cursor: pointer; }
         .plus-upsell a:hover { text-decoration: underline; }
-
         .plus-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 3000; display: none; align-items: center; justify-content: center; }
         .plus-modal-backdrop.open { display: flex; }
         .plus-modal { background: #fff; width: 500px; max-width: 96vw; position: relative; overflow: hidden; }
@@ -270,9 +209,9 @@
                     <a class="public-profile-link" id="publicProfileLink" href="#">View public profile →</a>
                 </div>
                 <div class="stats-bar">
-                    <div class="stat-item"><b>0</b><span>Transactions</span></div>
-                    <div class="stat-item"><b>0.0</b><span>No Reviews</span></div>
-                    <div class="stat-item"><b>0</b><span>Following</span></div>
+                    <div class="stat-item"><b id="statTransactions">0</b><span>Transactions</span></div>
+                    <div class="stat-item"><b id="statReviews">0.0</b><span>No Reviews</span></div>
+                    <div class="stat-item"><b id="statFollowing">0</b><span>Following</span></div>
                 </div>
             </div>
             <div class="actions">
@@ -324,7 +263,6 @@
         <span class="footer-tagline">objects of consequence</span>
     </footer>
 
-    <!-- EDIT MODAL -->
     <div class="modal-backdrop" id="editModal">
         <div class="modal">
             <button class="modal-close" onclick="closeModal()">✕</button>
@@ -355,7 +293,6 @@
         </div>
     </div>
 
-    <!-- NOIR+ INFO MODAL -->
     <div class="plus-modal-backdrop" id="plusInfoModal">
         <div class="plus-modal">
             <button class="plus-modal-close" onclick="closePlusModal()">✕</button>
@@ -398,72 +335,69 @@
         var isPlus = false;
         var isSuperAdmin = false;
         var currentUsername = "";
-
         var SUPERADMIN = '@@if6was7';
 
-        function getAdmins() {
-            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
+        function getAdmins() { return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]'); }
+        function isAdminUser(username) { return getAdmins().indexOf(username) !== -1; }
+
+        async function loadCardsFromDb() {
+            if (!currentUsername) return;
+            try {
+                var res = await fetch('/api/account/cards?username=' + encodeURIComponent(currentUsername));
+                if (res.ok) {
+                    var cards = await res.json();
+                    var container = document.getElementById('cardsListContainer');
+                    if (!cards || !cards.length) {
+                        container.innerHTML = '<div class="empty-cards">No saved cards yet</div>';
+                        return;
+                    }
+                    var html = '<div class="cards-list">';
+                    cards.forEach(function(card, i) {
+                        var networkName = (card.network || 'Card').charAt(0).toUpperCase() + (card.network || 'Card').slice(1);
+                        var last4 = card.last4 || '****';
+                        html += '<div class="card-item" data-index="' + card.id + '">' +
+                            '<div class="card-network">' + networkName + '</div>' +
+                            '<div class="card-number-masked">•••• •••• •••• ' + last4 + '</div>' +
+                            '<div class="card-expiry">Expires ' + (card.expiry || '—') + '</div>' +
+                            '<button class="remove-card" onclick="removeCard(' + card.id + ')">✕</button>' +
+                        '</div>';
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                }
+            } catch(e) { console.error(e); }
         }
 
-        function isAdminUser(username) {
-            return getAdmins().indexOf(username) !== -1;
+        async function removeCard(cardId) {
+            try {
+                var res = await fetch('/api/account/cards/' + cardId, { method: 'DELETE' });
+                if (res.ok) { loadCardsFromDb(); }
+            } catch(e) { console.error(e); }
         }
 
-        function renderCards() {
-            var raw = sessionStorage.getItem('noir_user');
-            if (!raw) return;
-            var u = JSON.parse(raw);
-            var cards = u.savedCards || [];
-            var container = document.getElementById('cardsListContainer');
-
-            if (!cards.length) {
-                container.innerHTML = '<div class="empty-cards">No saved cards yet</div>';
-                return;
-            }
-
-            var html = '<div class="cards-list">';
-            for (var i = 0; i < cards.length; i++) {
-                var card = cards[i];
-                var networkName = card.network.charAt(0).toUpperCase() + card.network.slice(1);
-                var last4 = card.number.slice(-4);
-                html += '<div class="card-item" data-index="' + i + '">' +
-                    '<div class="card-network">' + networkName + '</div>' +
-                    '<div class="card-number-masked">•••• •••• •••• ' + last4 + '</div>' +
-                    '<div class="card-expiry">Expires ' + card.expiry + '</div>' +
-                    '<button class="remove-card" onclick="removeCard(' + i + ')">✕</button>' +
-                '</div>';
-            }
-            html += '</div>';
-            container.innerHTML = html;
-        }
-
-        function removeCard(index) {
-            var raw = sessionStorage.getItem('noir_user');
-            if (!raw) return;
-            var u = JSON.parse(raw);
-            u.savedCards.splice(index, 1);
-            sessionStorage.setItem('noir_user', JSON.stringify(u));
-            renderCards();
+        async function loadUserFromDb() {
+            if (!currentUsername) return;
+            try {
+                var res = await fetch('/api/account/profile?username=' + encodeURIComponent(currentUsername));
+                if (res.ok) {
+                    var data = await res.json();
+                    document.getElementById('userBalance').innerText = (data.balance || 0).toFixed(2);
+                    document.getElementById('statTransactions').innerText = data.transactionCount || 0;
+                }
+            } catch(e) { console.error(e); }
         }
 
         (function init() {
             var raw = sessionStorage.getItem('noir_user');
             if (!raw) { window.location.href = '/Log_In'; return; }
             var u = JSON.parse(raw);
-
             currentUsername = u.username || "";
-            var cleanUsername = currentUsername.replace('@@', '');
-            var avatarPath = '/images/avatar/' + cleanUsername + '.jpg';
-            var bannerPath = '/images/avatar/' + cleanUsername + '_banner.jpg';
-
-            // ── Определяем статусы ──
+            var clean = currentUsername.replace('@@', '');
+            var avatarPath = '/images/avatar/' + clean + '.jpg';
+            var bannerPath = '/images/avatar/' + clean + '_banner.jpg';
             isSuperAdmin = (currentUsername === SUPERADMIN);
-            var userIsAdmin = isSuperAdmin || isAdminUser(currentUsername);
+            isPlus = isSuperAdmin || u.hasPlus === true || u.hasPlus === 'true';
 
-            // ── hasPlus читаем из сессии (там уже правильное значение после логина/подписки) ──
-            isPlus = (u.hasPlus === true || u.hasPlus === 'true') || isSuperAdmin;
-
-            // Header avatar — только картинка, без буквы
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
             var haImg = document.createElement('img');
@@ -471,10 +405,8 @@
             haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
             haImg.onerror = function() { ha.removeChild(haImg); };
             ha.appendChild(haImg);
+            document.getElementById('headerUsername').innerText = u.displayName || clean;
 
-            document.getElementById('headerUsername').innerText = u.displayName || cleanUsername;
-
-            // Main avatar
             var ma = document.getElementById('mainAvatar');
             ma.innerHTML = '';
             var maImg = document.createElement('img');
@@ -483,25 +415,11 @@
             maImg.onerror = function() { ma.removeChild(maImg); };
             ma.appendChild(maImg);
 
-            document.getElementById('userNameDisplay').innerText = cleanUsername;
-            document.getElementById('userBalance').innerText = u.balance || "0.00";
-            document.getElementById('publicProfileLink').href = '/Seller?username=' + cleanUsername;
+            document.getElementById('userNameDisplay').innerText = clean;
+            document.getElementById('publicProfileLink').href = '/Seller?username=' + clean;
 
-            if (!u.savedCards) u.savedCards = [];
-            renderCards();
-
-            // ── Admin Panel button ──
             if (isSuperAdmin) {
                 document.getElementById('adminPanelBtn').style.display = 'inline-block';
-            }
-
-            // ── Admin badge (для обычных админов) ──
-            if (userIsAdmin && !isSuperAdmin) {
-                document.getElementById('adminBadgeInline').style.display = 'inline-block';
-            }
-
-            // ── BORDER PRIORITY: Admin gold > Plus purple ──
-            if (isSuperAdmin) {
                 document.getElementById('headerAvatar').classList.add('gold-border');
                 document.getElementById('mainAvatar').classList.add('gold-border');
             } else if (isPlus) {
@@ -509,7 +427,10 @@
                 document.getElementById('mainAvatar').classList.add('plus-border');
             }
 
-            // ── Plus UI ──
+            if (!isSuperAdmin && isAdminUser(currentUsername)) {
+                document.getElementById('adminBadgeInline').style.display = 'inline-block';
+            }
+
             if (isPlus) {
                 document.getElementById('headerPlus').style.display = 'inline';
                 var st = document.getElementById('noirPlusStatus');
@@ -519,27 +440,13 @@
                 document.getElementById('subBtn').style.display = 'none';
                 document.getElementById('plusModalCta').style.display = 'none';
                 document.getElementById('plusModalAlready').style.display = 'block';
-                // Unlock banner tab
                 var bt = document.getElementById('bannerModalTab');
                 bt.classList.remove('disabled');
                 document.getElementById('bannerLock').style.display = 'none';
                 var bpi = document.getElementById('bannerPanelInner');
-                bpi.innerHTML =
-                    '<div class="upload-zone" id="bannerZone">' +
-                    '<div class="upload-zone-icon">▭</div>' +
-                    '<div class="upload-zone-text">Choose banner</div>' +
-                    '<div class="upload-zone-sub">JPG · PNG · WEBP · 1400x300 recommended · max 8 MB</div>' +
-                    '</div>' +
-                    '<div class="upload-preview" id="bannerPreview"><img id="bannerPreviewImg" src="" alt=""></div>' +
-                    '<div class="upload-status" id="bannerStatus"></div>' +
-                    '<div class="modal-actions">' +
-                    '<button class="btn-sm" onclick="closeModal()">Cancel</button>' +
-                    '<button class="btn-sm primary" onclick="uploadFile(\'banner\')">Save</button>' +
-                    '</div>';
+                bpi.innerHTML = '<div class="upload-zone" id="bannerZone"><div class="upload-zone-icon">▭</div><div class="upload-zone-text">Choose banner</div><div class="upload-zone-sub">JPG · PNG · WEBP · 1400x300 recommended · max 8 MB</div></div><div class="upload-preview" id="bannerPreview"><img id="bannerPreviewImg" src="" alt=""></div><div class="upload-status" id="bannerStatus"></div><div class="modal-actions"><button class="btn-sm" onclick="closeModal()">Cancel</button><button class="btn-sm primary" onclick="uploadFile('banner')">Save</button></div>';
                 var bannerInput = document.createElement('input');
-                bannerInput.type = 'file';
-                bannerInput.accept = 'image/*';
-                bannerInput.id = 'bannerFileInput';
+                bannerInput.type = 'file'; bannerInput.accept = 'image/*'; bannerInput.id = 'bannerFileInput';
                 bannerInput.style.cssText = 'position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;';
                 bannerInput.addEventListener('change', function() { previewFile('banner'); });
                 var bZone = document.getElementById('bannerZone');
@@ -547,30 +454,19 @@
                 bZone.appendChild(bannerInput);
                 var bImg = document.getElementById('bannerImg');
                 bImg.src = bannerPath;
-                bImg.onload = function() {
-                    this.classList.add('loaded');
-                    document.getElementById('heroPlaceholder').style.display = 'none';
-                };
+                bImg.onload = function() { this.classList.add('loaded'); document.getElementById('heroPlaceholder').style.display = 'none'; };
             } else {
                 document.getElementById('headerPlus').style.display = 'none';
                 document.getElementById('bannerModalTab').classList.add('disabled');
-                document.getElementById('bannerPanelInner').innerHTML =
-                    '<div class="plus-upsell">' +
-                    '<p>profile banners are a noir+ exclusive feature</p>' +
-                    '<a onclick="closeModal(); openPlusModal();">unlock with noir+</a>' +
-                    '</div>' +
-                    '<div class="modal-actions"><button class="btn-sm" onclick="closeModal()">Close</button></div>';
+                document.getElementById('bannerPanelInner').innerHTML = '<div class="plus-upsell"><p>profile banners are a noir+ exclusive feature</p><a onclick="closeModal(); openPlusModal();">unlock with noir+</a></div><div class="modal-actions"><button class="btn-sm" onclick="closeModal()">Close</button></div>';
             }
 
-            document.getElementById('avatarFileInput').addEventListener('change', function() {
-                previewFile('avatar');
-            });
+            document.getElementById('avatarFileInput').addEventListener('change', function() { previewFile('avatar'); });
+            loadCardsFromDb();
+            loadUserFromDb();
         })();
 
-        function logout() {
-            sessionStorage.removeItem('noir_user');
-            window.location.href = '/Log_In';
-        }
+        function logout() { sessionStorage.removeItem('noir_user'); window.location.href = '/Log_In'; }
 
         document.querySelectorAll('.tab-link').forEach(function(link) {
             link.addEventListener('click', function() {
@@ -581,87 +477,16 @@
             });
         });
 
-        function openModal(panel) {
-            document.getElementById('editModal').classList.add('open');
-            switchPanel(panel || 'avatar');
-        }
+        function openModal(panel) { document.getElementById('editModal').classList.add('open'); switchPanel(panel || 'avatar'); }
         function closeModal() { document.getElementById('editModal').classList.remove('open'); }
         document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
-        function handleBannerTab() {
-            if (!isPlus) {
-                document.querySelectorAll('.modal-tab').forEach(function(t) { t.classList.remove('active'); });
-                document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
-                document.getElementById('bannerModalTab').classList.add('active');
-                document.getElementById('panel-banner').classList.add('active');
-                return;
-            }
-            switchPanel('banner');
-        }
-
-        function switchPanel(name) {
-            document.querySelectorAll('.modal-tab').forEach(function(t) { t.classList.remove('active'); });
-            document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
-            document.querySelector('[data-panel="' + name + '"]').classList.add('active');
-            document.getElementById('panel-' + name).classList.add('active');
-        }
-
+        function handleBannerTab() { if (!isPlus) { document.querySelectorAll('.modal-tab').forEach(function(t) { t.classList.remove('active'); }); document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); }); document.getElementById('bannerModalTab').classList.add('active'); document.getElementById('panel-banner').classList.add('active'); return; } switchPanel('banner'); }
+        function switchPanel(name) { document.querySelectorAll('.modal-tab').forEach(function(t) { t.classList.remove('active'); }); document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); }); document.querySelector('[data-panel="' + name + '"]').classList.add('active'); document.getElementById('panel-' + name).classList.add('active'); }
         function openPlusModal() { document.getElementById('plusInfoModal').classList.add('open'); }
         function closePlusModal() { document.getElementById('plusInfoModal').classList.remove('open'); }
         document.getElementById('plusInfoModal').addEventListener('click', function(e) { if (e.target === this) closePlusModal(); });
-
-        function previewFile(type) {
-            var input = document.getElementById(type + 'FileInput');
-            var preview = document.getElementById(type + 'Preview');
-            var img = document.getElementById(type + 'PreviewImg');
-            if (input && input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) { img.src = e.target.result; preview.style.display = 'block'; };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function uploadFile(type) {
-            var input = document.getElementById(type + 'FileInput');
-            var status = document.getElementById(type + 'Status');
-            if (!input || !input.files || !input.files[0]) { status.innerText = 'no file selected'; return; }
-            var file = input.files[0];
-            var maxMB = type === 'banner' ? 8 : 5;
-            if (file.size > maxMB * 1024 * 1024) { status.innerText = 'file too large · max ' + maxMB + 'mb'; return; }
-            status.innerText = 'uploading...';
-            var formData = new FormData();
-            formData.append('file', file);
-            formData.append('username', currentUsername.replace('@@', ''));
-            formData.append('type', type);
-            fetch('/api/upload-' + type, { method: 'POST', body: formData })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.success) {
-                    status.innerText = 'saved successfully';
-                    var ts = '?t=' + Date.now();
-                    if (type === 'avatar') {
-                        var p = '/images/avatar/' + currentUsername.replace('@@', '') + '.jpg' + ts;
-                        var maEl = document.getElementById('mainAvatar');
-                        maEl.innerHTML = '';
-                        var newMaImg = document.createElement('img');
-                        newMaImg.src = p; newMaImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-                        maEl.appendChild(newMaImg);
-                        var haEl = document.getElementById('headerAvatar');
-                        haEl.innerHTML = '';
-                        var newHaImg = document.createElement('img');
-                        newHaImg.src = p; newHaImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-                        haEl.appendChild(newHaImg);
-                    } else {
-                        var bImg = document.getElementById('bannerImg');
-                        bImg.src = '/images/avatar/' + currentUsername.replace('@@', '') + '_banner.jpg' + ts;
-                        bImg.style.display = 'block';
-                        bImg.onload = function() { this.classList.add('loaded'); document.getElementById('heroPlaceholder').style.display = 'none'; };
-                    }
-                    setTimeout(closeModal, 1200);
-                } else { status.innerText = data.error || 'upload failed'; }
-            })
-            .catch(function() { status.innerText = 'server error · try again'; });
-        }
+        function previewFile(type) { var input = document.getElementById(type + 'FileInput'); var preview = document.getElementById(type + 'Preview'); var img = document.getElementById(type + 'PreviewImg'); if (input && input.files && input.files[0]) { var reader = new FileReader(); reader.onload = function(e) { img.src = e.target.result; preview.style.display = 'block'; }; reader.readAsDataURL(input.files[0]); } }
+        function uploadFile(type) { var input = document.getElementById(type + 'FileInput'); var status = document.getElementById(type + 'Status'); if (!input || !input.files || !input.files[0]) { status.innerText = 'no file selected'; return; } var file = input.files[0]; var maxMB = type === 'banner' ? 8 : 5; if (file.size > maxMB * 1024 * 1024) { status.innerText = 'file too large · max ' + maxMB + 'mb'; return; } status.innerText = 'uploading...'; var formData = new FormData(); formData.append('file', file); formData.append('username', currentUsername.replace('@@', '')); formData.append('type', type); fetch('/api/upload-' + type, { method: 'POST', body: formData }).then(function(r) { return r.json(); }).then(function(data) { if (data.success) { status.innerText = 'saved successfully'; var ts = '?t=' + Date.now(); if (type === 'avatar') { var p = '/images/avatar/' + currentUsername.replace('@@', '') + '.jpg' + ts; var maEl = document.getElementById('mainAvatar'); maEl.innerHTML = ''; var newMaImg = document.createElement('img'); newMaImg.src = p; newMaImg.style.cssText = 'width:100%;height:100%;object-fit:cover;'; maEl.appendChild(newMaImg); var haEl = document.getElementById('headerAvatar'); haEl.innerHTML = ''; var newHaImg = document.createElement('img'); newHaImg.src = p; newHaImg.style.cssText = 'width:100%;height:100%;object-fit:cover;'; haEl.appendChild(newHaImg); } else { var bImg = document.getElementById('bannerImg'); bImg.src = '/images/avatar/' + currentUsername.replace('@@', '') + '_banner.jpg' + ts; bImg.style.display = 'block'; bImg.onload = function() { this.classList.add('loaded'); document.getElementById('heroPlaceholder').style.display = 'none'; }; } setTimeout(closeModal, 1200); } else { status.innerText = data.error || 'upload failed'; } }).catch(function() { status.innerText = 'server error · try again'; }); }
     </script>
 </body>
 </html>

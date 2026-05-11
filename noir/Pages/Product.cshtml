@@ -1,80 +1,15 @@
 ﻿@page
-@using System.Linq
-@functions {
-    public class Item
-    {
-        public int Id { get; set; }
-        public string Title { get; set; } = "";
-        public int Price { get; set; }
-        public string Desc { get; set; } = "";
-        public string[] Categories { get; set; } = Array.Empty<string>();
-        public bool IsAuction { get; set; }
-        public string Seller { get; set; } = "if6was7";
-        public string SellerRole { get; set; } = "regular";
-        public int AuctionDurationMinutes { get; set; } = 5;
-        public int AuctionDurationDays { get; set; } = 0;
-    }
-
-    public Item[] GetAllItems()
-    {
-        return new[] {
-            new Item { Id = 1,  Title = "minimalist ceramic bowl",  Price = 450,    Desc = "Hand-thrown organic stoneware with a matte white glaze.",                          Categories = new[] { "Ceramics", "Home Decor" }, Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 2,  Title = "vintage leather chair",    Price = 850,    Desc = "Mid-century modern lounge chair in aged leather.",                                  Categories = new[] { "Furniture", "Vintage" },   Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 3,  Title = "niche perfume set",        Price = 1800,   Desc = "A curated selection of rare single-note fragrances from independent houses.",       Categories = new[] { "Fragrance", "Niche" },     Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 4,  Title = "rare vinyl collection",    Price = 4200,   Desc = "First pressings from obscure labels across three decades of underground music.",    Categories = new[] { "Music", "Vintage" },       Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 5,  Title = "silver mechanical watch",  Price = 9500,   Desc = "Hand-assembled Swiss movement in a brushed sterling silver case.",                  Categories = new[] { "Horology", "Silver" },     Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 6,  Title = "renaissance oil canvas",   Price = 65000,  Desc = "A 16th-century oil painting attributed to a Flemish master's workshop.",            Categories = new[] { "Painting", "Antique" },    Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 7,  Title = "rare private island map",  Price = 150000, Desc = "An original hand-drawn cartographic survey of an uncharted island, circa 1743.",   Categories = new[] { "Cartography", "Rare" },    Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 8,  Title = "the celestial sphere",     Price = 740000, Desc = "A gold-plated astronomical instrument from the late 16th century.",                 Categories = new[] { "Gold", "Astronomy" },      Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 9,  Title = "handcrafted obsidian dagger", Price = 3200, Desc = "A razor-sharp ceremonial blade knapped from volcanic obsidian.",                   Categories = new[] { "Weapons", "Obsidian" },    Seller = "tornadomart1", SellerRole = "regular" },
-            new Item { Id = 10, Title = "ancient marble bust",      Price = 85000,  Desc = "A serene Roman-era fragment carved from Carrara marble.",                           Categories = new[] { "Sculpture", "Antique" },   IsAuction = true, AuctionDurationDays = 5, Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 11, Title = "viking iron sword",        Price = 32000,  Desc = "A preserved 9th-century blade recovered from a Norse burial site.",                 Categories = new[] { "Weapons", "Viking" },      IsAuction = true, AuctionDurationDays = 5, Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 12, Title = "dynasty ritual vessel",    Price = 120000, Desc = "A bronze ceremonial vessel from the Chinese Han dynasty.",                          Categories = new[] { "Bronze", "Antique" },      IsAuction = true, AuctionDurationDays = 5, Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 13, Title = "gothic cathedral key",     Price = 15000,  Desc = "A wrought iron master key from a 13th-century French cathedral.",                   Categories = new[] { "Iron", "Gothic" },         IsAuction = true, AuctionDurationDays = 5, Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 14, Title = "ottoman silk tapestry",    Price = 47000,  Desc = "A hand-woven silk panel from the Ottoman imperial workshops, circa 1680.",          Categories = new[] { "Textile", "Ottoman" },     IsAuction = true, AuctionDurationDays = 5, Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 15, Title = "venetian poison ring",     Price = 22000,  Desc = "A gold compartment ring attributed to 16th-century Venetian nobility.",             Categories = new[] { "Jewelry", "Venetian" },    IsAuction = true, AuctionDurationDays = 5, Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 16, Title = "aztec obsidian blade",     Price = 68000,  Desc = "A razor-sharp ceremonial blade knapped from volcanic obsidian.",                    Categories = new[] { "Weapons", "Aztec" },       IsAuction = true, AuctionDurationDays = 5, Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 17, Title = "czarist fabergé fragment", Price = 310000, Desc = "A verified shard from a lost imperial Fabergé egg, with provenance documentation.", Categories = new[] { "Gold", "Imperial" },       IsAuction = true, AuctionDurationDays = 5, Seller = "if6was7", SellerRole = "admin" },
-            new Item { Id = 18, Title = "imperial jade seal",       Price = 95000,  Desc = "A carved nephrite seal from the Qing imperial court, circa 1760.",                  Categories = new[] { "Jade", "Imperial" },       IsAuction = true, AuctionDurationDays = 5, Seller = "if6was7", SellerRole = "admin" }
-        };
-    }
-
-    public Item GetItem()
-    {
-        var all = GetAllItems();
-        int.TryParse(Request.Query["id"], out int id);
-        return all.FirstOrDefault(i => i.Id == id) ?? all[0];
-    }
-
-    public string GetActionText(int price, bool isAuction, string title)
-    {
-        if (isAuction) return "Place a Bid";
-        if (title == "the celestial sphere") return "touch the sun";
-        if (price < 500)    return "Purchase Object";
-        if (price < 1000)   return "Acquire Object";
-        if (price < 2000)   return "Buy Niche";
-        if (price < 5000)   return "Private Selection";
-        if (price < 10000)  return "Investment Grade";
-        if (price < 100000) return "Have Fun";
-        return "Treat Yourself";
-    }
-}
+@model noir.Pages.ProductModel
 @{
     Layout = null;
-    var item = GetItem();
-    var actionText = GetActionText(item.Price, item.IsAuction, item.Title);
-    var recommendations = GetAllItems().Where(i => i.Id != item.Id && !i.IsAuction).OrderBy(x => Guid.NewGuid()).Take(3);
-    var sellerUsername = item.Seller;
-    var sellerIsPlus = item.SellerRole == "plus" || item.SellerRole == "admin";
-    var sellerIsAdmin = item.SellerRole == "admin";
+    var cats = Model.Listing.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries);
 }
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>noir — @item.Title</title>
+    <title>noir — @Model.Listing.Title</title>
     <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -238,7 +173,6 @@
         .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px); background: #000; color: #fff; font-family: 'Montserrat'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; padding: 14px 28px; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9000; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        /* ── FIX: last bidder display ── */
         .last-bidder-wrap {
             display: flex; align-items: center; gap: 10px;
             margin-top: 12px; padding-top: 12px;
@@ -279,19 +213,19 @@
 
     <main class="product-container" id="productContainer">
         <div class="product-image">
-            @if(item.IsAuction) { 
+            @if(Model.Listing.IsAuction) { 
                 <div class="auction-timer-overlay" id="auctionTimerOverlay">
                     <span id="timerText">Auction • 05:00</span>
                 </div> 
             }
-            <span>@(item.Id)</span>
+            <span>@(Model.Listing.Id)</span>
         </div>
 
         <div class="product-details">
             <div class="lot-header">
                 <div style="display:flex; flex-direction:column; gap:14px;">
-                    <span class="lot-tag">Archive Ref: 00@(item.Id)</span>
-                    @if (item.IsAuction)
+                    <span class="lot-tag">Archive Ref: 00@(Model.Listing.Id)</span>
+                    @if (Model.Listing.IsAuction)
                     {
                         <div class="auction-badge" id="auctionBadge">
                             <span>AUCTION</span>
@@ -310,18 +244,17 @@
             </div>
 
             <div class="title-row">
-                <h1 class="product-title" id="productTitle">@item.Title</h1>
+                <h1 class="product-title" id="productTitle">@Model.Listing.Title</h1>
             </div>
 
-            <p class="product-desc">@item.Desc</p>
+            <p class="product-desc">@Model.Listing.Description</p>
 
-            @if (item.IsAuction)
+            @if (Model.Listing.IsAuction)
             {
-                <a href="/NewBid?id=@(item.Id)" class="action-box" id="actionBox" style="text-decoration: none;">
-                    <div class="price-text" id="priceDisplay">VALUE: EUR @item.Price.ToString("N0")</div>
-                    <div class="buy-text" id="buyText">@actionText</div>
+                <a href="/NewBid?id=@(Model.Listing.Id)" class="action-box" id="actionBox" style="text-decoration: none;">
+                    <div class="price-text" id="priceDisplay">VALUE: EUR @Model.Listing.Price.ToString("N0")</div>
+                    <div class="buy-text" id="buyText">@Model.ActionText</div>
                 </a>
-                <!-- FIX: last bidder display -->
                 <div class="last-bidder-wrap" id="lastBidderWrap" style="display:none;">
                     <span class="last-bidder-label">Current leader</span>
                     <span class="last-bidder-name" id="lastBidderName">—</span>
@@ -329,24 +262,24 @@
             }
             else
             {
-                <a href="/NewPurchase?id=@(item.Id)" class="action-box" id="actionBox" style="text-decoration: none;">
-                    <div class="price-text" id="priceDisplay">VALUE: EUR @item.Price.ToString("N0")</div>
-                    <div class="buy-text" id="buyText">@actionText</div>
+                <a href="/NewPurchase?id=@(Model.Listing.Id)" class="action-box" id="actionBox" style="text-decoration: none;">
+                    <div class="price-text" id="priceDisplay">VALUE: EUR @Model.Listing.Price.ToString("N0")</div>
+                    <div class="buy-text" id="buyText">@Model.ActionText</div>
                 </a>
             }
 
             <div class="category-wrap">
-                @foreach (var cat in item.Categories) { <a href="#" class="cat-tag">@cat</a> }
+                @foreach (var cat in cats) { <a href="#" class="cat-tag">@cat.Trim()</a> }
             </div>
 
             <div class="seller-card">
-                <a href="/Seller?username=@sellerUsername" class="seller-link">
-                    <div class="seller-avatar-circle @(sellerIsAdmin ? "gold-border" : (sellerIsPlus ? "plus-border" : ""))" id="sellerAvatar"></div>
+                <a href="/Seller?username=@Model.Listing.Seller.Username" class="seller-link">
+                    <div class="seller-avatar-circle @(Model.SellerIsAdmin ? "gold-border" : (Model.SellerIsPlus ? "plus-border" : ""))" id="sellerAvatar"></div>
                     <div class="seller-meta-wrap">
                         <div class="seller-name-line">
-                            <span class="seller-name">@sellerUsername</span>
-                            @if (sellerIsPlus) { <span class="seller-badge seller-badge-plus">plus</span> }
-                            @if (sellerIsAdmin) { <span class="seller-badge seller-badge-admin">Admin</span> }
+                            <span class="seller-name">@Model.Listing.Seller.Username</span>
+                            @if (Model.SellerIsPlus) { <span class="seller-badge seller-badge-plus">plus</span> }
+                            @if (Model.SellerIsAdmin) { <span class="seller-badge seller-badge-admin">Admin</span> }
                         </div>
                         <div class="seller-meta">Rating: ★★★★★ (42 deals)</div>
                     </div>
@@ -369,7 +302,7 @@
     <section class="recommendations">
         <h2 class="rec-title">curated for you</h2>
         <div class="rec-grid">
-            @foreach (var rec in recommendations) {
+            @foreach (var rec in Model.Recommendations) {
                 <a href="/Product?id=@(rec.Id)" class="rec-card">
                     <div class="rec-img"><span>@(rec.Id)</span></div>
                     <div class="rec-info">
@@ -392,7 +325,7 @@
             <button class="modal-close" onclick="closeEditModal()">✕</button>
             <div class="modal-title">Edit title</div>
             <div class="modal-field-wrap">
-                <input type="text" class="modal-input" id="newTitleInput" placeholder="@item.Title">
+                <input type="text" class="modal-input" id="newTitleInput" placeholder="@Model.Listing.Title">
             </div>
             <div class="modal-actions">
                 <button class="modal-btn" onclick="closeEditModal()">Cancel</button>
@@ -411,14 +344,10 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        var ITEM_ID = @(item.Id);
-        var ITEM_ORIGINAL_TITLE = "@item.Title";
-        var IS_AUCTION = @(item.IsAuction ? "true" : "false");
-        var AUCTION_DURATION = @(item.IsAuction ? item.AuctionDurationMinutes : 0);
-        var AUCTION_DURATION_DAYS = @(item.IsAuction ? item.AuctionDurationDays : 0);
-        var BASE_PRICE = @(item.Price);
-
-        // FIX: centralized superadmin constant
+        var ITEM_ID = @(Model.Listing.Id);
+        var ITEM_ORIGINAL_TITLE = "@Model.Listing.Title";
+        var IS_AUCTION = @(Model.Listing.IsAuction ? "true" : "false");
+        var BASE_PRICE = @(Model.Listing.Price);
         var SUPERADMIN = '@@if6was7';
 
         var SAMPLE_REVIEWS = [
@@ -512,7 +441,6 @@
             if (!isGuest) {
                 var admins = getAdmins();
                 var isAdminMode = admins.indexOf(user.username) !== -1;
-                // FIX: correct isPlus check — same as Index.cshtml
                 var isSuperAdmin = (user.username === SUPERADMIN);
                 var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
 
@@ -554,12 +482,11 @@
         })();
 
         (function() {
-            var sellerName = "@sellerUsername";
+            var sellerName = "@Model.Listing.Seller.Username";
             var sa = document.getElementById('sellerAvatar');
             var saImg = document.createElement('img');
             saImg.src = '/images/avatar/' + sellerName + '.jpg';
             saImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            // FIX: no letter fallback — keep empty black circle, preserve border class
             saImg.onerror = function() {
                 sa.removeChild(saImg);
                 sa.style.backgroundColor = '#000';
@@ -608,13 +535,10 @@
             setTimeout(function() { t.classList.remove('show'); }, 2200);
         }
 
-        // ── FIX: load latest bid price + last bidder from localStorage ──
         function loadAuctionState() {
             if (!IS_AUCTION) return;
-
             var bids = JSON.parse(localStorage.getItem('noir_bids') || '{}');
             var lotBids = bids[ITEM_ID];
-
             var priceDisplay = document.getElementById('priceDisplay');
             var lastBidderWrap = document.getElementById('lastBidderWrap');
             var lastBidderName = document.getElementById('lastBidderName');
@@ -623,40 +547,30 @@
                 var lastBid = lotBids[lotBids.length - 1];
                 var currentPrice = lastBid.amount;
                 var bidder = lastBid.bidder || 'anonymous';
-
-                if (priceDisplay) {
-                    priceDisplay.innerText = 'VALUE: EUR ' + currentPrice.toLocaleString('de-DE');
-                }
-                if (lastBidderWrap) {
-                    lastBidderWrap.style.display = 'flex';
-                }
-                if (lastBidderName) {
-                    lastBidderName.innerText = bidder;
-                }
+                if (priceDisplay) priceDisplay.innerText = 'VALUE: EUR ' + currentPrice.toLocaleString('de-DE');
+                if (lastBidderWrap) lastBidderWrap.style.display = 'flex';
+                if (lastBidderName) lastBidderName.innerText = bidder;
             }
         }
 
         function startAuctionTimer() {
             if (!IS_AUCTION) return;
-
             var endTime;
             var storedEnd = localStorage.getItem('auction_end_' + ITEM_ID);
             if (storedEnd) {
                 endTime = parseInt(storedEnd);
             } else {
-                var durationMs = AUCTION_DURATION_DAYS > 0
-                    ? AUCTION_DURATION_DAYS * 24 * 60 * 60 * 1000
-                    : AUCTION_DURATION * 60 * 1000;
+                var durationMs = 5 * 24 * 60 * 60 * 1000;
                 endTime = Date.now() + durationMs;
                 localStorage.setItem('auction_end_' + ITEM_ID, endTime);
             }
 
-            var badgeTimer  = document.getElementById('badgeTimer');
-            var badge       = document.getElementById('auctionBadge');
-            var timerEl     = document.getElementById('timerText');
-            var overlayEl   = document.getElementById('auctionTimerOverlay');
-            var actionBox   = document.getElementById('actionBox');
-            var buyText     = document.getElementById('buyText');
+            var badgeTimer = document.getElementById('badgeTimer');
+            var badge = document.getElementById('auctionBadge');
+            var timerEl = document.getElementById('timerText');
+            var overlayEl = document.getElementById('auctionTimerOverlay');
+            var actionBox = document.getElementById('actionBox');
+            var buyText = document.getElementById('buyText');
 
             function onEnded() {
                 if (badgeTimer) badgeTimer.innerText = 'ENDED';

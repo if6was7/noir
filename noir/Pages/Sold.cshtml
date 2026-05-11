@@ -1,56 +1,17 @@
 ﻿@page
-@using System.Linq
-@functions {
-    public class SoldItem
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public int Price { get; set; }
-        public string Desc { get; set; }
-        public string[] Categories { get; set; }
-        public string BuyerName { get; set; }
-        public string SoldDate { get; set; }
-        public int FinalPrice { get; set; }
-    }
-
-    public SoldItem[] GetAllItems()
-    {
-        return new[] {
-            new SoldItem { Id = 101, Title = "opium heavy glass bottle", Price = 3200, Desc = "A dense hand-blown glass vessel once used in an opium trading post, circa 1880.", Categories = new[] { "Glass", "Antique" }, BuyerName = "anonymous", SoldDate = "14 Feb 2026", FinalPrice = 3200 },
-            new SoldItem { Id = 102, Title = "ivory chess set (19th c.)", Price = 12500, Desc = "A complete 32-piece chess set hand-carved from elephant ivory by a Calcutta artisan.", Categories = new[] { "Ivory", "Games" }, BuyerName = "mr. blackwell", SoldDate = "02 Mar 2026", FinalPrice = 14000 },
-            new SoldItem { Id = 103, Title = "faded polaroid collection", Price = 850, Desc = "87 polaroids from an unknown photographer, spanning 1974 to 1991.", Categories = new[] { "Photography", "Vintage" }, BuyerName = "anonymous", SoldDate = "19 Mar 2026", FinalPrice = 850 },
-            new SoldItem { Id = 104, Title = "brass astronomical clock", Price = 45000, Desc = "A 17th-century brass orrery with original hand-engraved celestial markings.", Categories = new[] { "Horology", "Brass" }, BuyerName = "lady v.", SoldDate = "01 Apr 2026", FinalPrice = 52000 },
-            new SoldItem { Id = 105, Title = "jade emperor ring", Price = 28000, Desc = "A Qing dynasty jade ring carved with imperial dragon motifs.", Categories = new[] { "Jade", "Imperial" }, BuyerName = "collector_88", SoldDate = "15 Apr 2026", FinalPrice = 31500 },
-            new SoldItem { Id = 106, Title = "edwardian vanity mirror", Price = 6700, Desc = "Silver-gilt tri-fold mirror with mother-of-pearl inlay, circa 1905.", Categories = new[] { "Silver", "Edwardian" }, BuyerName = "mrs. dalloway", SoldDate = "22 Apr 2026", FinalPrice = 7200 },
-            new SoldItem { Id = 107, Title = "hand-bound grimoire", Price = 9400, Desc = "Leather-bound occult manuscript with hand-drawn sigils, 18th century.", Categories = new[] { "Manuscript", "Occult" }, BuyerName = "anonymous", SoldDate = "28 Apr 2026", FinalPrice = 9400 },
-            new SoldItem { Id = 108, Title = "naval officer compass", Price = 5100, Desc = "Brass compass from a British East India Company vessel, 1812.", Categories = new[] { "Brass", "Naval" }, BuyerName = "capt. nemo", SoldDate = "03 May 2026", FinalPrice = 5800 }
-        };
-    }
-
-    public SoldItem GetItem()
-    {
-        var all = GetAllItems();
-        int.TryParse(Request.Query["id"], out int id);
-        return all.FirstOrDefault(i => i.Id == id) ?? all[0];
-    }
-}
-@{
-    Layout = null;
-    var item = GetItem();
-}
-
+@model noir.Pages.SoldModel
+@{ Layout = null; }
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>noir — @item.Title</title>
+    <title>noir — @(Model.Listing?.Title ?? "sold item")</title>
     <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #ffffff; --text-main: #000000; --light-gray: #fdfdfd; --sold-red: #660000; --accent-purple: #a855f7; --admin-gold: #c9a84c; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: var(--text-main); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; }
-        
         header { background-color: #000; height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
         .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; cursor: pointer; }
         .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; text-decoration: none; line-height: 1; }
@@ -60,112 +21,34 @@
         nav a:hover, nav a.active { opacity: 1; }
         .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .header-avatar { 
-            width: 28px; height: 28px; border-radius: 50%;
-            background: #000; border: 1px solid #2a2a2a;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; transition: border-color 0.3s;
-        }
+        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background: #000; border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: border-color 0.3s; }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
         .header-avatar.gold-border { border-color: var(--admin-gold); }
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
-        .auth-btn { 
-            font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; 
-            text-transform: uppercase; color: #fff; opacity: 0.3; 
-            background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; 
-        }
+        .auth-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
         .auth-btn:hover { opacity: 1; }
-
         .product-container { max-width: 1400px; margin: 80px auto; padding: 0 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; }
-        
         .product-image { width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); border: 1px solid #efefef; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         .product-image span { font-family: 'Cinzel', serif; font-size: 22rem; color: #f0f0f0; position: absolute; bottom: -50px; right: -30px; pointer-events: none; }
-
-        .sold-ribbon {
-            position: absolute;
-            top: 0; left: 0;
-            background: var(--sold-red);
-            color: #fff;
-            padding: 12px 25px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 600;
-            z-index: 10;
-        }
-
+        .sold-ribbon { position: absolute; top: 0; left: 0; background: var(--sold-red); color: #fff; padding: 12px 25px; font-family: 'Montserrat', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; z-index: 10; }
         .product-details { display: flex; flex-direction: column; }
         .lot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; color: #000; font-weight: 600; }
-
         .product-title { font-size: 3.5rem; margin: 0 0 25px 0; text-transform: lowercase; line-height: 1.1; font-weight: normal; }
         .product-desc { font-family: 'Montserrat', sans-serif; font-size: 1.05rem; line-height: 1.8; color: #333; font-weight: 300; margin-bottom: 40px; }
-
-        .sold-info-box {
-            border: 1px solid #000;
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
-
+        .sold-info-box { border: 1px solid #000; padding: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         .sold-field { display: flex; flex-direction: column; gap: 8px; }
-        .sold-label {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.55rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            opacity: 0.4;
-        }
-        .sold-value {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            text-transform: lowercase;
-        }
-        .sold-value.price {
-            font-size: 1.3rem;
-            color: var(--sold-red);
-        }
-
-        .closed-box {
-            background: #f5f5f5;
-            width: 100%;
-            height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 30px;
-            gap: 15px;
-        }
-        .closed-line {
-            width: 40px;
-            height: 1px;
-            background: #999;
-        }
-        .closed-text {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            color: #999;
-        }
-
+        .sold-label { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.4; }
+        .sold-value { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 600; text-transform: lowercase; }
+        .sold-value.price { font-size: 1.3rem; color: var(--sold-red); }
+        .closed-box { background: #f5f5f5; width: 100%; height: 90px; display: flex; align-items: center; justify-content: center; margin-top: 30px; gap: 15px; }
+        .closed-line { width: 40px; height: 1px; background: #999; }
+        .closed-text { font-family: 'Montserrat', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 5px; color: #999; }
         .category-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px; }
         .cat-tag { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; text-transform: uppercase; padding: 6px 15px; border: 1px solid #eee; color: #999; text-decoration: none; transition: 0.3s; }
         .cat-tag:hover { border-color: #000; color: #000; }
-
-        .footer {
-            max-width: 1400px;
-            margin: 120px auto 0;
-            padding: 60px 60px 60px;
-            border-top: 1px solid #000;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-        }
+        .footer { max-width: 1400px; margin: 120px auto 0; padding: 60px 60px 60px; border-top: 1px solid #000; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
         .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
         .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
         .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
@@ -195,44 +78,45 @@
     <main class="product-container">
         <div class="product-image">
             <div class="sold-ribbon">Sold Out</div>
-            <span>@item.Id</span>
+            <span>@(Model.Listing?.Id ?? 0)</span>
         </div>
-
         <div class="product-details">
             <div class="lot-header">
-                <span class="lot-tag">Archive Ref: 00@item.Id</span>
+                <span class="lot-tag">Archive Ref: 00@(Model.Listing?.Id ?? 0)</span>
             </div>
-
-            <h1 class="product-title">@item.Title</h1>
-            <p class="product-desc">@item.Desc</p>
-
+            <h1 class="product-title">@(Model.Listing?.Title ?? "Unknown")</h1>
+            <p class="product-desc">@(Model.Listing?.Description ?? "")</p>
             <div class="sold-info-box">
                 <div class="sold-field">
                     <span class="sold-label">Acquired by</span>
-                    <span class="sold-value">@item.BuyerName</span>
+                    <span class="sold-value">@(Model.Purchase?.Buyer?.Username ?? "anonymous")</span>
                 </div>
                 <div class="sold-field">
                     <span class="sold-label">Date of sale</span>
-                    <span class="sold-value">@item.SoldDate</span>
+                    <span class="sold-value">@(Model.Purchase?.CreatedAt.ToString("dd MMM yyyy") ?? "—")</span>
                 </div>
                 <div class="sold-field">
                     <span class="sold-label">Est. value</span>
-                    <span class="sold-value">EUR @item.Price.ToString("N0")</span>
+                    <span class="sold-value">EUR @(Model.Listing?.Price.ToString("N0") ?? "0")</span>
                 </div>
                 <div class="sold-field">
                     <span class="sold-label">Final price</span>
-                    <span class="sold-value price">EUR @item.FinalPrice.ToString("N0")</span>
+                    <span class="sold-value price">EUR @(Model.Purchase?.Amount.ToString("N0") ?? Model.Listing?.Price.ToString("N0") ?? "0")</span>
                 </div>
             </div>
-
             <div class="closed-box">
                 <div class="closed-line"></div>
                 <span class="closed-text">this lot is closed</span>
                 <div class="closed-line"></div>
             </div>
-
             <div class="category-wrap">
-                @foreach (var cat in item.Categories) { <a href="#" class="cat-tag">@cat</a> }
+                @if (Model.Listing != null)
+                {
+                    foreach (var cat in Model.Listing.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        <a href="#" class="cat-tag">@cat.Trim()</a>
+                    }
+                }
             </div>
         </div>
     </main>
@@ -244,26 +128,10 @@
     </footer>
 
     <script>
-        // FIX: centralized superadmin constant (same as Index)
-        var SUPERADMIN = '@@if6was7';
-
-        function getAdmins() {
-            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
-        }
-
-        function requireAuth(url) {
-            if (!sessionStorage.getItem('noir_user')) {
-                window.location.href = '/Log_In';
-            } else {
-                window.location.href = url;
-            }
-        }
-
         function loadUser() {
             var userData = sessionStorage.getItem('noir_user');
             var user = userData ? JSON.parse(userData) : null;
             var isGuest = !user;
-
             var displayName = 'guest';
             if (!isGuest) {
                 if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
@@ -272,10 +140,8 @@
                 else if (user.username) displayName = user.username.replace('@@', '');
                 else if (user.email) displayName = user.email.split('@@')[0];
             }
-
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
-
             if (!isGuest) {
                 var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
                 var avatarPath = '/images/avatar/' + cleanName + '.jpg';
@@ -289,31 +155,17 @@
             } else {
                 ha.style.backgroundColor = '#000';
             }
-
             document.getElementById('headerUsername').innerText = displayName;
-
             var authBtn = document.getElementById('authBtn');
             authBtn.innerText = isGuest ? 'sign in' : 'exit';
-
             if (!isGuest) {
-                var admins = getAdmins();
-                var isAdminMode = admins.indexOf(user.username) !== -1;
-                // FIX: correct isPlus check — same as Index.cshtml
-                var isSuperAdmin = (user.username === SUPERADMIN);
+                var isSuperAdmin = (user.username === '@@if6was7');
                 var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
-
-                if (isSuperAdmin) {
-                    ha.classList.add('gold-border');
-                } else if (isPlus) {
-                    ha.classList.add('plus-border');
-                }
-
-                if (isPlus) {
-                    document.getElementById('headerPlus').style.display = 'inline';
-                }
+                if (isSuperAdmin) ha.classList.add('gold-border');
+                else if (isPlus) ha.classList.add('plus-border');
+                if (isPlus) document.getElementById('headerPlus').style.display = 'inline';
             }
         }
-
         function handleAuth() {
             if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';
@@ -322,7 +174,13 @@
                 location.reload();
             }
         }
-
+        function requireAuth(url) {
+            if (!sessionStorage.getItem('noir_user')) {
+                window.location.href = '/Log_In';
+            } else {
+                window.location.href = url;
+            }
+        }
         loadUser();
     </script>
 </body>

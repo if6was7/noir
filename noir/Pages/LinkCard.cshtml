@@ -10,26 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: #111113; color: #fff;
-            min-height: 100vh; display: flex; flex-direction: column;
-        }
-
-        .topbar {
-            height: 52px; background: #1c1c1e;
-            border-bottom: 0.5px solid rgba(255,255,255,0.07);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 32px;
-        }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #111113; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar { height: 52px; background: #1c1c1e; border-bottom: 0.5px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
         .topbar-left { display: flex; align-items: center; gap: 10px; }
-        .topbar-back {
-            display: flex; align-items: center; gap: 7px;
-            font-size: 13px; color: rgba(255,255,255,0.4);
-            cursor: pointer; background: none; border: none; padding: 0;
-            transition: color 0.2s;
-        }
+        .topbar-back { display: flex; align-items: center; gap: 7px; font-size: 13px; color: rgba(255,255,255,0.4); cursor: pointer; background: none; border: none; padding: 0; transition: color 0.2s; }
         .topbar-back:hover { color: rgba(255,255,255,0.8); }
         .topbar-back svg { width: 14px; height: 14px; }
         .topbar-sep { width: 0.5px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 4px; }
@@ -37,147 +21,71 @@
         .topbar-merchant strong { color: rgba(255,255,255,0.65); font-weight: 500; }
         .topbar-secure { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,0.3); }
         .topbar-secure svg { width: 12px; height: 12px; }
-
-        .main {
-            flex: 1; display: flex; align-items: flex-start;
-            justify-content: center; padding: 3rem 1rem; gap: 1.5rem;
-        }
-
-        .panel-card {
-            background: #1c1c1e; border-radius: 18px;
-            border: 0.5px solid rgba(255,255,255,0.07);
-            padding: 1.6rem; width: 360px; flex-shrink: 0;
-        }
-        .panel-title {
-            font-size: 10px; font-weight: 600; letter-spacing: 0.13em;
-            text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 1.4rem;
-        }
-
+        .main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 3rem 1rem; gap: 1.5rem; }
+        .panel-card { background: #1c1c1e; border-radius: 18px; border: 0.5px solid rgba(255,255,255,0.07); padding: 1.6rem; width: 360px; flex-shrink: 0; }
+        .panel-title { font-size: 10px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 1.4rem; }
         .methods-label { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.45); margin-bottom: 10px; display: block; }
         .methods-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.4rem; }
-
         .method-opt { cursor: pointer; }
         .method-opt input { display: none; }
-        .method-opt-label {
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 6px;
-            height: 70px; background: #2c2c2e;
-            border: 0.5px solid rgba(255,255,255,0.1); border-radius: 12px;
-            cursor: pointer; transition: all 0.2s; padding: 8px 6px;
-        }
+        .method-opt-label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; height: 70px; background: #2c2c2e; border: 0.5px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; transition: all 0.2s; padding: 8px 6px; }
         .method-opt-label:hover { border-color: rgba(255,255,255,0.3); }
-        .method-opt input:checked + .method-opt-label {
-            border-color: #4f46e5; background: rgba(79,70,229,0.12);
-        }
-        .method-img-box {
-            width: 46px; height: 28px; background: #fff; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
+        .method-opt input:checked + .method-opt-label { border-color: #4f46e5; background: rgba(79,70,229,0.12); }
+        .method-img-box { width: 46px; height: 28px; background: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .method-img-box img { width: 100%; height: 100%; object-fit: contain; }
-        .method-icon-box {
-            width: 46px; height: 28px; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: rgba(255,255,255,0.6);
-            background: #3a3a3c;
-        }
+        .method-icon-box { width: 46px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: rgba(255,255,255,0.6); background: #3a3a3c; }
         .method-opt-name { font-size: 10px; color: rgba(255,255,255,0.45); font-weight: 500; text-align: center; }
-
-        .action-btn {
-            width: 100%; height: 50px; background: #4f46e5; color: #fff;
-            border: none; border-radius: 11px;
-            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
-            letter-spacing: 0.03em; cursor: pointer; margin-top: 4px;
-            transition: background 0.2s, transform 0.1s;
-        }
+        .form-group { margin-bottom: 20px; }
+        .form-label { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.45); margin-bottom: 8px; display: block; }
+        .dark-input { width: 100%; height: 44px; background: #2c2c2e; border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: #fff; outline: none; transition: border-color 0.2s; }
+        .dark-input:focus { border-color: #4f46e5; }
+        .dark-input::placeholder { color: rgba(255,255,255,0.25); }
+        .action-btn { width: 100%; height: 50px; background: #4f46e5; color: #fff; border: none; border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.03em; cursor: pointer; margin-top: 4px; transition: background 0.2s, transform 0.1s; }
         .action-btn:hover { background: #4338ca; }
         .action-btn:active { transform: scale(0.99); }
-
+        .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .secure-row { display: flex; gap: 7px; margin-top: 13px; flex-wrap: wrap; }
-        .secure-tag {
-            display: flex; align-items: center; gap: 5px;
-            font-size: 10px; color: rgba(255,255,255,0.28);
-            background: rgba(255,255,255,0.04); border-radius: 20px;
-            padding: 3px 9px; border: 0.5px solid rgba(255,255,255,0.07);
-        }
+        .secure-tag { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.04); border-radius: 20px; padding: 3px 9px; border: 0.5px solid rgba(255,255,255,0.07); }
         .secure-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
-
-        /* Right summary panel */
         .summary-panel { width: 260px; flex-shrink: 0; }
-        .summary-card {
-            background: #1c1c1e; border-radius: 18px;
-            border: 0.5px solid rgba(255,255,255,0.07); overflow: hidden;
-        }
-        .summary-top {
-            padding: 1.3rem 1.3rem 1rem;
-            border-bottom: 0.5px solid rgba(255,255,255,0.06);
-        }
-        .summary-eyebrow {
-            font-size: 9px; font-weight: 600; letter-spacing: 0.15em;
-            text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 10px;
-        }
-        .summary-method-row {
-            display: flex; align-items: center; gap: 10px;
-        }
-        .summary-method-logo {
-            width: 44px; height: 28px; background: #fff; border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; flex-shrink: 0;
-        }
+        .summary-card { background: #1c1c1e; border-radius: 18px; border: 0.5px solid rgba(255,255,255,0.07); overflow: hidden; }
+        .summary-top { padding: 1.3rem 1.3rem 1rem; border-bottom: 0.5px solid rgba(255,255,255,0.06); }
+        .summary-eyebrow { font-size: 9px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 10px; }
+        .summary-method-row { display: flex; align-items: center; gap: 10px; }
+        .summary-method-logo { width: 44px; height: 28px; background: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
         .summary-method-logo img { width: 100%; height: 100%; object-fit: contain; }
-        .summary-method-logo-placeholder {
-            width: 44px; height: 28px; background: #3a3a3c; border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; flex-shrink: 0;
-        }
+        .summary-method-logo-placeholder { width: 44px; height: 28px; background: #3a3a3c; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
         .summary-method-name { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.8); }
         .summary-method-sub { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
-
         .summary-body { padding: 1rem 1.3rem; }
-        .summary-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 0; border-bottom: 0.5px solid rgba(255,255,255,0.05);
-        }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid rgba(255,255,255,0.05); }
         .summary-row:last-child { border-bottom: none; }
         .summary-key { font-size: 12px; color: rgba(255,255,255,0.35); }
         .summary-val { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.65); }
         .summary-val.green { color: #22c55e; }
         .summary-val.accent { color: #4f46e5; }
-
-        .summary-note {
-            margin: 0 1.3rem 1.3rem;
-            background: rgba(79,70,229,0.08);
-            border: 0.5px solid rgba(79,70,229,0.2);
-            border-radius: 10px; padding: 10px 12px;
-            font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.5;
-        }
+        .summary-note { margin: 0 1.3rem 1.3rem; background: rgba(79,70,229,0.08); border: 0.5px solid rgba(79,70,229,0.2); border-radius: 10px; padding: 10px 12px; font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.5; }
         .summary-note strong { color: rgba(255,255,255,0.6); }
-
-        .footer {
-            padding: 20px 32px; display: flex; align-items: center;
-            justify-content: center; gap: 20px;
-            border-top: 0.5px solid rgba(255,255,255,0.05);
-        }
+        .footer { padding: 20px 32px; display: flex; align-items: center; justify-content: center; gap: 20px; border-top: 0.5px solid rgba(255,255,255,0.05); }
         .footer-text { font-size: 11px; color: rgba(255,255,255,0.18); }
         .footer-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.12); }
+        .toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #22c55e; color: #fff; font-family: 'Inter'; font-size: 12px; font-weight: 500; padding: 10px 20px; border-radius: 8px; z-index: 9000; }
+        .toast.show { display: block; }
+        .toast.error { background: #ef4444; }
     </style>
 </head>
 <body>
-
     <div class="topbar">
         <div class="topbar-left">
             <button class="topbar-back" onclick="history.back()">
-                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M9 11L5 7l4-4"/>
-                </svg>
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11L5 7l4-4"/></svg>
                 Back
             </button>
             <div class="topbar-sep"></div>
             <span class="topbar-merchant">Link card · <strong>noir account</strong></span>
         </div>
         <div class="topbar-secure">
-            <svg viewBox="0 0 12 12" fill="none" stroke="#22c55e" stroke-width="1.5">
-                <path d="M6 1L2 3v4c0 2 1.8 3.5 4 4 2.2-.5 4-2 4-4V3L6 1z"/>
-            </svg>
+            <svg viewBox="0 0 12 12" fill="none" stroke="#22c55e" stroke-width="1.5"><path d="M6 1L2 3v4c0 2 1.8 3.5 4 4 2.2-.5 4-2 4-4V3L6 1z"/></svg>
             Secure connection
         </div>
     </div>
@@ -189,50 +97,29 @@
             <span class="methods-label">Payment method</span>
             <div class="methods-grid">
                 <label class="method-opt">
-                    <input type="radio" name="method" value="visa" checked>
-                    <span class="method-opt-label">
-                        <div class="method-img-box"><img src="/images/visa.jpg" alt="Visa"></div>
-                        <span class="method-opt-name">Visa</span>
-                    </span>
+                    <input type="radio" name="method" value="visa" checked onchange="updateSummary(this.value)">
+                    <span class="method-opt-label"><div class="method-img-box"><img src="/images/visa.jpg" alt="Visa"></div><span class="method-opt-name">Visa</span></span>
                 </label>
                 <label class="method-opt">
-                    <input type="radio" name="method" value="mastercard">
-                    <span class="method-opt-label">
-                        <div class="method-img-box"><img src="/images/mastercard.jpg" alt="Mastercard"></div>
-                        <span class="method-opt-name">Mastercard</span>
-                    </span>
+                    <input type="radio" name="method" value="mastercard" onchange="updateSummary(this.value)">
+                    <span class="method-opt-label"><div class="method-img-box"><img src="/images/mastercard.jpg" alt="Mastercard"></div><span class="method-opt-name">Mastercard</span></span>
                 </label>
                 <label class="method-opt">
-                    <input type="radio" name="method" value="mir">
-                    <span class="method-opt-label">
-                        <div class="method-img-box"><img src="/images/mir.jpg" alt="Mir"></div>
-                        <span class="method-opt-name">Mir</span>
-                    </span>
-                </label>
-                <label class="method-opt">
-                    <input type="radio" name="method" value="paypal">
-                    <span class="method-opt-label">
-                        <div class="method-img-box"><img src="/images/paypal.jpg" alt="PayPal"></div>
-                        <span class="method-opt-name">PayPal</span>
-                    </span>
-                </label>
-                <label class="method-opt">
-                    <input type="radio" name="method" value="applepay">
-                    <span class="method-opt-label">
-                        <div class="method-img-box"><img src="/images/applepay.jpg" alt="Apple Pay"></div>
-                        <span class="method-opt-name">Apple Pay</span>
-                    </span>
-                </label>
-                <label class="method-opt">
-                    <input type="radio" name="method" value="newcard">
-                    <span class="method-opt-label">
-                        <div class="method-icon-box">＋</div>
-                        <span class="method-opt-name">Add card</span>
-                    </span>
+                    <input type="radio" name="method" value="mir" onchange="updateSummary(this.value)">
+                    <span class="method-opt-label"><div class="method-img-box"><img src="/images/mir.jpg" alt="Mir"></div><span class="method-opt-name">Mir</span></span>
                 </label>
             </div>
 
-            <button class="action-btn" onclick="handleContinue()">Continue</button>
+            <div class="form-group">
+                <label class="form-label">Card number</label>
+                <input type="text" class="dark-input" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Expiry (MM/YY)</label>
+                <input type="text" class="dark-input" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+            </div>
+
+            <button class="action-btn" id="saveBtn" onclick="saveCard()">Link Card</button>
 
             <div class="secure-row">
                 <div class="secure-tag"><div class="secure-dot"></div>256-bit SSL</div>
@@ -241,13 +128,12 @@
             </div>
         </div>
 
-        <!-- RIGHT: Link card summary -->
         <div class="summary-panel">
             <div class="summary-card">
                 <div class="summary-top">
                     <div class="summary-eyebrow">Linking to account</div>
                     <div class="summary-method-row" id="summaryMethodRow">
-                        <div class="summary-method-logo-placeholder" id="summaryLogoPlaceholder">◎</div>
+                        <div class="summary-method-logo" id="summaryLogo"><img src="/images/visa.jpg" alt="Visa"></div>
                         <div>
                             <div class="summary-method-name" id="summaryMethodName">Visa</div>
                             <div class="summary-method-sub">Selected payment method</div>
@@ -255,29 +141,14 @@
                     </div>
                 </div>
                 <div class="summary-body">
-                    <div class="summary-row">
-                        <span class="summary-key">Charge</span>
-                        <span class="summary-val green">€0.00</span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="summary-key">Purpose</span>
-                        <span class="summary-val">Verification only</span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="summary-key">Stored as</span>
-                        <span class="summary-val accent">Encrypted token</span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="summary-key">Remove anytime</span>
-                        <span class="summary-val">Account settings</span>
-                    </div>
+                    <div class="summary-row"><span class="summary-key">Charge</span><span class="summary-val green">€0.00</span></div>
+                    <div class="summary-row"><span class="summary-key">Purpose</span><span class="summary-val">Verification only</span></div>
+                    <div class="summary-row"><span class="summary-key">Stored as</span><span class="summary-val accent">Encrypted token</span></div>
+                    <div class="summary-row"><span class="summary-key">Remove anytime</span><span class="summary-val">Account settings</span></div>
                 </div>
-                <div class="summary-note">
-                    <strong>No funds will be debited.</strong> Linking only saves a secure token for faster checkout on future top-ups and purchases.
-                </div>
+                <div class="summary-note"><strong>No funds will be debited.</strong> Linking only saves a secure token for faster checkout on future top-ups and purchases.</div>
             </div>
         </div>
-
     </div>
 
     <div class="footer">
@@ -288,44 +159,82 @@
         <span class="footer-text">PCI DSS Level 1 compliant</span>
     </div>
 
+    <div class="toast" id="toast"></div>
+
     <script>
         var methodMeta = {
             visa:       { name: 'Visa',       img: '/images/visa.jpg' },
             mastercard: { name: 'Mastercard', img: '/images/mastercard.jpg' },
-            mir:        { name: 'Mir',        img: '/images/mir.jpg' },
-            paypal:     { name: 'PayPal',     img: '/images/paypal.jpg' },
-            applepay:   { name: 'Apple Pay',  img: '/images/applepay.jpg' },
-            newcard:    { name: 'New card',   img: '' }
+            mir:        { name: 'Mir',        img: '/images/mir.jpg' }
         };
 
         function updateSummary(value) {
             var meta = methodMeta[value] || { name: value, img: '' };
             document.getElementById('summaryMethodName').innerText = meta.name;
-            var ph = document.getElementById('summaryLogoPlaceholder');
-            var existing = document.getElementById('summaryLogoImg');
-            if (meta.img) {
-                if (!existing) {
-                    ph.outerHTML = '<div class="summary-method-logo" id="summaryLogoPlaceholder"><img id="summaryLogoImg" src="' + meta.img + '" alt="' + meta.name + '"></div>';
+            var logo = document.getElementById('summaryLogo');
+            if (meta.img) { logo.innerHTML = '<img src="' + meta.img + '" alt="' + meta.name + '">'; }
+        }
+
+        function showToast(msg, isError) {
+            var t = document.getElementById('toast');
+            t.innerText = msg;
+            t.className = 'toast' + (isError ? ' error' : '');
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 3000);
+        }
+
+        async function saveCard() {
+            var raw = sessionStorage.getItem('noir_user');
+            if (!raw) { window.location.href = '/Log_In'; return; }
+            var user = JSON.parse(raw);
+            var method = document.querySelector('input[name="method"]:checked').value;
+            var number = document.getElementById('cardNumber').value.trim();
+            var expiry = document.getElementById('cardExpiry').value.trim();
+            var btn = document.getElementById('saveBtn');
+
+            if (!number || number.length < 4) { showToast('Enter valid card number', true); return; }
+            if (!expiry || expiry.length < 5) { showToast('Enter valid expiry date', true); return; }
+
+            btn.disabled = true;
+            btn.innerText = 'Saving...';
+
+            try {
+                var res = await fetch('/api/cards', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: user.username,
+                        network: method,
+                        last4: number.slice(-4),
+                        expiry: expiry
+                    })
+                });
+                if (res.ok) {
+                    showToast('Card linked successfully');
+                    setTimeout(function() { history.back(); }, 1200);
                 } else {
-                    existing.src = meta.img;
+                    var err = await res.json();
+                    showToast(err.error || 'Failed to link card', true);
+                    btn.disabled = false;
+                    btn.innerText = 'Link Card';
                 }
+            } catch(e) {
+                showToast('Server error', true);
+                btn.disabled = false;
+                btn.innerText = 'Link Card';
             }
         }
 
-        // Init summary with checked method
-        updateSummary(document.querySelector('input[name="method"]:checked').value);
-
-        // Update on change
-        document.querySelectorAll('input[name="method"]').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                updateSummary(this.value);
-            });
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            var v = e.target.value.replace(/\s/g, '').replace(/[^0-9]/g, '');
+            var parts = v.match(/.{1,4}/g);
+            e.target.value = parts ? parts.join(' ') : '';
         });
-
-        function handleContinue() {
-            var method = document.querySelector('input[name="method"]:checked').value;
-            location.href = '/Payment?source=linkcard&method=' + method;
-        }
+        document.getElementById('cardExpiry').addEventListener('input', function(e) {
+            var v = e.target.value.replace(/[^0-9]/g, '');
+            if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2,4);
+            e.target.value = v;
+        });
     </script>
 </body>
 </html>
