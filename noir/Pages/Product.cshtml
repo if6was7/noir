@@ -12,59 +12,54 @@
     <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #ffffff; --text-main: #000000; --light-gray: #fdfdfd;
-            --auction-purple: #4b0082; --accent-purple: #a855f7;
-            --admin-gold: #c9a84c; --plus-indigo: #4b0082;
+            --bg: #ffffff; --text-main: #000000; --header-bg: #000000; 
+            --light-gray: #fdfdfd; --auction-purple: #4b0082;
+            --accent-purple: #a855f7; --admin-gold: #c9a84c;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: var(--text-main); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
         html { background-color: #000; }
         body { background-color: var(--bg); min-height: 100vh; }
 
-        header { background-color: #000; height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
+        header { background-color: var(--header-bg); height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
         .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; cursor: pointer; }
         .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
         .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
         nav { display: flex; gap: 60px; }
-        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.4s; cursor: pointer; }
-        nav a:hover { opacity: 1; }
+        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; cursor: pointer; }
+        nav a:hover, nav a.active { opacity: 1; }
         .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .header-avatar { 
-            width: 28px; height: 28px; border-radius: 50%;
-            background: #000; border: 1px solid #2a2a2a;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; transition: border-color 0.3s;
-        }
+        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background: #000; border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: border-color 0.3s; }
         .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .header-avatar.plus-border { border-color: var(--accent-purple); }
         .header-avatar.gold-border { border-color: var(--admin-gold); }
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
-        .auth-btn { 
-            font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; 
-            text-transform: uppercase; color: #fff; opacity: 0.3; 
-            background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; 
-        }
+        .auth-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
         .auth-btn:hover { opacity: 1; }
 
         .product-container { max-width: 1400px; margin: 80px auto; padding: 0 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; }
         .product-image { 
             width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); 
-            border: 1px solid #efefef; display: flex; align-items: center; justify-content: center; 
+            display: flex; align-items: center; justify-content: center; 
             position: relative; overflow: hidden; 
         }
-        .product-image img {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 2;
+        .product-image::before { 
+            content: ""; position: absolute; left: 0; bottom: 0; 
+            width: 2px; height: 100%; background-color: #000; 
+            transform: scaleY(0); transform-origin: bottom; 
+            transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; 
         }
+        .product-image:hover::before { transform: scaleY(1); }
+        .product-image img {
+            position: absolute; inset: 0; width: 100%; height: 100%; 
+            object-fit: cover; z-index: 2;
+            transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+        .product-image:hover img { transform: scale(1.03); }
         .product-image span { 
             font-family: 'Cinzel', serif; font-size: 22rem; color: #f6f6f6; 
-            position: absolute; bottom: -50px; right: -30px; pointer-events: none; 
-            z-index: 1;
+            position: absolute; bottom: -50px; right: -30px; pointer-events: none; z-index: 1;
         }
 
         .auction-timer-overlay { display: none; }
@@ -180,12 +175,7 @@
             margin-bottom: 20px; overflow: hidden; 
         }
         .rec-img img {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 2;
+            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2;
         }
         .rec-img::before { content: ""; position: absolute; left: 0; bottom: 0; width: 2px; height: 100%; background-color: #000; transform: scaleY(0); transform-origin: bottom; transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; }
         .rec-card:hover .rec-img::before { transform: scaleY(1); }
@@ -218,10 +208,19 @@
     </style>
 </head>
 <body>
+    @Html.AntiForgeryToken()
+
     <header>
         <div class="brand-wrapper" onclick="window.location.href='/'">
             <span class="brand">noir</span>
-            <span id="headerPlus" class="plus-sticker">plus</span>
+            @if (Model.CurrentUser?.HasPlus == true || Model.CurrentUser?.Role == "admin" || Model.CurrentUser?.Role == "superadmin")
+            {
+                <span id="headerPlus" class="plus-sticker" style="display:inline">plus</span>
+            }
+            else
+            {
+                <span id="headerPlus" class="plus-sticker">plus</span>
+            }
         </div>
         <nav>
             <a onclick="window.location.href='/'">Catalog</a>
@@ -230,11 +229,39 @@
             <a onclick="requireAuth('/Upload')">Upload</a>
         </nav>
         <div class="header-right">
-            <div class="header-avatar-wrap" onclick="requireAuth('/Account')">
-                <div class="header-avatar" id="headerAvatar"></div>
-                <span class="header-username" id="headerUsername"></span>
-            </div>
-            <button class="auth-btn" id="authBtn" onclick="handleAuth()">sign in</button>
+            @if (Model.CurrentUser != null)
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Account'">
+                    <div class="header-avatar @(Model.CurrentUser.Role == "superadmin" ? "gold-border" : Model.CurrentUser.HasPlus ? "plus-border" : "")" 
+                         id="headerAvatar" 
+                         data-role="@(Model.CurrentUser?.Role ?? "guest")" 
+                         data-avatar="@(Model.CurrentUser?.AvatarUrl ?? "")" 
+                         data-username="@(Model.CurrentUser?.Username ?? "")">
+                        @if (!string.IsNullOrEmpty(Model.CurrentUser.AvatarUrl))
+                        {
+                            <img src="@Model.CurrentUser.AvatarUrl" alt="" onerror="this.style.display='none'" />
+                        }
+                        else if (Model.CurrentUser.Username == "if6was7")
+                        {
+                            <span style="font-size:0.7rem; font-weight:bold;">@Model.CurrentUser.Username.Substring(0,1).ToUpper()</span>
+                        }
+                        else
+                        {
+                            <img src="/images/avatar/@(Model.CurrentUser.Username).jpg" onerror="this.style.display='none'; this.parentElement.innerText='@(Model.CurrentUser.Username.Substring(0,1).ToUpper())'" alt="" />
+                        }
+                    </div>
+                    <span class="header-username" id="headerUsername">@(string.IsNullOrEmpty(Model.CurrentUser.Nickname) ? Model.CurrentUser.Username : Model.CurrentUser.Nickname)</span>
+                </div>
+                <button class="auth-btn" id="authBtn" onclick="logout()">exit</button>
+            }
+            else
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Log_In'">
+                    <div class="header-avatar" id="headerAvatar" data-role="guest" data-avatar="" data-username=""></div>
+                    <span class="header-username" id="headerUsername">guest</span>
+                </div>
+                <button class="auth-btn" id="authBtn" onclick="location.href='/Log_In'">sign in</button>
+            }
         </div>
     </header>
 
@@ -258,17 +285,17 @@
                     <span class="lot-tag">Archive Ref: @Model.Listing.ArchiveRef</span>
                     @if (Model.Listing.IsAuction)
                     {
-                        <div class="auction-badge" id="auctionBadge">
+                        <div class="auction-badge @(Model.IsAuctionActive ? "" : "ended")" id="auctionBadge">
                             <span>AUCTION</span>
-                            <span id="badgeTimer">--:--:--:--</span>
+                            <span id="badgeTimer">@Model.TimeRemainingText</span>
                         </div>
                     }
                 </div>
                 <div class="product-tools">
-                    <button class="tool-btn" id="bookmarkBtn" onclick="toggleBookmark()">
+                    <button class="tool-btn @(Model.IsSaved ? "active" : "")" id="bookmarkBtn" onclick="toggleBookmark()">
                         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                     </button>
-                    <button class="tool-btn" id="likeBtn" onclick="toggleLike()">
+                    <button class="tool-btn @(Model.IsLiked ? "active" : "")" id="likeBtn" onclick="toggleLike()">
                         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     </button>
                 </div>
@@ -280,7 +307,7 @@
 
             <p class="product-desc">@Model.Listing.Description</p>
 
-            @if (Model.Listing.IsAuction)
+            @if (Model.Listing.IsAuction && Model.IsAuctionActive)
             {
                 <a href="/NewBid?id=@(Model.Listing.Id)" class="action-box" id="actionBox" style="text-decoration: none;">
                     <div class="price-text" id="priceDisplay">VALUE: EUR @Model.Listing.Price.ToString("N0")</div>
@@ -289,6 +316,12 @@
                 <div class="last-bidder-wrap" id="lastBidderWrap" style="display:none;">
                     <span class="last-bidder-label">Current leader</span>
                     <span class="last-bidder-name" id="lastBidderName">—</span>
+                </div>
+            }
+            else if (Model.Listing.IsAuction && !Model.IsAuctionActive)
+            {
+                <div class="action-box ended" id="actionBox">
+                    <div class="price-text">AUCTION ENDED</div>
                 </div>
             }
             else
@@ -305,7 +338,16 @@
 
             <div class="seller-card">
                 <a href="/Seller?username=@Model.Listing.Seller.Username" class="seller-link">
-                    <div class="seller-avatar-circle @(Model.SellerIsAdmin ? "gold-border" : (Model.SellerIsPlus ? "plus-border" : ""))" id="sellerAvatar"></div>
+                    <div class="seller-avatar-circle @(Model.SellerIsAdmin ? "gold-border" : (Model.SellerIsPlus ? "plus-border" : ""))" id="sellerAvatar">
+                        @if (!string.IsNullOrEmpty(Model.Listing.Seller.AvatarUrl))
+                        {
+                            <img src="@Model.Listing.Seller.AvatarUrl" alt="" onerror="this.style.display='none'" />
+                        }
+                        else
+                        {
+                            <img src="/images/avatar/@(Model.Listing.Seller.Username).jpg" onerror="this.style.display='none'; this.parentElement.innerText='@(Model.Listing.Seller.Username.Substring(0,1).ToUpper())'" alt="" />
+                        }
+                    </div>
                     <div class="seller-meta-wrap">
                         <div class="seller-name-line">
                             <span class="seller-name">@Model.Listing.Seller.Username</span>
@@ -320,10 +362,40 @@
 
             <div class="reviews-section">
                 <span class="reviews-label">Recent reviews</span>
-                <div id="reviewsList"></div>
+                <div id="reviewsList">
+                    @if (Model.Listing.Reviews != null && Model.Listing.Reviews.Any())
+                    {
+                        @foreach (var review in Model.Listing.Reviews.Take(3))
+                        {
+                            <div class="review-item">
+                                <div class="review-avatar">
+                                    @if (!string.IsNullOrEmpty(review.Reviewer?.AvatarUrl))
+                                    {
+                                        <img src="@review.Reviewer.AvatarUrl" alt="" onerror="this.style.display='none'" />
+                                    }
+                                    else
+                                    {
+                                        @(review.Reviewer?.Username?.Substring(0, 1).ToUpper() ?? "A")
+                                    }
+                                </div>
+                                <div class="review-body">
+                                    <div class="review-top">
+                                        <span class="review-buyer">@(review.Reviewer?.Username ?? "anonymous")</span>
+                                        <span class="review-stars">@(new string('★', review.Stars) + new string('☆', 5 - review.Stars))</span>
+                                    </div>
+                                    <div class="review-text">@review.Body</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="no-reviews">No reviews yet</div>
+                    }
+                </div>
             </div>
 
-            <div class="admin-controls" id="adminControls">
+            <div class="admin-controls @(Model.CurrentUser?.Role == "admin" || Model.CurrentUser?.Role == "superadmin" ? "visible" : "")" id="adminControls">
                 <button class="admin-ctrl-btn edit" onclick="openEditModal()">Edit title</button>
                 <button class="admin-ctrl-btn remove" onclick="confirmRemove()">Remove listing</button>
             </div>
@@ -384,108 +456,91 @@
     var ITEM_ID = @(Model.Listing.Id);
     var ITEM_ORIGINAL_TITLE = "@Model.Listing.Title";
     var IS_AUCTION = @(Model.Listing.IsAuction ? "true" : "false");
+    var IS_AUCTION_ACTIVE = @(Model.IsAuctionActive ? "true" : "false");
     var BASE_PRICE = @(Model.Listing.Price.ToString(System.Globalization.CultureInfo.InvariantCulture));
     var SUPERADMIN = 'if6was7';
     var SELLER_NAME = "@Model.Listing.Seller.Username";
 
-    var SAMPLE_REVIEWS = [
-        { buyer: "tornadomart1", stars: 5, text: "Exceptional quality, arrived perfectly packaged. Exactly as described.", avatarExists: false },
-        { buyer: "anonymous", stars: 4, text: "Beautiful piece, very authentic. Minor delay in shipping but worth the wait.", avatarExists: false },
-        { buyer: "collector_x", stars: 5, text: "Stunning acquisition. The seller's expertise is evident in every detail.", avatarExists: false }
-    ];
-
-    function getAdmins() {
-        return JSON.parse(localStorage.getItem('noir_admins') || '["if6was7"]');
-    }
-
     function requireAuth(url) {
-        var user = sessionStorage.getItem('noir_user') || localStorage.getItem('noir_user');
-        if (!user) {
+        if (!sessionStorage.getItem('noir_user')) {
             window.location.href = '/Log_In';
         } else {
             window.location.href = url;
         }
     }
 
-    function renderReviews() {
-        var list = document.getElementById('reviewsList');
-        var stored = JSON.parse(localStorage.getItem('noir_reviews_' + ITEM_ID) || 'null');
-        var reviews = stored || SAMPLE_REVIEWS;
-
-        if (!reviews || reviews.length === 0) {
-            list.innerHTML = '<div class="no-reviews">No reviews yet</div>';
-            return;
-        }
-
-        var last3 = reviews.slice(-3).reverse();
-        var html = '';
-        last3.forEach(function(r) {
-            var stars = '';
-            for (var i = 0; i < 5; i++) {
-                stars += i < r.stars ? '★' : '☆';
-            }
-            var initial = (r.buyer || 'A').charAt(0).toUpperCase();
-            var avatarHtml = '<div class="review-avatar">' + initial + '</div>';
-
-            html += '<div class="review-item">' +
-                avatarHtml +
-                '<div class="review-body">' +
-                    '<div class="review-top">' +
-                        '<span class="review-buyer">' + r.buyer + '</span>' +
-                        '<span class="review-stars">' + stars + '</span>' +
-                    '</div>' +
-                    '<div class="review-text">' + r.text + '</div>' +
-                '</div>' +
-            '</div>';
-        });
-        list.innerHTML = html;
+    function logout() {
+        fetch('/api/Auth/logout', { method: 'POST' })
+            .then(function() {
+                sessionStorage.removeItem('noir_user');
+                window.location.href = '/';
+            })
+            .catch(function() {
+                sessionStorage.removeItem('noir_user');
+                window.location.href = '/';
+            });
     }
 
-    function toggleBookmark() {
+    async function toggleBookmark() {
         var btn = document.getElementById('bookmarkBtn');
-        var bookmarks = JSON.parse(localStorage.getItem('noir_bookmarks') || '[]');
-        var idx = bookmarks.indexOf(ITEM_ID);
-        if (idx === -1) {
-            bookmarks.push(ITEM_ID);
-            btn.classList.add('active');
-            showToast('Saved to collection');
-        } else {
-            bookmarks.splice(idx, 1);
-            btn.classList.remove('active');
-            showToast('Removed from collection');
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        try {
+            var resp = await fetch('?handler=ToggleSave&id=' + ITEM_ID, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (!resp.ok) throw new Error(resp.status);
+            var data = await resp.json();
+            if (data.success) {
+                btn.classList.toggle('active', data.saved);
+                showToast(data.saved ? 'Saved to collection' : 'Removed from collection');
+            }
+        } catch(err) {
+            console.error(err);
+            showToast('Error');
         }
-        localStorage.setItem('noir_bookmarks', JSON.stringify(bookmarks));
     }
 
-    function toggleLike() {
+    async function toggleLike() {
         var btn = document.getElementById('likeBtn');
-        var likes = JSON.parse(localStorage.getItem('noir_likes') || '[]');
-        var idx = likes.indexOf(ITEM_ID);
-        if (idx === -1) {
-            likes.push(ITEM_ID);
-            btn.classList.add('active');
-            showToast('Added to favorites');
-        } else {
-            likes.splice(idx, 1);
-            btn.classList.remove('active');
-            showToast('Removed from favorites');
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        try {
+            var resp = await fetch('?handler=ToggleLike&id=' + ITEM_ID, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (!resp.ok) throw new Error(resp.status);
+            var data = await resp.json();
+            if (data.success) {
+                btn.classList.toggle('active', data.liked);
+                showToast(data.liked ? 'Added to favorites' : 'Removed from favorites');
+            }
+        } catch(err) {
+            console.error(err);
+            showToast('Error');
         }
-        localStorage.setItem('noir_likes', JSON.stringify(likes));
-    }
-
-    function loadToolsState() {
-        var bookmarks = JSON.parse(localStorage.getItem('noir_bookmarks') || '[]');
-        var likes = JSON.parse(localStorage.getItem('noir_likes') || '[]');
-        if (bookmarks.indexOf(ITEM_ID) !== -1) document.getElementById('bookmarkBtn').classList.add('active');
-        if (likes.indexOf(ITEM_ID) !== -1) document.getElementById('likeBtn').classList.add('active');
     }
 
     function loadUser() {
-        var userData = sessionStorage.getItem('noir_user') || localStorage.getItem('noir_user');
+        var userData = sessionStorage.getItem('noir_user');
         var user = userData ? JSON.parse(userData) : null;
         var isGuest = !user;
 
+        var ha = document.getElementById('headerAvatar');
+        var serverRole = ha.dataset.role || 'guest';
+        var serverAvatar = ha.dataset.avatar || '';
+        var serverUsername = ha.dataset.username || '';
+
         var displayName = 'guest';
+        var isSuperAdmin = (serverRole === 'superadmin' || (user && user.username === SUPERADMIN));
+        var isPlus = isSuperAdmin || serverRole === 'admin' || (user && (user.hasPlus === true || user.hasPlus === 'true'));
+
         if (!isGuest) {
             if (user.username === SUPERADMIN) {
                 displayName = user.username;
@@ -500,93 +555,31 @@
             } else if (user.email) {
                 displayName = user.email.split('@@')[0];
             }
-        }
 
-        var ha = document.getElementById('headerAvatar');
-        ha.innerHTML = '';
+            ha.className = 'header-avatar';
+            if (isSuperAdmin) ha.classList.add('gold-border');
+            else if (isPlus) ha.classList.add('plus-border');
 
-        if (!isGuest) {
-            var cleanName = (user.username || user.email || '');
-            var avatarPath = '/images/avatar/' + cleanName + '.jpg';
-            var img = document.createElement('img');
-            img.src = avatarPath;
-            img.onerror = function() {
-                ha.removeChild(img);
-                ha.style.backgroundColor = '#000';
-            };
-            ha.appendChild(img);
-        } else {
-            ha.style.backgroundColor = '#000';
-        }
-
-        document.getElementById('headerUsername').innerText = displayName;
-
-        var authBtn = document.getElementById('authBtn');
-        authBtn.innerText = isGuest ? 'sign in' : 'exit';
-
-        if (!isGuest) {
-            var admins = getAdmins();
-            isAdminMode = admins.indexOf(user.username) !== -1;
-            var isSuperAdmin = (user.username === SUPERADMIN);
-            var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
-
-            if (isSuperAdmin) {
-                ha.classList.add('gold-border');
-            } else if (isPlus) {
-                ha.classList.add('plus-border');
+            if (!serverAvatar && user.avatarUrl) {
+                ha.innerHTML = '<img src="' + user.avatarUrl + '" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'" />';
             }
 
             if (isPlus) {
                 document.getElementById('headerPlus').style.display = 'inline';
             }
 
-            if (isAdminMode) {
-                var adminControls = document.getElementById('adminControls');
-                if (adminControls) adminControls.classList.add('visible');
-            }
-
             if (user.username === SELLER_NAME) {
                 var followBtn = document.getElementById('followBtn');
                 if (followBtn) followBtn.style.display = 'none';
             }
-        }
-    }
-
-    function handleAuth() {
-        var user = sessionStorage.getItem('noir_user') || localStorage.getItem('noir_user');
-        if (!user) {
-            window.location.href = '/Log_In';
         } else {
-            localStorage.removeItem('noir_user');
-            sessionStorage.removeItem('noir_user');
-            location.reload();
+            ha.className = 'header-avatar';
+            ha.style.backgroundColor = '#000';
+            ha.innerHTML = '';
         }
+
+        document.getElementById('headerUsername').innerText = displayName;
     }
-
-    (function() {
-        var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
-        if (removed.indexOf(ITEM_ID) !== -1) {
-            document.getElementById('removedOverlay').classList.add('show');
-        }
-        var titleOverrides = JSON.parse(localStorage.getItem('noir_title_overrides') || '{}');
-        if (titleOverrides[ITEM_ID]) {
-            document.getElementById('productTitle').innerText = titleOverrides[ITEM_ID];
-        }
-    })();
-
-    (function() {
-        var sa = document.getElementById('sellerAvatar');
-        var saImg = document.createElement('img');
-        saImg.src = '/images/avatar/' + SELLER_NAME + '.jpg';
-        saImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-        saImg.onerror = function() {
-            sa.removeChild(saImg);
-            sa.style.backgroundColor = '#000';
-        };
-        sa.appendChild(saImg);
-    })();
-
-    renderReviews();
 
     function openEditModal() {
         var current = document.getElementById('productTitle').innerText;
@@ -597,13 +590,11 @@
     function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
     document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
 
-    function saveTitle() {
+    async function saveTitle() {
         var val = document.getElementById('newTitleInput').value.trim();
         if (!val) return;
+        // Здесь можно добавить реальный API для сохранения заголовка
         document.getElementById('productTitle').innerText = val;
-        var overrides = JSON.parse(localStorage.getItem('noir_title_overrides') || '{}');
-        overrides[ITEM_ID] = val;
-        localStorage.setItem('noir_title_overrides', JSON.stringify(overrides));
         closeEditModal();
         showToast('Title updated');
     }
@@ -613,11 +604,28 @@
         if (e.key === 'Escape') closeEditModal();
     });
 
-    function confirmRemove() {
-        var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
-        if (removed.indexOf(ITEM_ID) === -1) removed.push(ITEM_ID);
-        localStorage.setItem('noir_removed_listings', JSON.stringify(removed));
-        document.getElementById('removedOverlay').classList.add('show');
+    async function confirmRemove() {
+        if (!confirm('Remove this listing?')) return;
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        try {
+            var resp = await fetch('?handler=Remove&id=' + ITEM_ID, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (!resp.ok) throw new Error(resp.status);
+            var data = await resp.json();
+            if (data.success) {
+                document.getElementById('removedOverlay').classList.add('show');
+            } else {
+                showToast(data.error || 'Failed to remove');
+            }
+        } catch(err) {
+            console.error(err);
+            showToast('Error removing listing');
+        }
     }
 
     function showToast(msg) {
@@ -628,7 +636,7 @@
     }
 
     function loadAuctionState() {
-        if (!IS_AUCTION) return;
+        if (!IS_AUCTION || !IS_AUCTION_ACTIVE) return;
         var bids = JSON.parse(localStorage.getItem('noir_bids') || '{}');
         var lotBids = bids[ITEM_ID];
         var priceDisplay = document.getElementById('priceDisplay');
@@ -646,76 +654,57 @@
     }
 
     function startAuctionTimer() {
-        if (!IS_AUCTION) return;
-        var endTime;
-        var storedEnd = localStorage.getItem('auction_end_' + ITEM_ID);
-        if (storedEnd) {
-            endTime = parseInt(storedEnd);
-        } else {
-            var durationMs = 5 * 24 * 60 * 60 * 1000;
-            endTime = Date.now() + durationMs;
-            localStorage.setItem('auction_end_' + ITEM_ID, endTime);
-        }
+    if (!IS_AUCTION || !IS_AUCTION_ACTIVE) return;
+    
+    // Убиваем старый кеш localStorage
+    localStorage.removeItem('auction_end_' + ITEM_ID);
+    
+    // Всегда стартуем от свежего TimeRemainingText с сервера
+    var endTime;
+    var remainingText = '@Model.TimeRemainingText';
+    var parts = remainingText.match(/(\d+)d\s+(\d+)h\s+(\d+)m/);
+    if (parts) {
+        var days = parseInt(parts[1]);
+        var hours = parseInt(parts[2]);
+        var mins = parseInt(parts[3]);
+        endTime = Date.now() + (days * 24 * 60 * 60 * 1000) + (hours * 60 * 60 * 1000) + (mins * 60 * 1000);
+    } else {
+        endTime = Date.now() + (5 * 24 * 60 * 60 * 1000);
+    }
 
-        var badgeTimer = document.getElementById('badgeTimer');
-        var badge = document.getElementById('auctionBadge');
-        var timerEl = document.getElementById('timerText');
-        var overlayEl = document.getElementById('auctionTimerOverlay');
-        var actionBox = document.getElementById('actionBox');
-        var buyText = document.getElementById('buyText');
+    var badgeTimer = document.getElementById('badgeTimer');
+    var timerEl = document.getElementById('timerText');
+    var overlayEl = document.getElementById('auctionTimerOverlay');
 
-        function onEnded() {
+    function formatBadge(remaining) {
+        var d = Math.floor(remaining / (24*60*60*1000));
+        var h = Math.floor((remaining % (24*60*60*1000)) / (60*60*1000));
+        var m = Math.floor((remaining % (60*60*1000)) / (60*1000));
+        var s = Math.floor((remaining % (60*1000)) / 1000);
+        return (d < 10 ? '0' : '') + d + ':' + (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function tick() {
+        var remaining = endTime - Date.now();
+        if (remaining <= 0) {
             if (badgeTimer) badgeTimer.innerText = 'ENDED';
-            if (badge) badge.classList.add('ended');
             if (timerEl) timerEl.innerText = 'Auction Ended';
             if (overlayEl) overlayEl.classList.add('ended');
-            if (actionBox) {
-                actionBox.classList.add('ended');
-                actionBox.style.pointerEvents = 'none';
-                actionBox.removeAttribute('href');
-            }
-            if (buyText) buyText.innerText = 'AUCTION ENDED';
-
-            setTimeout(function() {
-                var container = document.getElementById('productContainer');
-                if (!container) return;
-                container.style.transition = 'opacity 1s, transform 1s';
-                container.style.opacity = '0';
-                container.style.transform = 'scale(0.95)';
-                setTimeout(function() {
-                    container.style.display = 'none';
-                    var msg = document.createElement('div');
-                    msg.style.cssText = 'text-align:center;padding:200px 20px;font-family:Cinzel;font-size:2rem;letter-spacing:6px;';
-                    msg.innerHTML = 'This lot has been sold<br><a href="/" style="font-family:Montserrat;font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:#999;text-decoration:none;margin-top:20px;display:inline-block;">← Return to catalog</a>';
-                    document.querySelector('main').appendChild(msg);
-                }, 1000);
-            }, 3000);
+            if (window.auctionTimerInterval) clearInterval(window.auctionTimerInterval);
+            return;
         }
-
-        function formatBadge(remaining) {
-            var d = Math.floor(remaining / (24*60*60*1000));
-            var h = Math.floor((remaining % (24*60*60*1000)) / (60*60*1000));
-            var m = Math.floor((remaining % (60*60*1000)) / (60*1000));
-            var s = Math.floor((remaining % (60*1000)) / 1000);
-            return (d<10?'0':'')+d+':'+(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-        }
-
-        function tick() {
-            var remaining = endTime - Date.now();
-            if (remaining <= 0) { onEnded(); return; }
-            var formatted = formatBadge(remaining);
-            if (badgeTimer) badgeTimer.innerText = formatted;
-            if (timerEl) timerEl.innerText = 'Auction • ' + formatted;
-        }
-
-        tick();
-        setInterval(tick, 1000);
+        var formatted = formatBadge(remaining);
+        if (badgeTimer) badgeTimer.innerText = formatted;
+        if (timerEl) timerEl.innerText = 'Auction • ' + formatted;
     }
+
+    tick();
+    window.auctionTimerInterval = setInterval(tick, 1000);
+}
 
     loadUser();
     loadAuctionState();
     startAuctionTimer();
-    loadToolsState();
-</script>
+    </script>
 </body>
 </html>

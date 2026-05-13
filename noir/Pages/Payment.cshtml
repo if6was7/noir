@@ -1,6 +1,9 @@
 ﻿@page
 @model noir.Pages.PaymentModel
-@{ Layout = null; }
+@{
+    Layout = null;
+    var decodedTitle = System.Net.WebUtility.UrlDecode(Model.ItemTitle ?? "");
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,6 +54,7 @@
         .pay-btn { width: 100%; height: 50px; background: #4f46e5; color: #fff; border: none; border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.03em; cursor: pointer; margin-top: 8px; transition: background 0.2s, transform 0.1s; }
         .pay-btn:hover { background: #4338ca; }
         .pay-btn:active { transform: scale(0.99); }
+        .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .secure-row { display: flex; gap: 7px; margin-top: 13px; flex-wrap: wrap; }
         .secure-tag { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.04); border-radius: 20px; padding: 3px 9px; border: 0.5px solid rgba(255,255,255,0.07); }
         .secure-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
@@ -93,13 +97,16 @@
     </style>
 </head>
 <body>
-    @Html.AntiForgeryToken()
+
     <form id="paymentForm" onsubmit="event.preventDefault();">
+        @Html.AntiForgeryToken()
         <input type="hidden" name="Source" value="@Model.Source" />
         <input type="hidden" name="Method" value="@Model.Method" />
         <input type="hidden" name="Amount" value="@Model.Amount" />
         <input type="hidden" name="LotId" value="@Model.LotId" />
-        <input type="hidden" name="ItemTitle" value="@Model.ItemTitle" />
+        <input type="hidden" name="ItemTitle" value="@decodedTitle" />
+        <!-- FIX: добавлен UseBalance -->
+        <input type="hidden" name="UseBalance" value="@(Model.UseBalance ? "true" : "false")" />
     </form>
 
     <div class="topbar">
@@ -231,7 +238,7 @@
         var source = '@Model.Source';
         var method = '@Model.Method';
         var lotId = '@(Model.LotId?.ToString() ?? "")';
-        var itemTitle = '@(Model.ItemTitle?.Replace("'", "\\'") ?? "")';
+        var itemTitle = '@(decodedTitle?.Replace("'", "\\'") ?? "")';
         var amount = @(Model.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         var isLinking = (source === 'linkcard');
@@ -245,7 +252,8 @@
             mastercard: { bgClass: 'card-bg-mastercard', imgSrc: '/images/mastercard.jpg', label: 'Mastercard' },
             mir:        { bgClass: 'card-bg-mir',        imgSrc: '/images/mir.jpg',        label: 'МИР' },
             paypal:     { bgClass: 'card-bg-paypal',     imgSrc: '/images/paypal.jpg',     label: 'PayPal' },
-            applepay:   { bgClass: 'card-bg-applepay',   imgSrc: '/images/applepay.jpg',   label: 'Apple Pay' }
+            applepay:   { bgClass: 'card-bg-applepay',   imgSrc: '/images/applepay.jpg',   label: 'Apple Pay' },
+            newcard:    { bgClass: 'card-bg-default',    imgSrc: '/images/visa.jpg',       label: 'New card' }
         };
         var bgClasses = ['card-bg-visa','card-bg-mastercard','card-bg-mir','card-bg-paypal','card-bg-applepay','card-bg-default'];
 
@@ -260,6 +268,10 @@
         }
         function formatAmount(amt) {
             return (amt === 0) ? '€0.00' : '€' + amt.toFixed(2);
+        }
+        function getBtnText() {
+            if (isLinking) return 'Link card';
+            return 'Pay ' + formatAmount(amount);
         }
         (function init() {
             var fmt = formatAmount(amount);
@@ -342,6 +354,7 @@
             var expiry = document.getElementById('cardExpiry').value.replace(/\s/g, '');
             var cvv    = document.getElementById('cardCvv').value.trim();
             var hasError = false;
+
             if (!num)   { document.getElementById('cardNumber').classList.add('error'); hasError = true; }
             else        { document.getElementById('cardNumber').classList.remove('error'); }
             if (!holder){ document.getElementById('cardHolder').classList.add('error'); hasError = true; }
@@ -350,41 +363,63 @@
             else        { document.getElementById('cardExpiry').classList.remove('error'); }
             if (!cvv || cvv.length < 3) { document.getElementById('cardCvv').classList.add('error'); hasError = true; }
             else        { document.getElementById('cardCvv').classList.remove('error'); }
+
             if (hasError && !isLinking) return;
+
             var form = document.getElementById('paymentForm');
             var formData = new FormData(form);
             formData.append('CardNumber', num);
             formData.append('CardHolder', holder);
             formData.append('CardExpiry', expiry);
             formData.append('CardCvv', cvv);
-            var resp = await fetch('', { method: 'POST', body: formData });
-            var data = await resp.json();
-            if (!data.success) {
-                alert(data.error || 'Payment failed');
-                return;
-            }
-            document.getElementById('mainLayout').style.display = 'none';
-            document.getElementById('successScreen').classList.add('show');
-            if (isLinking) {
-                document.getElementById('successTitle').innerText = 'Card linked successfully';
-                document.getElementById('successSub').innerText = 'Your card has been saved and is ready for future payments';
-                document.getElementById('successBackBtn').href = '/Account';
-            } else if (isTopup) {
-                document.getElementById('successTitle').innerHTML = formatAmount(amount) + ' added';
-                document.getElementById('successSub').innerText = 'Your balance has been topped up successfully';
-                document.getElementById('successBackBtn').href = '/Account';
-            } else if (isAuction) {
-                document.getElementById('successTitle').innerText = 'Payment confirmed';
-                document.getElementById('successSub').innerText = 'Your payment has been processed successfully';
-                document.getElementById('successBackBtn').href = '/Auction';
-            } else if (isPurchase) {
-                document.getElementById('successTitle').innerText = 'Purchase confirmed';
-                document.getElementById('successSub').innerText = itemTitle ? 'You acquired: ' + itemTitle : 'Your purchase has been completed';
-                document.getElementById('successBackBtn').href = '/';
-            } else {
-                document.getElementById('successTitle').innerText = 'noir plus activated!';
-                document.getElementById('successSub').innerText = 'Your noir+ membership is now active. Purple perks unlocked.';
-                document.getElementById('successBackBtn').href = '/Account';
+
+            var btn = document.getElementById('payBtn');
+            var originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Processing...';
+
+            try {
+                var resp = await fetch('', { method: 'POST', body: formData });
+                if (!resp.ok) {
+                    var errText = await resp.text();
+                    console.error('Server returned', resp.status, errText);
+                    throw new Error('Request failed (' + resp.status + '). Check console.');
+                }
+                var data = await resp.json();
+                if (!data.success) {
+                    alert(data.error || 'Payment failed');
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    return;
+                }
+                document.getElementById('mainLayout').style.display = 'none';
+                document.getElementById('successScreen').classList.add('show');
+                if (isLinking) {
+                    document.getElementById('successTitle').innerText = 'Card linked successfully';
+                    document.getElementById('successSub').innerText = 'Your card has been saved and is ready for future payments';
+                    document.getElementById('successBackBtn').href = '/Account';
+                } else if (isTopup) {
+                    document.getElementById('successTitle').innerHTML = formatAmount(amount) + ' added';
+                    document.getElementById('successSub').innerText = 'Your balance has been topped up successfully';
+                    document.getElementById('successBackBtn').href = '/Account';
+                } else if (isAuction) {
+                    document.getElementById('successTitle').innerText = 'Payment confirmed';
+                    document.getElementById('successSub').innerText = 'Your payment has been processed successfully';
+                    document.getElementById('successBackBtn').href = '/Auction';
+                } else if (isPurchase) {
+                    document.getElementById('successTitle').innerText = 'Purchase confirmed';
+                    document.getElementById('successSub').innerText = itemTitle ? 'You acquired: ' + itemTitle : 'Your purchase has been completed';
+                    document.getElementById('successBackBtn').href = '/';
+                } else {
+                    document.getElementById('successTitle').innerText = 'noir plus activated!';
+                    document.getElementById('successSub').innerText = 'Your noir+ membership is now active. Purple perks unlocked.';
+                    document.getElementById('successBackBtn').href = '/Account';
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error: ' + err.message);
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
         }
     </script>

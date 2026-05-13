@@ -1,37 +1,7 @@
 ﻿@page
-@using System.Linq
-@functions {
-    public class ShopItem
-    {
-        public int Id { get; set; }
-        public string Title { get; set; } = "";
-        public string Desc { get; set; } = "";
-        public int Price { get; set; }
-    }
-
-    public ShopItem[] GetAllItems()
-    {
-        return new[] {
-            new ShopItem { Id = 1, Title = "minimalist ceramic bowl",  Desc = "Hand-thrown organic stoneware with a matte white glaze.",                          Price = 450    },
-            new ShopItem { Id = 2, Title = "vintage leather chair",    Desc = "Mid-century modern lounge chair in aged leather.",                                  Price = 850    },
-            new ShopItem { Id = 3, Title = "niche perfume set",        Desc = "A curated selection of rare single-note fragrances from independent houses.",       Price = 1800   },
-            new ShopItem { Id = 4, Title = "rare vinyl collection",    Desc = "First pressings from obscure labels across three decades of underground music.",    Price = 4200   },
-            new ShopItem { Id = 5, Title = "silver mechanical watch",  Desc = "Hand-assembled Swiss movement in a brushed sterling silver case.",                  Price = 9500   },
-            new ShopItem { Id = 6, Title = "renaissance oil canvas",   Desc = "A 16th-century oil painting attributed to a Flemish master's workshop.",            Price = 65000  },
-            new ShopItem { Id = 8, Title = "the celestial sphere",     Desc = "A gold-plated astronomical instrument from the late 16th century.",                 Price = 740000 }
-        };
-    }
-
-    public ShopItem GetItem()
-    {
-        var all = GetAllItems();
-        int.TryParse(Request.Query["id"], out int id);
-        return all.FirstOrDefault(i => i.Id == id) ?? all[0];
-    }
-}
+@model noir.Pages.NewPurchaseModel
 @{
     Layout = null;
-    var item = GetItem();
 }
 <!DOCTYPE html>
 <html lang="ru">
@@ -53,7 +23,7 @@
         html { background-color: #000; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; min-height: 100vh; overscroll-behavior-y: none; }
 
-        /* ── Header (как в Index.cshtml) ── */
+        /* ── Header ── */
         header { background: #000; height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
         .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; cursor: pointer; }
         .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
@@ -187,10 +157,19 @@
     </style>
 </head>
 <body>
+    @Html.AntiForgeryToken()
+
     <header>
         <div class="brand-wrapper" onclick="window.location.href='/'">
             <span class="brand">noir</span>
-            <span id="headerPlus" class="plus-sticker">plus</span>
+            @if (Model.CurrentUser?.HasPlus == true || Model.CurrentUser?.Role == "admin" || Model.CurrentUser?.Role == "superadmin")
+            {
+                <span id="headerPlus" class="plus-sticker" style="display:inline">plus</span>
+            }
+            else
+            {
+                <span id="headerPlus" class="plus-sticker">plus</span>
+            }
         </div>
         <nav>
             <a onclick="window.location.href='/'">Catalog</a>
@@ -199,11 +178,39 @@
             <a onclick="requireAuth('/Upload')">Upload</a>
         </nav>
         <div class="header-right">
-            <div class="header-avatar-wrap" onclick="requireAuth('/Account')">
-                <div class="header-avatar" id="headerAvatar"></div>
-                <span class="header-username" id="headerUsername"></span>
-            </div>
-            <button class="auth-btn" id="authBtn" onclick="handleAuth()">sign in</button>
+            @if (Model.CurrentUser != null)
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Account'">
+                    <div class="header-avatar @(Model.CurrentUser.Role == "superadmin" ? "gold-border" : Model.CurrentUser.HasPlus ? "plus-border" : "")" 
+                         id="headerAvatar" 
+                         data-role="@(Model.CurrentUser?.Role ?? "guest")" 
+                         data-avatar="@(Model.CurrentUser?.AvatarUrl ?? "")" 
+                         data-username="@(Model.CurrentUser?.Username ?? "")">
+                        @if (!string.IsNullOrEmpty(Model.CurrentUser.AvatarUrl))
+                        {
+                            <img src="@Model.CurrentUser.AvatarUrl" alt="" onerror="this.style.display='none'" />
+                        }
+                        else if (Model.CurrentUser.Username == "if6was7")
+                        {
+                            <span style="font-size:0.7rem; font-weight:bold;">@Model.CurrentUser.Username.Substring(0,1).ToUpper()</span>
+                        }
+                        else
+                        {
+                            <img src="/images/avatar/@(Model.CurrentUser.Username).jpg" onerror="tryNextExt(this, '@Model.CurrentUser.Username')" alt="" />
+                        }
+                    </div>
+                    <span class="header-username" id="headerUsername">@(Model.CurrentUser.Username == "if6was7" ? Model.CurrentUser.Username : (string.IsNullOrEmpty(Model.CurrentUser.Nickname) ? Model.CurrentUser.Username : Model.CurrentUser.Nickname))</span>
+                </div>
+                <button class="auth-btn" id="authBtn" onclick="logout()">exit</button>
+            }
+            else
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Log_In'">
+                    <div class="header-avatar" id="headerAvatar" data-role="guest" data-avatar="" data-username=""></div>
+                    <span class="header-username" id="headerUsername">guest</span>
+                </div>
+                <button class="auth-btn" id="authBtn" onclick="location.href='/Log_In'">sign in</button>
+            }
         </div>
     </header>
 
@@ -211,21 +218,21 @@
 
         <div id="purchaseForm">
             <div class="purchase-header">
-                <div class="purchase-header-label">Archive Ref: 00@item.Id — Purchase</div>
-                <h1>@item.Title</h1>
+                <div class="purchase-header-label">Archive Ref: @(Model.Item?.ArchiveRef ?? "000") — Purchase</div>
+                <h1>@(Model.Item?.Title ?? "Unknown Item")</h1>
             </div>
 
             <div class="item-summary">
-                <span class="item-summary-title">@item.Title</span>
+                <span class="item-summary-title">@(Model.Item?.Title ?? "Unknown Item")</span>
                 <div class="item-summary-price">
                     <div class="item-summary-price-label">Price</div>
-                    <div class="item-summary-price-value">EUR @item.Price.ToString("N0")</div>
+                    <div class="item-summary-price-value">EUR @(Model.Item?.Price.ToString("N0") ?? "0")</div>
                 </div>
             </div>
-            <p class="item-desc">@item.Desc</p>
+            <p class="item-desc">@(Model.Item?.Description ?? "")</p>
 
-            <div class="balance-info" id="balanceInfo">
-                Your balance: <strong id="balanceAmount">€0.00</strong>
+            <div class="balance-info @(Model.CurrentUser != null ? "show" : "")" id="balanceInfo">
+                Your balance: <strong id="balanceAmount">€@(Model.CurrentUser?.Balance.ToString("N2") ?? "0.00")</strong>
             </div>
 
             <div class="error-toast" id="errorToast"></div>
@@ -248,6 +255,12 @@
                     <input type="radio" name="payment" value="mastercard" onchange="onPaymentChange(this.value)">
                     <span class="pay-label">
                         <img class="pay-img" src="/images/mastercard.jpg" alt="Mastercard">
+                    </span>
+                </label>
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="mir" onchange="onPaymentChange(this.value)">
+                    <span class="pay-label">
+                        <img class="pay-img" src="/images/mir.jpg" alt="Mir">
                     </span>
                 </label>
                 <label class="pay-option">
@@ -294,23 +307,23 @@
             <div class="order-summary">
                 <div class="order-row">
                     <span class="order-row-label">Item</span>
-                    <span class="order-row-value">EUR @item.Price.ToString("N0")</span>
+                    <span class="order-row-value">EUR @(Model.Item?.Price.ToString("N0") ?? "0")</span>
                 </div>
                 <div class="order-row">
                     <span class="order-row-label">Handling & Insurance</span>
-                    <span class="order-row-value">EUR @((int)(item.Price * 0.02)).ToString("N0")</span>
+                    <span class="order-row-value">EUR @(Model.HandlingFee.ToString("N0"))</span>
                 </div>
                 <div class="order-row">
                     <span class="order-row-label">Noir Commission (3%)</span>
-                    <span class="order-row-value">EUR @((int)(item.Price * 0.03)).ToString("N0")</span>
+                    <span class="order-row-value">EUR @(Model.Commission.ToString("N0"))</span>
                 </div>
                 <div class="order-row total">
                     <span class="order-row-label">Total</span>
-                    <span class="order-row-value">EUR @((int)(item.Price * 1.05)).ToString("N0")</span>
+                    <span class="order-row-value">EUR @(Model.TotalPrice.ToString("N0"))</span>
                 </div>
             </div>
 
-            <button class="confirm-btn" id="confirmBtn" onclick="confirmPurchase()">Complete Purchase</button>
+            <button type="button" class="confirm-btn" id="confirmBtn" onclick="confirmPurchase()">Complete Purchase</button>
             <div class="confirm-note">By confirming you agree to our terms. All sales are final.</div>
         </div>
 
@@ -329,15 +342,22 @@
     </main>
 
     <script>
-        var ITEM_ID = @item.Id;
-        var ITEM_PRICE = @item.Price;
-        var ITEM_TITLE = "@item.Title";
-        var TOTAL_PRICE = @(item.Price * 1.05);
+        var ITEM_ID = @(Model.Item?.Id ?? 0);
+        var ITEM_PRICE = @(Model.Item?.Price.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0");
+        var ITEM_TITLE = "@(Model.Item?.Title ?? "")";
+        var TOTAL_PRICE = @(Model.TotalPrice.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        var USER_BALANCE = @(Model.CurrentUser?.Balance.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0");
 
-        var SUPERADMIN = '@@if6was7';
-
-        function getAdmins() {
-            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
+        function logout() {
+            fetch('/api/Auth/logout', { method: 'POST' })
+                .then(function() {
+                    sessionStorage.removeItem('noir_user');
+                    window.location.href = '/';
+                })
+                .catch(function() {
+                    sessionStorage.removeItem('noir_user');
+                    window.location.href = '/';
+                });
         }
 
         function requireAuth(url) {
@@ -348,71 +368,20 @@
             }
         }
 
-        function handleAuth() {
-            if (!sessionStorage.getItem('noir_user')) {
-                window.location.href = '/Log_In';
+        // Фикс аватарки: пробуем .jpg, .gif, .png, .jpeg, .webp
+        function tryNextExt(img, username) {
+            var extensions = ['.jpg', '.gif', '.png', '.jpeg', '.webp'];
+            var currentSrc = img.src;
+            var currentExt = currentSrc.substring(currentSrc.lastIndexOf('.'));
+            var currentIdx = extensions.indexOf(currentExt);
+            var nextIdx = currentIdx + 1;
+            
+            if (nextIdx < extensions.length) {
+                img.src = '/images/avatar/' + username + extensions[nextIdx];
             } else {
-                sessionStorage.removeItem('noir_user');
-                location.reload();
-            }
-        }
-
-        function loadUser() {
-            var userData = sessionStorage.getItem('noir_user');
-            var user = userData ? JSON.parse(userData) : null;
-            var isGuest = !user;
-
-            var displayName = 'guest';
-            if (!isGuest) {
-                if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
-                else if (user.displayName && user.displayName !== user.email) displayName = user.displayName;
-                else if (user.name) displayName = user.name;
-                else if (user.username) displayName = user.username.replace('@@', '');
-                else if (user.email) displayName = user.email.split('@@')[0];
-            }
-
-            var ha = document.getElementById('headerAvatar');
-            ha.innerHTML = '';
-
-            if (!isGuest) {
-                var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
-                var avatarPath = '/images/avatar/' + cleanName + '.jpg';
-                var img = document.createElement('img');
-                img.src = avatarPath;
-                img.onerror = function() {
-                    ha.removeChild(img);
-                    ha.style.backgroundColor = '#000';
-                };
-                ha.appendChild(img);
-            } else {
-                ha.style.backgroundColor = '#000';
-            }
-
-            document.getElementById('headerUsername').innerText = displayName;
-
-            var authBtn = document.getElementById('authBtn');
-            authBtn.innerText = isGuest ? 'sign in' : 'exit';
-
-            if (!isGuest) {
-                var admins = getAdmins();
-                var isAdminMode = admins.indexOf(user.username) !== -1;
-
-                var isSuperAdmin = (user.username === SUPERADMIN);
-                var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
-
-                if (isSuperAdmin) {
-                    ha.classList.add('gold-border');
-                } else if (isPlus) {
-                    ha.classList.add('plus-border');
-                }
-
-                if (isPlus) {
-                    document.getElementById('headerPlus').style.display = 'inline';
-                }
-
-                var balance = parseFloat(user.balance) || 0;
-                document.getElementById('balanceAmount').innerText = '€' + balance.toFixed(2);
-                document.getElementById('balanceInfo').classList.add('show');
+                img.style.display = 'none';
+                var parent = img.parentElement;
+                parent.innerHTML = '<span style="font-size:0.7rem; font-weight:bold;">' + username.substring(0,1).toUpperCase() + '</span>';
             }
         }
 
@@ -437,90 +406,85 @@
             document.getElementById('errorToast').classList.remove('show');
         }
 
-        function persistUserToLocalStorage(u) {
-            try {
-                var reg = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
-                var found = false;
-                reg = reg.map(function(r) {
-                    if (r.username === u.username) {
-                        found = true;
-                        return Object.assign({}, r, {
-                            hasPlus: u.hasPlus,
-                            balance: u.balance,
-                            savedCards: u.savedCards
-                        });
-                    }
-                    return r;
-                });
-                if (!found) {
-                    reg.push({
-                        username: u.username,
-                        email: u.email || u.username,
-                        password: u.googleAuth ? 'google_oauth' : (u.appleAuth ? 'apple_oauth' : ''),
-                        role: u.role || 'user',
-                        nickname: u.nickname || u.displayName || '',
-                        displayName: u.displayName || u.nickname || '',
-                        hasPlus: u.hasPlus || false,
-                        balance: u.balance || 0,
-                        savedCards: u.savedCards || []
-                    });
-                }
-                localStorage.setItem('noir_registered_users', JSON.stringify(reg));
-            } catch(e) {
-                console.error('persistUserToLocalStorage error:', e);
-            }
-        }
-
-        function savePurchase(lotId, title, amount) {
-            try {
-                var purchases = JSON.parse(localStorage.getItem('noir_purchases') || '[]');
-                purchases.push({
-                    lotId: lotId,
-                    title: title,
-                    amount: amount,
-                    time: Date.now()
-                });
-                localStorage.setItem('noir_purchases', JSON.stringify(purchases));
-            } catch(e) {
-                console.error('savePurchase error:', e);
-            }
-        }
-
         function confirmPurchase() {
             var selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+            console.log('[DEBUG] Selected payment:', selectedPayment);
+            console.log('[DEBUG] ITEM_ID:', ITEM_ID, 'TOTAL_PRICE:', TOTAL_PRICE, 'ITEM_TITLE:', ITEM_TITLE);
             hideError();
 
+            // Balance payment — POST to server
             if (selectedPayment === 'balance') {
-                var raw = sessionStorage.getItem('noir_user');
-                if (!raw) { window.location.href = '/Log_In'; return; }
-                var u = JSON.parse(raw);
-                var balance = parseFloat(u.balance) || 0;
-
-                if (balance < TOTAL_PRICE) {
-                    showError('Insufficient balance. You have €' + balance.toFixed(2) + ', need €' + TOTAL_PRICE.toFixed(2));
+                if (USER_BALANCE < TOTAL_PRICE) {
+                    showError('Insufficient balance. You have €' + USER_BALANCE.toFixed(2) + ', need €' + TOTAL_PRICE.toFixed(2));
                     return;
                 }
 
-                u.balance = (balance - TOTAL_PRICE).toFixed(2);
-                sessionStorage.setItem('noir_user', JSON.stringify(u));
-                persistUserToLocalStorage(u);
+                var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                var formData = new FormData();
+                formData.append('__RequestVerificationToken', token);
+                formData.append('Source', 'purchase');
+                formData.append('LotId', ITEM_ID);
+                formData.append('Amount', TOTAL_PRICE);
+                formData.append('UseBalance', 'true');
+                formData.append('ItemTitle', ITEM_TITLE);
 
-                savePurchase(ITEM_ID, ITEM_TITLE, TOTAL_PRICE);
+                console.log('[DEBUG] POSTing to /Payment with balance');
 
-                document.getElementById('purchaseForm').style.display = 'none';
-                document.getElementById('mainFooter').style.display = 'none';
-                document.getElementById('successScreen').classList.add('show');
-                document.getElementById('successSub').innerText = 'You acquired: ' + ITEM_TITLE + ' for €' + TOTAL_PRICE.toFixed(2);
+                fetch('/Payment', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(r) { 
+                    console.log('[DEBUG] Response status:', r.status);
+                    if (!r.ok) throw new Error('Server error: ' + r.status);
+                    return r.json(); 
+                })
+                .then(function(data) {
+                    console.log('[DEBUG] Response data:', data);
+                    if (data.success) {
+                        document.getElementById('purchaseForm').style.display = 'none';
+                        document.getElementById('mainFooter').style.display = 'none';
+                        document.getElementById('successScreen').classList.add('show');
+                        document.getElementById('successSub').innerText = 'You acquired: ' + ITEM_TITLE + ' for €' + TOTAL_PRICE.toFixed(2);
+                    } else {
+                        showError(data.error || 'Payment failed');
+                    }
+                })
+                .catch(function(e) {
+                    console.error('[DEBUG] Fetch error:', e);
+                    showError('Error: ' + e.message);
+                });
                 return;
             }
 
-            window.location.href = '/Payment?source=purchase&method=' + encodeURIComponent(selectedPayment) 
-                + '&amount=' + ITEM_PRICE 
+            // Card payment — redirect to Payment page
+            var redirectUrl = '/Payment?source=purchase&method=' + encodeURIComponent(selectedPayment) 
+                + '&amount=' + TOTAL_PRICE
                 + '&lotId=' + ITEM_ID
-                + '&title=' + encodeURIComponent(ITEM_TITLE);
+                + '&ItemTitle=' + encodeURIComponent(ITEM_TITLE);
+            
+            console.log('[DEBUG] Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
         }
 
-        loadUser();
+        // Sync sessionStorage with server user
+        @if (Model.CurrentUser != null)
+        {
+            <text>
+            var serverUser = {
+                id: @Model.CurrentUser.Id,
+                username: '@Model.CurrentUser.Username',
+                displayName: '@(Model.CurrentUser.Username == "if6was7" ? Model.CurrentUser.Username : (string.IsNullOrEmpty(Model.CurrentUser.Nickname) ? Model.CurrentUser.Username : Model.CurrentUser.Nickname))',
+                nickname: '@(Model.CurrentUser.Nickname ?? "")',
+                email: '@Model.CurrentUser.Email',
+                role: '@Model.CurrentUser.Role',
+                hasPlus: @(Model.CurrentUser.HasPlus ? "true" : "false"),
+                balance: @(Model.CurrentUser.Balance.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                avatarUrl: '@(Model.CurrentUser.AvatarUrl ?? "")'
+            };
+            sessionStorage.setItem('noir_user', JSON.stringify(serverUser));
+            </text>
+        }
     </script>
 </body>
 </html>

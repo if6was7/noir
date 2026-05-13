@@ -21,7 +21,7 @@
         .topbar-merchant strong { color: rgba(255,255,255,0.65); font-weight: 500; }
         .topbar-secure { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,0.3); }
         .topbar-secure svg { width: 12px; height: 12px; }
-        .main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 3rem 1rem; gap: 1.5rem; }
+        .main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 3rem 1rem; gap: 1.5rem; flex-wrap: wrap; }
         .panel-card { background: #1c1c1e; border-radius: 18px; border: 0.5px solid rgba(255,255,255,0.07); padding: 1.6rem; width: 360px; flex-shrink: 0; }
         .panel-title { font-size: 10px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 1.4rem; }
         .methods-label { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.45); margin-bottom: 10px; display: block; }
@@ -40,6 +40,7 @@
         .dark-input { width: 100%; height: 44px; background: #2c2c2e; border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: #fff; outline: none; transition: border-color 0.2s; }
         .dark-input:focus { border-color: #4f46e5; }
         .dark-input::placeholder { color: rgba(255,255,255,0.25); }
+        .fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .action-btn { width: 100%; height: 50px; background: #4f46e5; color: #fff; border: none; border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.03em; cursor: pointer; margin-top: 4px; transition: background 0.2s, transform 0.1s; }
         .action-btn:hover { background: #4338ca; }
         .action-btn:active { transform: scale(0.99); }
@@ -69,9 +70,16 @@
         .footer { padding: 20px 32px; display: flex; align-items: center; justify-content: center; gap: 20px; border-top: 0.5px solid rgba(255,255,255,0.05); }
         .footer-text { font-size: 11px; color: rgba(255,255,255,0.18); }
         .footer-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.12); }
-        .toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #22c55e; color: #fff; font-family: 'Inter'; font-size: 12px; font-weight: 500; padding: 10px 20px; border-radius: 8px; z-index: 9000; }
+        .toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); font-family: 'Inter'; font-size: 12px; font-weight: 500; padding: 10px 20px; border-radius: 8px; z-index: 9000; }
         .toast.show { display: block; }
-        .toast.error { background: #ef4444; }
+        .toast.success { background: #22c55e; color: #fff; }
+        .toast.error { background: #ef4444; color: #fff; }
+
+        .card-fields { transition: opacity 0.2s; }
+        .card-fields.hidden { opacity: 0.3; pointer-events: none; }
+
+        /* Стиль для + Add card */
+        .method-icon-box.add-icon { background: transparent; font-size: 22px; color: rgba(255,255,255,0.5); }
     </style>
 </head>
 <body>
@@ -98,25 +106,74 @@
             <div class="methods-grid">
                 <label class="method-opt">
                     <input type="radio" name="method" value="visa" checked onchange="updateSummary(this.value)">
-                    <span class="method-opt-label"><div class="method-img-box"><img src="/images/visa.jpg" alt="Visa"></div><span class="method-opt-name">Visa</span></span>
+                    <span class="method-opt-label">
+                        <div class="method-img-box"><img src="/images/visa.jpg" alt="Visa"></div>
+                        <span class="method-opt-name">Visa</span>
+                    </span>
                 </label>
                 <label class="method-opt">
                     <input type="radio" name="method" value="mastercard" onchange="updateSummary(this.value)">
-                    <span class="method-opt-label"><div class="method-img-box"><img src="/images/mastercard.jpg" alt="Mastercard"></div><span class="method-opt-name">Mastercard</span></span>
+                    <span class="method-opt-label">
+                        <div class="method-img-box"><img src="/images/mastercard.jpg" alt="Mastercard"></div>
+                        <span class="method-opt-name">Mastercard</span>
+                    </span>
                 </label>
                 <label class="method-opt">
                     <input type="radio" name="method" value="mir" onchange="updateSummary(this.value)">
-                    <span class="method-opt-label"><div class="method-img-box"><img src="/images/mir.jpg" alt="Mir"></div><span class="method-opt-name">Mir</span></span>
+                    <span class="method-opt-label">
+                        <div class="method-img-box"><img src="/images/mir.jpg" alt="Mir"></div>
+                        <span class="method-opt-name">Mir</span>
+                    </span>
+                </label>
+                <label class="method-opt">
+                    <input type="radio" name="method" value="paypal" onchange="updateSummary(this.value)">
+                    <span class="method-opt-label">
+                        <div class="method-img-box"><img src="/images/paypal.jpg" alt="PayPal"></div>
+                        <span class="method-opt-name">PayPal</span>
+                    </span>
+                </label>
+                <label class="method-opt">
+                    <input type="radio" name="method" value="applepay" onchange="updateSummary(this.value)">
+                    <span class="method-opt-label">
+                        <div class="method-img-box"><img src="/images/applepay.jpg" alt="Apple Pay"></div>
+                        <span class="method-opt-name">Apple Pay</span>
+                    </span>
+                </label>
+                <label class="method-opt">
+                    <input type="radio" name="method" value="addcard" onchange="updateSummary(this.value)">
+                    <span class="method-opt-label">
+                        <div class="method-icon-box add-icon">+</div>
+                        <span class="method-opt-name">Add card</span>
+                    </span>
                 </label>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Card number</label>
-                <input type="text" class="dark-input" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+            <div class="card-fields" id="cardFields">
+                <div class="form-group">
+                    <label class="form-label">Card number</label>
+                    <input type="text" class="dark-input" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+                </div>
+                <div class="fields-row">
+                    <div class="form-group">
+                        <label class="form-label">Expiry (MM/YY)</label>
+                        <input type="text" class="dark-input" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <input type="password" class="dark-input" id="cardCvv" placeholder="•••" maxlength="4">
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label class="form-label">Expiry (MM/YY)</label>
-                <input type="text" class="dark-input" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+
+            <!-- Поля для PayPal -->
+            <div class="form-group" id="paypalFields" style="display:none;">
+                <label class="form-label">PayPal email</label>
+                <input type="email" class="dark-input" id="paypalEmail" placeholder="your@email.com">
+            </div>
+
+            <!-- Для Apple Pay — просто сообщение -->
+            <div id="applePayInfo" style="display:none; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 14px; margin-bottom: 16px; font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.6;">
+                Apple Pay will be linked via your device's Wallet. No card number required.
             </div>
 
             <button class="action-btn" id="saveBtn" onclick="saveCard()">Link Card</button>
@@ -133,7 +190,9 @@
                 <div class="summary-top">
                     <div class="summary-eyebrow">Linking to account</div>
                     <div class="summary-method-row" id="summaryMethodRow">
-                        <div class="summary-method-logo" id="summaryLogo"><img src="/images/visa.jpg" alt="Visa"></div>
+                        <div class="summary-method-logo" id="summaryLogo">
+                            <img src="/images/visa.jpg" alt="Visa">
+                        </div>
                         <div>
                             <div class="summary-method-name" id="summaryMethodName">Visa</div>
                             <div class="summary-method-sub">Selected payment method</div>
@@ -146,7 +205,9 @@
                     <div class="summary-row"><span class="summary-key">Stored as</span><span class="summary-val accent">Encrypted token</span></div>
                     <div class="summary-row"><span class="summary-key">Remove anytime</span><span class="summary-val">Account settings</span></div>
                 </div>
-                <div class="summary-note"><strong>No funds will be debited.</strong> Linking only saves a secure token for faster checkout on future top-ups and purchases.</div>
+                <div class="summary-note">
+                    <strong>No funds will be debited.</strong> Linking only saves a secure token for faster checkout on future top-ups and purchases.
+                </div>
             </div>
         </div>
     </div>
@@ -163,37 +224,87 @@
 
     <script>
         var methodMeta = {
-            visa:       { name: 'Visa',       img: '/images/visa.jpg' },
-            mastercard: { name: 'Mastercard', img: '/images/mastercard.jpg' },
-            mir:        { name: 'Mir',        img: '/images/mir.jpg' }
+            visa:       { name: 'Visa',       img: '/images/visa.jpg',       hasCard: true  },
+            mastercard: { name: 'Mastercard', img: '/images/mastercard.jpg', hasCard: true  },
+            mir:        { name: 'Mir',        img: '/images/mir.jpg',        hasCard: true  },
+            paypal:     { name: 'PayPal',     img: '/images/paypal.jpg',     hasCard: false },
+            applepay:   { name: 'Apple Pay',  img: '/images/applepay.jpg',   hasCard: false },
+            addcard:    { name: 'Add card',   img: null,                     hasCard: true  }
         };
 
         function updateSummary(value) {
-            var meta = methodMeta[value] || { name: value, img: '' };
+            var meta = methodMeta[value] || { name: value, img: null, hasCard: true };
             document.getElementById('summaryMethodName').innerText = meta.name;
+
             var logo = document.getElementById('summaryLogo');
-            if (meta.img) { logo.innerHTML = '<img src="' + meta.img + '" alt="' + meta.name + '">'; }
+            if (meta.img) {
+                logo.className = 'summary-method-logo';
+                logo.innerHTML = '<img src="' + meta.img + '" alt="' + meta.name + '">';
+            } else {
+                logo.className = 'summary-method-logo-placeholder';
+                logo.innerHTML = value === 'addcard' ? '+' : meta.name.substring(0, 2).toUpperCase();
+            }
+
+            // Показываем нужные поля
+            document.getElementById('cardFields').style.display = meta.hasCard && value !== 'applepay' ? 'block' : 'none';
+            document.getElementById('paypalFields').style.display = value === 'paypal' ? 'block' : 'none';
+            document.getElementById('applePayInfo').style.display = value === 'applepay' ? 'block' : 'none';
+
+            // Меняем текст кнопки
+            var btn = document.getElementById('saveBtn');
+            if (value === 'paypal') btn.innerText = 'Link PayPal';
+            else if (value === 'applepay') btn.innerText = 'Link Apple Pay';
+            else if (value === 'addcard') btn.innerText = 'Add Card';
+            else btn.innerText = 'Link Card';
         }
 
         function showToast(msg, isError) {
             var t = document.getElementById('toast');
             t.innerText = msg;
-            t.className = 'toast' + (isError ? ' error' : '');
+            t.className = 'toast ' + (isError ? 'error' : 'success');
             t.classList.add('show');
             setTimeout(function() { t.classList.remove('show'); }, 3000);
+        }
+
+        function detectNetwork(number) {
+            var n = number.replace(/\s/g, '');
+            if (n.startsWith('4')) return 'visa';
+            if (n.startsWith('5')) return 'mastercard';
+            if (n.startsWith('2')) return 'mir';
+            if (n.startsWith('62')) return 'unionpay';
+            return 'visa';
         }
 
         async function saveCard() {
             var raw = sessionStorage.getItem('noir_user');
             if (!raw) { window.location.href = '/Log_In'; return; }
             var user = JSON.parse(raw);
+
             var method = document.querySelector('input[name="method"]:checked').value;
-            var number = document.getElementById('cardNumber').value.trim();
-            var expiry = document.getElementById('cardExpiry').value.trim();
             var btn = document.getElementById('saveBtn');
 
-            if (!number || number.length < 4) { showToast('Enter valid card number', true); return; }
-            if (!expiry || expiry.length < 5) { showToast('Enter valid expiry date', true); return; }
+            var last4 = '0000';
+            var expiry = '00/00';
+            var apiMethod = method;
+
+            if (method === 'paypal') {
+                var email = document.getElementById('paypalEmail').value.trim();
+                if (!email) { showToast('Enter your PayPal email', true); return; }
+                last4 = email.substring(0, 4);
+                expiry = '12/99';
+            } else if (method === 'applepay') {
+                last4 = 'APAY';
+                expiry = '12/99';
+            } else {
+                var number = document.getElementById('cardNumber').value.trim();
+                expiry = document.getElementById('cardExpiry').value.trim();
+                if (!number || number.length < 4) { showToast('Enter valid card number', true); return; }
+                if (!expiry || expiry.length < 5) { showToast('Enter valid expiry date', true); return; }
+                last4 = number.replace(/\s/g, '').slice(-4);
+                if (method === 'addcard') {
+                    apiMethod = detectNetwork(number);
+                }
+            }
 
             btn.disabled = true;
             btn.innerText = 'Saving...';
@@ -204,24 +315,25 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         username: user.username,
-                        network: method,
-                        last4: number.slice(-4),
+                        network: apiMethod,
+                        last4: last4,
                         expiry: expiry
                     })
                 });
+
                 if (res.ok) {
-                    showToast('Card linked successfully');
+                    showToast('Payment method linked successfully');
                     setTimeout(function() { history.back(); }, 1200);
                 } else {
                     var err = await res.json();
-                    showToast(err.error || 'Failed to link card', true);
+                    showToast(err.error || 'Failed to link', true);
                     btn.disabled = false;
-                    btn.innerText = 'Link Card';
+                    updateSummary(method);
                 }
             } catch(e) {
                 showToast('Server error', true);
                 btn.disabled = false;
-                btn.innerText = 'Link Card';
+                updateSummary(method);
             }
         }
 
@@ -230,6 +342,7 @@
             var parts = v.match(/.{1,4}/g);
             e.target.value = parts ? parts.join(' ') : '';
         });
+
         document.getElementById('cardExpiry').addEventListener('input', function(e) {
             var v = e.target.value.replace(/[^0-9]/g, '');
             if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2,4);

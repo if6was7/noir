@@ -42,9 +42,14 @@ namespace noir.Pages
 			CurrentUser = await _context.Users.FindAsync(userId.Value);
 			if (CurrentUser == null) return RedirectToPage("/Log_In");
 
+			// FIX: принудительно ставим цену подписки, если не передана
+			if (IsSubscription && Amount == 0)
+				Amount = 10.99m;
+
 			return Page();
 		}
 
+		[IgnoreAntiforgeryToken]
 		public async Task<IActionResult> OnPostAsync()
 		{
 			var userId = HttpContext.Session.GetInt32("UserId");
@@ -74,6 +79,16 @@ namespace noir.Pages
 				}
 				else if (IsSubscription)
 				{
+					decimal subPrice = 10.99m;
+
+					// FIX: списание с баланса для подписки
+					if (UseBalance)
+					{
+						if (user.Balance < subPrice)
+							return new JsonResult(new { success = false, error = "Insufficient balance" });
+						user.Balance -= subPrice;
+					}
+
 					user.HasPlus = true;
 					_context.Subscriptions.Add(new Subscription
 					{
@@ -81,7 +96,7 @@ namespace noir.Pages
 						IsActive = true,
 						ActiveSince = DateTime.UtcNow,
 						EndDate = DateTime.UtcNow.AddMonths(1),
-						Price = 10.99m
+						Price = subPrice
 					});
 				}
 				else if (IsAuction && LotId.HasValue && Amount > 0)

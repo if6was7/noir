@@ -138,6 +138,8 @@
         }
         .seller-link.role-admin { color: #bbb; }
         .seller-link.role-admin:hover { color: var(--admin-gold); text-decoration: underline; }
+        .seller-link.role-superadmin { color: #bbb; }
+        .seller-link.role-superadmin:hover { color: var(--admin-gold); text-decoration: underline; }
         .seller-link.role-plus { color: #bbb; }
         .seller-link.role-plus:hover { color: var(--plus-indigo); text-decoration: underline; }
         .seller-link.role-regular { color: #bbb; }
@@ -163,9 +165,6 @@
             object-fit: cover;
             z-index: 2;
             transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
-        }
-        .item-card:hover .image-wrapper img {
-            transform: scale(1.03);
         }
         .item-info { text-align: left; border-top: 1px solid #000; padding-top: 18px; }
         .item-title { font-size: 1.8rem; margin: 0 0 10px 0; text-transform: lowercase; font-weight: normal; }
@@ -214,6 +213,8 @@
     </style>
 </head>
 <body>
+    @Html.AntiForgeryToken()
+
     <header>
         <div class="brand-wrapper" onclick="window.location.href='/'">
             <span class="brand">noir</span>
@@ -236,14 +237,22 @@
             @if (Model.CurrentUser != null)
             {
                 <div class="header-avatar-wrap" onclick="location.href='/Account'">
-                    <div class="header-avatar @(Model.CurrentUser.Role == "superadmin" ? "gold-border" : Model.CurrentUser.HasPlus ? "plus-border" : "")" id="headerAvatar">
+                    <div class="header-avatar @(Model.CurrentUser.Role == "superadmin" ? "gold-border" : Model.CurrentUser.HasPlus ? "plus-border" : "")" 
+                         id="headerAvatar" 
+                         data-role="@(Model.CurrentUser?.Role ?? "guest")" 
+                         data-avatar="@(Model.CurrentUser?.AvatarUrl ?? "")" 
+                         data-username="@(Model.CurrentUser?.Username ?? "")">
                         @if (!string.IsNullOrEmpty(Model.CurrentUser.AvatarUrl))
                         {
                             <img src="@Model.CurrentUser.AvatarUrl" alt="" onerror="this.style.display='none'" />
                         }
+                        else if (Model.CurrentUser.Username == "if6was7")
+                        {
+                            <span style="font-size:0.7rem; font-weight:bold;">@Model.CurrentUser.Username.Substring(0,1).ToUpper()</span>
+                        }
                         else
                         {
-                            <img src="/images/avatar/@(Model.CurrentUser.Username).jpg" onerror="this.style.display='none'" alt="" />
+                            <img src="/images/avatar/@(Model.CurrentUser.Username).jpg" onerror="this.style.display='none'; this.parentElement.innerText='@(Model.CurrentUser.Username.Substring(0,1).ToUpper())'" alt="" />
                         }
                     </div>
                     <span class="header-username" id="headerUsername">@(string.IsNullOrEmpty(Model.CurrentUser.Nickname) ? Model.CurrentUser.Username : Model.CurrentUser.Nickname)</span>
@@ -253,7 +262,7 @@
             else
             {
                 <div class="header-avatar-wrap" onclick="location.href='/Log_In'">
-                    <div class="header-avatar" id="headerAvatar" style="background:#000;"></div>
+                    <div class="header-avatar" id="headerAvatar" data-role="guest" data-avatar="" data-username=""></div>
                     <span class="header-username" id="headerUsername">guest</span>
                 </div>
                 <button class="auth-btn" id="authBtn" onclick="location.href='/Log_In'">sign in</button>
@@ -336,12 +345,7 @@
                 });
         }
 
-        var isAdminMode = false;
         var SUPERADMIN = 'if6was7';
-
-        function getAdmins() {
-            return JSON.parse(localStorage.getItem('noir_admins') || '["if6was7"]');
-        }
 
         function requireAuth(url) {
             if (!sessionStorage.getItem('noir_user')) {
@@ -359,12 +363,33 @@
             }
         }
 
-        function removeListing(e, itemId) {
+        async function removeListing(e, itemId) {
             e.stopPropagation();
-            var card = document.getElementById('card-' + itemId);
-            card.classList.add('removed');
-            showToast('Listing #' + itemId + ' removed');
-            updateItemCount();
+            if (!confirm('Remove listing #' + itemId + '?')) return;
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            try {
+                var resp = await fetch('?handler=Remove&id=' + itemId, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                if (!resp.ok) throw new Error('Server error ' + resp.status);
+                var data = await resp.json();
+                if (data.success) {
+                    var card = document.getElementById('card-' + itemId);
+                    card.classList.add('removed');
+                    showToast('Listing #' + itemId + ' removed');
+                    updateItemCount();
+                } else {
+                    showToast(data.error || 'Failed to remove');
+                }
+            } catch(err) {
+                console.error(err);
+                showToast('Error removing listing');
+            }
         }
 
         function updateItemCount() {
@@ -439,7 +464,16 @@
             var userData = sessionStorage.getItem('noir_user');
             var user = userData ? JSON.parse(userData) : null;
             var isGuest = !user;
+
+            var ha = document.getElementById('headerAvatar');
+            var serverRole = ha.dataset.role || 'guest';
+            var serverAvatar = ha.dataset.avatar || '';
+            var serverUsername = ha.dataset.username || '';
+
             var displayName = 'guest';
+            var isSuperAdmin = (serverRole === 'superadmin' || (user && user.username === SUPERADMIN));
+            var isPlus = isSuperAdmin || serverRole === 'admin' || (user && (user.hasPlus === true || user.hasPlus === 'true'));
+
             if (!isGuest) {
                 if (user.username === SUPERADMIN) {
                     displayName = user.username;
@@ -454,46 +488,39 @@
                 } else if (user.email) {
                     displayName = user.email.split('@@')[0];
                 }
-            }
-            var ha = document.getElementById('headerAvatar');
-            ha.innerHTML = '';
-            if (!isGuest) {
-                var cleanName = (user.username || user.email || '');
-                var avatarPath = '/images/avatar/' + cleanName + '.jpg';
-                var img = document.createElement('img');
-                img.src = avatarPath;
-                img.onerror = function() {
-                    ha.removeChild(img);
-                    ha.style.backgroundColor = '#000';
-                };
-                ha.appendChild(img);
-            } else {
-                ha.style.backgroundColor = '#000';
-            }
-            document.getElementById('headerUsername').innerText = displayName;
-            var authBtn = document.getElementById('authBtn');
-            authBtn.innerText = isGuest ? 'sign in' : 'exit';
-            if (!isGuest) {
-                var admins = getAdmins();
-                isAdminMode = admins.indexOf(user.username) !== -1;
-                var isSuperAdmin = (user.username === SUPERADMIN);
-                var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
-                if (isSuperAdmin) {
-                    ha.classList.add('gold-border');
-                } else if (isPlus) {
-                    ha.classList.add('plus-border');
+
+                // Обновляем бордер аватарки (не трогаем innerHTML — сервер уже отрендерил картинку!)
+                ha.className = 'header-avatar';
+                if (isSuperAdmin) ha.classList.add('gold-border');
+                else if (isPlus) ha.classList.add('plus-border');
+
+                // Если сервер не отдал аватар, а в sessionStorage есть — подставим
+                if (!serverAvatar && user.avatarUrl) {
+                    ha.innerHTML = '<img src="' + user.avatarUrl + '" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'" />';
                 }
+
                 if (isPlus) {
                     document.getElementById('headerPlus').style.display = 'inline';
                 }
+            } else {
+                ha.className = 'header-avatar';
+                ha.style.backgroundColor = '#000';
+                ha.innerHTML = '';
             }
-            if (isAdminMode) {
+
+            document.getElementById('headerUsername').innerText = displayName;
+
+            // Админ-режим по серверной роли (безопасно)
+            var isAdmin = (serverRole === 'admin' || serverRole === 'superadmin');
+            if (isAdmin) {
                 document.getElementById('adminBar').style.display = 'flex';
                 document.querySelectorAll('.item-card').forEach(function(c) {
                     c.classList.add('admin-mode');
                 });
             }
+
             updateItemCount();
+
             var titles = [
                 "all items", "the collection", "private gallery",
                 "rare objects", "curated pieces", "select artifacts",
@@ -501,15 +528,6 @@
             ];
             var titleEl = document.getElementById('pageTitle');
             if (titleEl) titleEl.textContent = titles[Math.floor(Math.random() * titles.length)];
-        }
-
-        function handleAuth() {
-            if (!sessionStorage.getItem('noir_user')) {
-                window.location.href = '/Log_In';
-            } else {
-                sessionStorage.removeItem('noir_user');
-                location.reload();
-            }
         }
 
         function showToast(msg) {

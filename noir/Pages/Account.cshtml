@@ -248,7 +248,19 @@
         var isPlus = Model.UserProfile?.HasPlus == true || Model.UserProfile?.Role == "admin" || Model.UserProfile?.Role == "superadmin";
         var isAdmin = Model.UserProfile?.Role == "admin" || Model.UserProfile?.Role == "superadmin";
         var isSuperAdmin = Model.UserProfile?.Role == "superadmin";
-        var displayName = Model.UserProfile?.Username ?? "";
+       var displayName = "";
+if (Model.UserProfile?.Username == "if6was7")
+{
+    displayName = "if6was7";
+}
+else if (!string.IsNullOrEmpty(Model.UserProfile?.Nickname))
+{
+    displayName = Model.UserProfile.Nickname;
+}
+else
+{
+    displayName = Model.UserProfile?.Username ?? "";
+}
         var cleanUsername = Model.UserProfile?.Username ?? "";
         var hasCards = Model.UserProfile?.SavedCards?.Any() == true;
     }
@@ -275,7 +287,20 @@
                         <img src="@Model.CurrentUser.AvatarUrl" alt="" onerror="this.style.display='none'" />
                     }
                 </div>
-                <span class="header-username">@(Model.CurrentUser?.Username ?? "")</span>
+                <span class="header-username">
+    @if (Model.CurrentUser?.Username == "if6was7")
+    {
+        @:if6was7
+    }
+    else if (!string.IsNullOrEmpty(Model.CurrentUser?.Nickname))
+    {
+        @Model.CurrentUser.Nickname
+    }
+    else
+    {
+        @Model.CurrentUser?.Username
+    }
+</span>
             </div>
             <button class="logout-btn" onclick="logout()">exit</button>
         </div>

@@ -9,5 +9,7 @@
 		public Listing Listing { get; set; } = null!;
 		public int ReviewerId { get; set; }
 		public User Reviewer { get; set; } = null!;
+
+		public DateTime CreatedAt { get; set; }
 	}
 }

@@ -9,15 +9,19 @@
     <title>noir — @(Model.Listing?.Title ?? "sold item")</title>
     <link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Cinzel:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #ffffff; --text-main: #000000; --light-gray: #fdfdfd; --sold-red: #660000; --accent-purple: #a855f7; --admin-gold: #c9a84c; }
+        :root { 
+            --bg: #ffffff; --text-main: #000000; --header-bg: #000000; 
+            --light-gray: #fdfdfd; --sold-red: #660000;
+            --accent-purple: #a855f7; --admin-gold: #c9a84c;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: var(--text-main); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; }
-        header { background-color: #000; height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
+        header { background-color: var(--header-bg); height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
         .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; cursor: pointer; }
-        .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; text-decoration: none; line-height: 1; }
+        .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; letter-spacing: 5px; text-transform: lowercase; color: #fff; line-height: 1; }
         .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
         nav { display: flex; gap: 60px; }
-        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.4s; cursor: pointer; }
+        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; cursor: pointer; }
         nav a:hover, nav a.active { opacity: 1; }
         .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
@@ -28,10 +32,36 @@
         .header-username { font-family: 'Montserrat'; font-size: 0.65rem; letter-spacing: 2px; color: #fff; opacity: 0.5; text-transform: uppercase; }
         .auth-btn { font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; opacity: 0.3; background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0; }
         .auth-btn:hover { opacity: 1; }
+        
         .product-container { max-width: 1400px; margin: 80px auto; padding: 0 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; }
-        .product-image { width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); border: 1px solid #efefef; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-        .product-image span { font-family: 'Cinzel', serif; font-size: 22rem; color: #f0f0f0; position: absolute; bottom: -50px; right: -30px; pointer-events: none; }
-        .sold-ribbon { position: absolute; top: 0; left: 0; background: var(--sold-red); color: #fff; padding: 12px 25px; font-family: 'Montserrat', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; z-index: 10; }
+        .product-image { 
+            width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); 
+            display: flex; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden; 
+        }
+        .product-image::before { 
+            content: ""; position: absolute; left: 0; bottom: 0; 
+            width: 2px; height: 100%; background-color: #000; 
+            transform: scaleY(0); transform-origin: bottom; 
+            transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; 
+        }
+        .product-image:hover::before { transform: scaleY(1); }
+        .product-image span { 
+            font-family: 'Cinzel', serif; font-size: 22rem; color: #f0f0f0; 
+            position: absolute; bottom: -50px; right: -30px; pointer-events: none; z-index: 1; 
+        }
+        .product-image img {
+            position: absolute; inset: 0; width: 100%; height: 100%; 
+            object-fit: cover; z-index: 2;
+            transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+        .product-image:hover img { transform: scale(1.03); }
+        .sold-ribbon { 
+            position: absolute; top: 0; left: 0; background: var(--sold-red); color: #fff; 
+            padding: 12px 25px; font-family: 'Montserrat', sans-serif; font-size: 0.65rem; 
+            text-transform: uppercase; letter-spacing: 3px; font-weight: 600; z-index: 10; 
+        }
+        
         .product-details { display: flex; flex-direction: column; }
         .lot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .lot-tag { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; color: #000; font-weight: 600; }
@@ -42,58 +72,133 @@
         .sold-label { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.4; }
         .sold-value { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 600; text-transform: lowercase; }
         .sold-value.price { font-size: 1.3rem; color: var(--sold-red); }
+        .sold-value a { color: inherit; text-decoration: none; transition: color 0.2s; }
+        .sold-value a:hover { color: var(--sold-red); }
         .closed-box { background: #f5f5f5; width: 100%; height: 90px; display: flex; align-items: center; justify-content: center; margin-top: 30px; gap: 15px; }
         .closed-line { width: 40px; height: 1px; background: #999; }
         .closed-text { font-family: 'Montserrat', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 5px; color: #999; }
         .category-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px; }
         .cat-tag { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; text-transform: uppercase; padding: 6px 15px; border: 1px solid #eee; color: #999; text-decoration: none; transition: 0.3s; }
         .cat-tag:hover { border-color: #000; color: #000; }
+        
+        .admin-actions { margin-top: 30px; display: none; }
+        .admin-actions.show { display: flex; gap: 12px; }
+        .admin-btn {
+            font-family: 'Montserrat'; font-size: 0.48rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 2px;
+            padding: 10px 20px; border: 1px solid #ddd; color: #aaa;
+            background: transparent; cursor: pointer; transition: all 0.2s;
+        }
+        .admin-btn:hover { border-color: #c0392b; color: #c0392b; }
+        .admin-btn.restore:hover { border-color: #22c55e; color: #22c55e; }
+        
         .footer { max-width: 1400px; margin: 120px auto 0; padding: 60px 60px 60px; border-top: 1px solid #000; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
         .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
         .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
         .footer-tagline { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: right; }
+        .toast {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #000; color: #fff; font-family: 'Montserrat'; font-size: 0.55rem;
+            text-transform: uppercase; letter-spacing: 3px; padding: 14px 28px; opacity: 0;
+            transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9000;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
+    @Html.AntiForgeryToken()
+
     <header>
         <div class="brand-wrapper" onclick="window.location.href='/'">
             <span class="brand">noir</span>
-            <span id="headerPlus" class="plus-sticker">plus</span>
+            @if (Model.CurrentUser?.HasPlus == true || Model.CurrentUser?.Role == "admin" || Model.CurrentUser?.Role == "superadmin")
+            {
+                <span id="headerPlus" class="plus-sticker" style="display:inline">plus</span>
+            }
+            else
+            {
+                <span id="headerPlus" class="plus-sticker">plus</span>
+            }
         </div>
         <nav>
             <a onclick="window.location.href='/'">Catalog</a>
             <a onclick="requireAuth('/Auction')">Auction</a>
-            <a onclick="requireAuth('/Archive')">Archive</a>
+            <a onclick="requireAuth('/Archive')" class="active">Archive</a>
             <a onclick="requireAuth('/Upload')">Upload</a>
         </nav>
         <div class="header-right">
-            <div class="header-avatar-wrap" onclick="requireAuth('/Account')">
-                <div class="header-avatar" id="headerAvatar"></div>
-                <span class="header-username" id="headerUsername"></span>
-            </div>
-            <button class="auth-btn" id="authBtn" onclick="handleAuth()">sign in</button>
+            @if (Model.CurrentUser != null)
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Account'">
+                    <div class="header-avatar @(Model.CurrentUser.Role == "superadmin" ? "gold-border" : Model.CurrentUser.HasPlus ? "plus-border" : "")" 
+                         id="headerAvatar" 
+                         data-role="@(Model.CurrentUser?.Role ?? "guest")" 
+                         data-avatar="@(Model.CurrentUser?.AvatarUrl ?? "")" 
+                         data-username="@(Model.CurrentUser?.Username ?? "")">
+                        @if (!string.IsNullOrEmpty(Model.CurrentUser.AvatarUrl))
+                        {
+                            <img src="@Model.CurrentUser.AvatarUrl" alt="" onerror="this.style.display='none'" />
+                        }
+                        else if (Model.CurrentUser.Username == "if6was7")
+                        {
+                            <span style="font-size:0.7rem; font-weight:bold;">@Model.CurrentUser.Username.Substring(0,1).ToUpper()</span>
+                        }
+                        else
+                        {
+                            <img src="/images/avatar/@(Model.CurrentUser.Username).jpg" onerror="this.style.display='none'; this.parentElement.innerText='@(Model.CurrentUser.Username.Substring(0,1).ToUpper())'" alt="" />
+                        }
+                    </div>
+                    <span class="header-username" id="headerUsername">@(string.IsNullOrEmpty(Model.CurrentUser.Nickname) ? Model.CurrentUser.Username : Model.CurrentUser.Nickname)</span>
+                </div>
+                <button class="auth-btn" id="authBtn" onclick="logout()">exit</button>
+            }
+            else
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Log_In'">
+                    <div class="header-avatar" id="headerAvatar" data-role="guest" data-avatar="" data-username=""></div>
+                    <span class="header-username" id="headerUsername">guest</span>
+                </div>
+                <button class="auth-btn" id="authBtn" onclick="location.href='/Log_In'">sign in</button>
+            }
         </div>
     </header>
 
     <main class="product-container">
         <div class="product-image">
             <div class="sold-ribbon">Sold Out</div>
-            <span>@(Model.Listing?.Id ?? 0)</span>
+            @if (!string.IsNullOrEmpty(Model.Listing?.PhotoUrl))
+            {
+                <img src="@Model.Listing.PhotoUrl" alt="@Model.Listing.Title" loading="lazy" />
+            }
+            <span>@(Model.Listing?.ArchiveRef ?? (Model.Listing?.Id ?? 0).ToString())</span>
         </div>
         <div class="product-details">
             <div class="lot-header">
-                <span class="lot-tag">Archive Ref: 00@(Model.Listing?.Id ?? 0)</span>
+                <span class="lot-tag">Archive Ref: @(Model.Listing?.ArchiveRef ?? "00" + (Model.Listing?.Id ?? 0))</span>
             </div>
             <h1 class="product-title">@(Model.Listing?.Title ?? "Unknown")</h1>
             <p class="product-desc">@(Model.Listing?.Description ?? "")</p>
             <div class="sold-info-box">
                 <div class="sold-field">
                     <span class="sold-label">Acquired by</span>
-                    <span class="sold-value">@(Model.Purchase?.Buyer?.Username ?? "anonymous")</span>
+                    <span class="sold-value">
+                        @if (Model.Purchase?.Buyer != null)
+                        {
+                            <a href="/Seller?username=@Model.Purchase.Buyer.Username">@Model.Purchase.Buyer.Username</a>
+                        }
+                        else if (Model.WinningBid?.User != null)
+                        {
+                            <a href="/Seller?username=@Model.WinningBid.User.Username">@Model.WinningBid.User.Username</a>
+                        }
+                        else
+                        {
+                            <span>anonymous</span>
+                        }
+                    </span>
                 </div>
                 <div class="sold-field">
                     <span class="sold-label">Date of sale</span>
-                    <span class="sold-value">@(Model.Purchase?.CreatedAt.ToString("dd MMM yyyy") ?? "—")</span>
+                    <span class="sold-value">@(Model.Purchase?.CreatedAt.ToString("dd MMM yyyy") ?? Model.WinningBid?.CreatedAt.ToString("dd MMM yyyy") ?? "—")</span>
                 </div>
                 <div class="sold-field">
                     <span class="sold-label">Est. value</span>
@@ -101,17 +206,28 @@
                 </div>
                 <div class="sold-field">
                     <span class="sold-label">Final price</span>
-                    <span class="sold-value price">EUR @(Model.Purchase?.Amount.ToString("N0") ?? Model.Listing?.Price.ToString("N0") ?? "0")</span>
+                    <span class="sold-value price">EUR @(Model.Purchase?.Amount.ToString("N0") ?? Model.WinningBid?.Amount.ToString("N0") ?? Model.Listing?.Price.ToString("N0") ?? "0")</span>
                 </div>
+                @if (Model.Listing?.IsAuction == true && Model.WinningBid != null)
+                {
+                    <div class="sold-field">
+                        <span class="sold-label">Winning bid</span>
+                        <span class="sold-value price">EUR @Model.WinningBid.Amount.ToString("N0")</span>
+                    </div>
+                    <div class="sold-field">
+                        <span class="sold-label">Bids placed</span>
+                        <span class="sold-value">@(Model.Listing.AuctionLot?.Bids?.Count ?? 0)</span>
+                    </div>
+                }
             </div>
             <div class="closed-box">
                 <div class="closed-line"></div>
                 <span class="closed-text">this lot is closed</span>
                 <div class="closed-line"></div>
             </div>
-            <div class="category-wrap">
-                
-                
+            
+            <div class="admin-actions @(Model.CurrentUser?.Role == "admin" || Model.CurrentUser?.Role == "superadmin" ? "show" : "")" id="adminActions">
+                <button class="admin-btn" onclick="removeListing(@(Model.Listing?.Id ?? 0))">— Remove listing</button>
             </div>
         </div>
     </main>
@@ -122,53 +238,23 @@
         <span class="footer-tagline">objects of consequence</span>
     </footer>
 
+    <div class="toast" id="toast"></div>
+
     <script>
-        function loadUser() {
-            var userData = sessionStorage.getItem('noir_user');
-            var user = userData ? JSON.parse(userData) : null;
-            var isGuest = !user;
-            var displayName = 'guest';
-            if (!isGuest) {
-                if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
-                else if (user.displayName && user.displayName !== user.email) displayName = user.displayName;
-                else if (user.name) displayName = user.name;
-                else if (user.username) displayName = user.username.replace('@@', '');
-                else if (user.email) displayName = user.email.split('@@')[0];
-            }
-            var ha = document.getElementById('headerAvatar');
-            ha.innerHTML = '';
-            if (!isGuest) {
-                var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
-                var avatarPath = '/images/avatar/' + cleanName + '.jpg';
-                var img = document.createElement('img');
-                img.src = avatarPath;
-                img.onerror = function() {
-                    ha.removeChild(img);
-                    ha.style.backgroundColor = '#000';
-                };
-                ha.appendChild(img);
-            } else {
-                ha.style.backgroundColor = '#000';
-            }
-            document.getElementById('headerUsername').innerText = displayName;
-            var authBtn = document.getElementById('authBtn');
-            authBtn.innerText = isGuest ? 'sign in' : 'exit';
-            if (!isGuest) {
-                var isSuperAdmin = (user.username === '@@if6was7');
-                var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
-                if (isSuperAdmin) ha.classList.add('gold-border');
-                else if (isPlus) ha.classList.add('plus-border');
-                if (isPlus) document.getElementById('headerPlus').style.display = 'inline';
-            }
+        function logout() {
+            fetch('/api/Auth/logout', { method: 'POST' })
+                .then(function() {
+                    sessionStorage.removeItem('noir_user');
+                    window.location.href = '/';
+                })
+                .catch(function() {
+                    sessionStorage.removeItem('noir_user');
+                    window.location.href = '/';
+                });
         }
-        function handleAuth() {
-            if (!sessionStorage.getItem('noir_user')) {
-                window.location.href = '/Log_In';
-            } else {
-                sessionStorage.removeItem('noir_user');
-                location.reload();
-            }
-        }
+
+        var SUPERADMIN = 'if6was7';
+
         function requireAuth(url) {
             if (!sessionStorage.getItem('noir_user')) {
                 window.location.href = '/Log_In';
@@ -176,6 +262,88 @@
                 window.location.href = url;
             }
         }
+
+        async function removeListing(itemId) {
+            if (!confirm('Remove listing #' + itemId + '?')) return;
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            try {
+                var resp = await fetch('/Archive?handler=Remove&id=' + itemId, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                if (!resp.ok) throw new Error('Server error ' + resp.status);
+                var data = await resp.json();
+                if (data.success) {
+                    showToast('Listing #' + itemId + ' removed');
+                    setTimeout(function() { window.location.href = '/Archive'; }, 1200);
+                } else {
+                    showToast(data.error || 'Failed to remove');
+                }
+            } catch(err) {
+                console.error(err);
+                showToast('Error removing listing');
+            }
+        }
+
+        function loadUser() {
+            var userData = sessionStorage.getItem('noir_user');
+            var user = userData ? JSON.parse(userData) : null;
+            var isGuest = !user;
+
+            var ha = document.getElementById('headerAvatar');
+            var serverRole = ha.dataset.role || 'guest';
+            var serverAvatar = ha.dataset.avatar || '';
+            var serverUsername = ha.dataset.username || '';
+
+            var displayName = 'guest';
+            var isSuperAdmin = (serverRole === 'superadmin' || (user && user.username === SUPERADMIN));
+            var isPlus = isSuperAdmin || serverRole === 'admin' || (user && (user.hasPlus === true || user.hasPlus === 'true'));
+
+            if (!isGuest) {
+                if (user.username === SUPERADMIN) {
+                    displayName = user.username;
+                } else if (user.nickname && user.nickname.length > 0 && user.nickname !== user.username) {
+                    displayName = user.nickname;
+                } else if (user.displayName && user.displayName !== user.email) {
+                    displayName = user.displayName;
+                } else if (user.name) {
+                    displayName = user.name;
+                } else if (user.username) {
+                    displayName = user.username;
+                } else if (user.email) {
+                    displayName = user.email.split('@@')[0];
+                }
+
+                ha.className = 'header-avatar';
+                if (isSuperAdmin) ha.classList.add('gold-border');
+                else if (isPlus) ha.classList.add('plus-border');
+
+                if (!serverAvatar && user.avatarUrl) {
+                    ha.innerHTML = '<img src="' + user.avatarUrl + '" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'" />';
+                }
+
+                if (isPlus) {
+                    document.getElementById('headerPlus').style.display = 'inline';
+                }
+            } else {
+                ha.className = 'header-avatar';
+                ha.style.backgroundColor = '#000';
+                ha.innerHTML = '';
+            }
+
+            document.getElementById('headerUsername').innerText = displayName;
+        }
+
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 2200);
+        }
+
         loadUser();
     </script>
 </body>

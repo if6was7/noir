@@ -17,11 +17,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Goudy Old Style', serif; -webkit-font-smoothing: antialiased; }
         header { background: #000; height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 60px; position: sticky; top: 0; z-index: 1000; }
-        .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; }
+        .brand-wrapper { display: inline-flex; align-items: flex-end; gap: 5px; text-decoration: none; cursor: pointer; }
         .brand { font-family: 'Cinzel', serif; font-size: 2.8rem; color: #fff; letter-spacing: 5px; line-height: 1; }
         .plus-sticker { display: none; color: var(--accent-purple); font-family: 'Montserrat', sans-serif; font-size: 0.5rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
         nav { display: flex; gap: 60px; }
-        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; }
+        nav a { text-decoration: none; color: #fff; font-size: 1.5rem; opacity: 0.45; transition: 0.3s; cursor: pointer; }
         nav a:hover, nav a.active { opacity: 1; }
         .header-right { justify-self: end; display: flex; align-items: center; gap: 18px; }
         .header-avatar-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
@@ -73,7 +73,7 @@
         .success-icon { font-size: 3rem; opacity: 0.12; font-family: 'Cinzel'; margin-bottom: 24px; }
         .success-title { font-family: 'Cinzel'; font-size: 2.5rem; letter-spacing: 6px; margin-bottom: 16px; }
         .success-sub { font-family: 'Montserrat'; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; margin-bottom: 50px; }
-        .back-btn { display: inline-block; padding: 16px 40px; border: 1px solid #000; font-family: 'Montserrat'; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; text-decoration: none; color: #000; transition: 0.3s; }
+        .back-btn { display: inline-block; padding: 16px 40px; border: 1px solid #000; font-family: 'Montserrat'; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; text-decoration: none; color: #000; transition: 0.3s; cursor: pointer; background: transparent; }
         .back-btn:hover { background: #000; color: #fff; }
         .footer { margin-top: 120px; border-top: 1px solid #000; padding: 60px 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
         .footer-brand { font-family: 'Cinzel'; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
@@ -83,27 +83,57 @@
 </head>
 <body>
     <header>
-        <a href="/" class="brand-wrapper">
+        <div class="brand-wrapper" onclick="window.location.href='/'">
             <span class="brand">noir</span>
-            <span id="headerPlus" class="plus-sticker">plus</span>
-        </a>
+            @if (Model.CurrentUser?.HasPlus == true || Model.CurrentUser?.Role == "admin" || Model.CurrentUser?.Role == "superadmin")
+            {
+                <span id="headerPlus" class="plus-sticker" style="display:inline">plus</span>
+            }
+            else
+            {
+                <span id="headerPlus" class="plus-sticker">plus</span>
+            }
+        </div>
         <nav>
-            <a href="/">Catalog</a>
-            <a href="/Auction">Auction</a>
-            <a href="/Archive">Archive</a>
-            <a href="/Upload" class="active">Upload</a>
+            <a onclick="window.location.href='/'">Catalog</a>
+            <a onclick="requireAuth('/Auction')">Auction</a>
+            <a onclick="requireAuth('/Archive')">Archive</a>
+            <a onclick="requireAuth('/Upload')" class="active">Upload</a>
         </nav>
         <div class="header-right">
-            <div class="header-avatar-wrap" onclick="window.location.href='/Account'">
-                <div class="header-avatar" id="headerAvatar"></div>
-                <span class="header-username" id="headerUsername"></span>
-            </div>
-            <button class="logout-btn" onclick="logout()">exit</button>
+            @if (Model.CurrentUser != null)
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Account'">
+                    <div class="header-avatar @(Model.CurrentUser.Role == "superadmin" ? "gold-border" : Model.CurrentUser.HasPlus ? "plus-border" : "")" id="headerAvatar">
+                        @if (!string.IsNullOrEmpty(Model.CurrentUser.AvatarUrl))
+                        {
+                            <img src="@Model.CurrentUser.AvatarUrl" alt="" onerror="this.style.display='none'" />
+                        }
+                        else if (Model.CurrentUser.Username == "if6was7")
+                        {
+                            <span style="font-size:0.7rem; font-weight:bold;">@Model.CurrentUser.Username.Substring(0,1).ToUpper()</span>
+                        }
+                        else
+                        {
+                            <img src="/images/avatar/@(Model.CurrentUser.Username).jpg" onerror="tryNextExt(this, '@Model.CurrentUser.Username')" alt="" />
+                        }
+                    </div>
+                    <span class="header-username" id="headerUsername">@(Model.CurrentUser.Username == "if6was7" ? Model.CurrentUser.Username : (string.IsNullOrEmpty(Model.CurrentUser.Nickname) ? Model.CurrentUser.Username : Model.CurrentUser.Nickname))</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">exit</button>
+            }
+            else
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Log_In'">
+                    <div class="header-avatar" id="headerAvatar" data-role="guest"></div>
+                    <span class="header-username" id="headerUsername">guest</span>
+                </div>
+                <button class="logout-btn" onclick="location.href='/Log_In'">sign in</button>
+            }
         </div>
     </header>
 
     <main class="container">
-        <!-- ANTIFORGERY TOKEN -->
         @Html.AntiForgeryToken()
 
         <div id="uploadSection">
@@ -134,20 +164,20 @@
                 <div class="fields-wrap">
                     <div class="form-group">
                         <label class="label-text">Artifact Name</label>
-                        <input type="text" id="titleInput" class="noir-input" placeholder="Object designation..." required>
+                        <input type="text" id="titleInput" name="Title" class="noir-input" placeholder="Object designation..." required>
                     </div>
                     <div class="form-group">
                         <label class="label-text" id="priceLabel">Value (EUR)</label>
-                        <input type="number" id="priceInput" class="noir-input" placeholder="0.00" required min="0" oninput="validatePrice()">
+                        <input type="number" id="priceInput" name="Price" class="noir-input" placeholder="0.00" required min="0" oninput="validatePrice()">
                         <div class="error-msg" id="priceError">items valued above €10,000 require noir plus</div>
                     </div>
                     <div class="form-group" id="bidGroup">
                         <label class="label-text">Minimum Bid Step (EUR)</label>
-                        <input type="number" id="minBidInput" class="noir-input" placeholder="Leave empty for 10%">
+                        <input type="number" step="0.01" id="minBidInput" name="MinBidStep" class="noir-input" placeholder="Leave empty for 10% of starting price">
                     </div>
                     <div class="form-group">
                         <label class="label-text">Provenance &amp; Description</label>
-                        <textarea id="descInput" class="noir-input" placeholder="Chronicle the history of this object..." rows="3" oninput="autoResize(this)"></textarea>
+                        <textarea id="descInput" name="Description" class="noir-input" placeholder="Chronicle the history of this object..." rows="3" oninput="autoResize(this)"></textarea>
                     </div>
                     <div class="form-group">
                         <label class="label-text">Tags / Categories</label>
@@ -165,7 +195,7 @@
             <div class="success-icon">✦</div>
             <h2 class="success-title">published</h2>
             <div class="success-sub" id="successSub">your artifact has been added to the collection</div>
-            <a href="/" class="back-btn">Return to Catalog</a>
+            <button class="back-btn" onclick="window.location.href='/'">Return to Catalog</button>
         </div>
 
         <footer class="footer">
@@ -188,25 +218,70 @@
             currentUser = JSON.parse(userData);
             var originalName = currentUser.username || "";
             var clean = originalName;
-            var avatarPath = '/images/avatar/' + clean + '.jpg';
             isSuperAdmin = (originalName === 'if6was7') || (currentUser.role === 'superadmin');
             isPlus = isSuperAdmin || currentUser.hasPlus === true || currentUser.hasPlus === 'true';
+            
             var ha = document.getElementById('headerAvatar');
-            var haImg = document.createElement('img');
-            haImg.src = avatarPath;
-            haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            haImg.onerror = function() { ha.removeChild(haImg); };
-            ha.appendChild(haImg);
             var displayName = isSuperAdmin ? currentUser.username : (currentUser.displayName || clean);
             document.getElementById('headerUsername').innerText = displayName;
+            
             if (isSuperAdmin) ha.classList.add('gold-border');
             else if (isPlus) ha.classList.add('plus-border');
             if (isPlus) document.getElementById('headerPlus').style.display = 'inline';
+
+            var extensions = ['.jpg', '.gif', '.png', '.jpeg', '.webp'];
+            var extIndex = 0;
+
+            function tryLoadAvatar() {
+                if (extIndex >= extensions.length) return;
+                var img = document.createElement('img');
+                img.src = '/images/avatar/' + clean + extensions[extIndex];
+                img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                img.onload = function() {
+                    ha.innerHTML = '';
+                    ha.appendChild(img);
+                };
+                img.onerror = function() {
+                    extIndex++;
+                    tryLoadAvatar();
+                };
+            }
+            tryLoadAvatar();
         })();
 
         function logout() {
-            sessionStorage.removeItem('noir_user');
-            window.location.href = '/Log_In';
+            fetch('/api/Auth/logout', { method: 'POST' })
+                .then(function() {
+                    sessionStorage.removeItem('noir_user');
+                    window.location.href = '/';
+                })
+                .catch(function() {
+                    sessionStorage.removeItem('noir_user');
+                    window.location.href = '/';
+                });
+        }
+
+        function requireAuth(url) {
+            if (!sessionStorage.getItem('noir_user')) {
+                window.location.href = '/Log_In';
+            } else {
+                window.location.href = url;
+            }
+        }
+
+        function tryNextExt(img, username) {
+            var extensions = ['.jpg', '.gif', '.png', '.jpeg', '.webp'];
+            var currentSrc = img.src;
+            var currentExt = currentSrc.substring(currentSrc.lastIndexOf('.'));
+            var currentIdx = extensions.indexOf(currentExt);
+            var nextIdx = currentIdx + 1;
+            if (nextIdx < extensions.length) {
+                img.src = '/images/avatar/' + username + extensions[nextIdx];
+            } else {
+                img.style.display = 'none';
+                var parent = img.parentElement;
+                parent.innerHTML = '<span style="font-size:0.7rem; font-weight:bold;">' + username.substring(0,1).toUpperCase() + '</span>';
+            }
         }
 
         function previewPhoto(input) {
@@ -291,12 +366,12 @@
             var price = parseFloat(document.getElementById('priceInput').value);
             var desc = document.getElementById('descInput').value.trim();
             var isAuction = document.querySelector('input[name="listingType"]:checked').value === 'auction';
+            var minBidStep = parseFloat(document.getElementById('minBidInput').value) || 0;
 
             if (!validatePrice()) { document.getElementById('priceInput').focus(); return; }
             if (!title) { document.getElementById('titleInput').focus(); return; }
             if (!price || price <= 0) { document.getElementById('priceInput').focus(); return; }
 
-            // Берём antiforgery токен из сгенерированного @Html.AntiForgeryToken()
             var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
             var token = tokenInput ? tokenInput.value : '';
 
@@ -313,6 +388,9 @@
                 var endDate = new Date();
                 endDate.setDate(endDate.getDate() + 7);
                 formData.append('AuctionEndDate', endDate.toISOString());
+                if (minBidStep > 0) {
+                    formData.append('MinBidStep', minBidStep);
+                }
             }
 
             if (selectedFile) {
@@ -325,7 +403,6 @@
             })
             .then(function(r) {
                 if (!r.ok) throw new Error('Failed to publish');
-                // Сервер редиректит на Index, fetch следует за редиректом и получает 200
                 document.getElementById('uploadSection').style.display = 'none';
                 document.getElementById('successSub').innerText = '"' + title + '" has been added to the collection';
                 document.getElementById('successScreen').classList.add('visible');

@@ -23,14 +23,15 @@ namespace noir.Pages
 		[BindProperty] public string Tags { get; set; } = "";
 		[BindProperty] public DateTime? AuctionEndDate { get; set; }
 		[BindProperty] public decimal? StartPrice { get; set; }
-		public User? CurrentUser { get; set; }          // ← ДОБАВЛЕНО
+		[BindProperty] public decimal? MinBidStep { get; set; }  // ← ДОБАВЛЕНО
+		public User? CurrentUser { get; set; }
 
 		public async Task<IActionResult> OnGetAsync()
 		{
 			var userId = HttpContext.Session.GetInt32("UserId");
 			if (!userId.HasValue) return RedirectToPage("/Log_In");
 
-			CurrentUser = await _context.Users.FindAsync(userId.Value); // ← ДОБАВЛЕНО
+			CurrentUser = await _context.Users.FindAsync(userId.Value);
 			return Page();
 		}
 
@@ -68,7 +69,8 @@ namespace noir.Pages
 					StartPrice = StartPrice.Value,
 					CurrentPrice = StartPrice.Value,
 					EndDate = AuctionEndDate.Value,
-					IsEnded = false
+					IsEnded = false,
+					MinBidStep = MinBidStep ?? StartPrice.Value * 0.1m  // ← если не указано — 10%
 				};
 				_context.AuctionLots.Add(auctionLot);
 				await _context.SaveChangesAsync();

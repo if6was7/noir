@@ -71,6 +71,10 @@ namespace noir
 				.Property(a => a.CurrentPrice)
 				.HasPrecision(18, 2);
 
+			modelBuilder.Entity<AuctionLot>()
+				.Property(a => a.MinBidStep)
+				.HasPrecision(18, 2);
+
 			// Bid -> User (restrict delete)
 			modelBuilder.Entity<Bid>()
 				.HasOne(b => b.User)

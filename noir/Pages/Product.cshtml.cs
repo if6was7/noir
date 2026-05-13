@@ -12,7 +12,23 @@ namespace noir.Pages
 	public class ProductModel : PageModel
 	{
 		private readonly NoirDbContext _context;
+		public async Task<IActionResult> OnPostRemoveAsync(int id)
+		{
+			var userId = HttpContext.Session.GetInt32("UserId");
+			if (!userId.HasValue) return Unauthorized();
 
+			var user = await _context.Users.FindAsync(userId.Value);
+			if (user == null || (user.Role != "admin" && user.Role != "superadmin"))
+				return Forbid();
+
+			var listing = await _context.Listings.FindAsync(id);
+			if (listing == null) return NotFound();
+
+			listing.IsRemoved = true;
+			await _context.SaveChangesAsync();
+
+			return new JsonResult(new { success = true });
+		}
 		public ProductModel(NoirDbContext context)
 		{
 			_context = context;
