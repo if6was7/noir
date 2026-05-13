@@ -172,41 +172,6 @@
     </main>
 
     <script>
-        // ── FIX: helper to persist user to localStorage ──
-        function persistUserToLocalStorage(u) {
-            try {
-                var reg = JSON.parse(localStorage.getItem('noir_registered_users') || '[]');
-                var found = false;
-                reg = reg.map(function(r) {
-                    if (r.username === u.username) {
-                        found = true;
-                        return Object.assign({}, r, {
-                            hasPlus: u.hasPlus,
-                            balance: u.balance,
-                            savedCards: u.savedCards
-                        });
-                    }
-                    return r;
-                });
-                if (!found) {
-                    reg.push({
-                        username: u.username,
-                        email: u.email || u.username,
-                        password: u.googleAuth ? 'google_oauth' : (u.appleAuth ? 'apple_oauth' : ''),
-                        role: u.role || 'user',
-                        nickname: u.nickname || u.displayName || '',
-                        displayName: u.displayName || u.nickname || '',
-                        hasPlus: u.hasPlus || false,
-                        balance: u.balance || 0,
-                        savedCards: u.savedCards || []
-                    });
-                }
-                localStorage.setItem('noir_registered_users', JSON.stringify(reg));
-            } catch(e) {
-                console.error('persistUserToLocalStorage error:', e);
-            }
-        }
-
         (function() {
             var userData = sessionStorage.getItem('noir_user');
             if (!userData) { window.location.href = '/Log_In'; return; }
@@ -237,6 +202,7 @@
             }
         })();
 
+        // FIX: реальный редирект на сервер вместо клиентского списания
         function handleSubscribe() {
             var selected = document.querySelector('input[name="payment"]:checked');
             if (!selected) return;
@@ -250,22 +216,16 @@
                 var user = JSON.parse(raw);
                 var balance = parseFloat(user.balance) || 0;
 
-                if (balance >= 10.99) {
-                    user.balance = (balance - 10.99).toFixed(2);
-                    user.hasPlus = true;
-                    sessionStorage.setItem('noir_user', JSON.stringify(user));
-
-                    // ── FIX: persist balance deduction and hasPlus to localStorage ──
-                    persistUserToLocalStorage(user);
-
-                    document.getElementById('subForm').style.display = 'none';
-                    document.getElementById('successScreen').classList.add('visible');
-                } else {
+                if (balance < 10.99) {
                     errorDiv.style.display = 'block';
                     setTimeout(function() { errorDiv.style.display = 'none'; }, 3000);
+                    return;
                 }
+
+                // FIX: уходим на сервер — пусть БД сама спишет баланс и выдаст плюс
+                location.href = '/Payment?source=subscription&method=balance&amount=10.99&useBalance=true';
             } else {
-                location.href = '/Payment?source=subscription&method=' + selected.value;
+                location.href = '/Payment?source=subscription&method=' + selected.value + '&amount=10.99';
             }
         }
 

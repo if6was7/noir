@@ -43,7 +43,9 @@ namespace noir.Pages
 			HandlingFee = Item.Price * 0.02m;
 			Commission = Item.Price * 0.03m;
 			TotalPrice = Item.Price + HandlingFee + Commission;
-			MinBid = Item.AuctionLot.CurrentPrice + 0.01m;
+
+			// FIX: учитываем MinBidStep вместо фиксированных 0.01
+			MinBid = Item.AuctionLot.CurrentPrice + Item.AuctionLot.MinBidStep;
 
 			return Page();
 		}

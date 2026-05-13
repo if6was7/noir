@@ -108,6 +108,11 @@ namespace noir.Pages
 					if (lot == null || lot.IsEnded || lot.EndDate <= DateTime.UtcNow)
 						return new JsonResult(new { success = false, error = "Auction ended or not found" });
 
+					// FIX: проверяем минимальный шаг
+					var minRequired = lot.CurrentPrice + lot.MinBidStep;
+					if (Amount < minRequired)
+						return new JsonResult(new { success = false, error = $"Bid must be at least €{minRequired:F2}" });
+
 					if (UseBalance)
 					{
 						if (user.Balance < Amount)
@@ -115,21 +120,14 @@ namespace noir.Pages
 						user.Balance -= Amount;
 					}
 
-					if (Amount > lot.CurrentPrice)
+					lot.CurrentPrice = Amount;
+					_context.Bids.Add(new Bid
 					{
-						lot.CurrentPrice = Amount;
-						_context.Bids.Add(new Bid
-						{
-							LotId = lot.Id,
-							UserId = user.Id,
-							Amount = Amount,
-							CreatedAt = DateTime.UtcNow
-						});
-					}
-					else
-					{
-						return new JsonResult(new { success = false, error = "Bid must be higher than current price" });
-					}
+						LotId = lot.Id,
+						UserId = user.Id,
+						Amount = Amount,
+						CreatedAt = DateTime.UtcNow
+					});
 				}
 				else if (IsPurchase && LotId.HasValue && Amount > 0)
 				{
