@@ -20,12 +20,10 @@ namespace noir.Pages
 		public async Task<IActionResult> OnGetAsync()
 		{
 			var userId = HttpContext.Session.GetInt32("UserId");
-			if (!userId.HasValue)
-				return RedirectToPage("/Log_In");
+			if (!userId.HasValue) return RedirectToPage("/Log_In");
 
 			CurrentUser = await _context.Users.FindAsync(userId.Value);
-			if (CurrentUser == null)
-				return RedirectToPage("/Log_In");
+			if (CurrentUser == null) return RedirectToPage("/Log_In");
 
 			CurrentBalance = CurrentUser.Balance;
 			return Page();

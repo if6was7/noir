@@ -11,6 +11,9 @@ namespace noir.Models
 		public decimal Balance { get; set; }
 		public bool HasPlus { get; set; }
 		public string Role { get; set; } = "user";
+		public string Nickname { get; set; } = string.Empty;
+		public string AvatarUrl { get; set; } = string.Empty;
+		public string BannerUrl { get; set; } = string.Empty;
 
 		public ICollection<Listing> Listings { get; set; } = new List<Listing>();
 		public ICollection<Bid> Bids { get; set; } = new List<Bid>();
@@ -18,5 +21,8 @@ namespace noir.Models
 		public ICollection<Review> Reviews { get; set; } = new List<Review>();
 		public ICollection<SavedCard> SavedCards { get; set; } = new List<SavedCard>();
 		public Subscription? Subscription { get; set; }
+
+		public ICollection<UserLike> Likes { get; set; } = new List<UserLike>();
+		public ICollection<UserSave> Saves { get; set; } = new List<UserSave>();
 	}
 }

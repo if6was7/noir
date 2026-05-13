@@ -6,7 +6,7 @@ namespace noir.Models
 	{
 		public int Id { get; set; }
 		public bool IsActive { get; set; }
-		public DateTime ActiveSince { get; set; }
+		public DateTime ActiveSince { get; set; } = DateTime.UtcNow;
 		public DateTime EndDate { get; set; }
 		public decimal Price { get; set; }
 		public int UserId { get; set; }

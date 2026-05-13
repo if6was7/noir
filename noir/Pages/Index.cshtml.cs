@@ -22,8 +22,9 @@ namespace noir.Pages
 		{
 			Listings = await _context.Listings
 				.Include(l => l.Seller)
-				.Where(l => !l.IsRemoved && l.Status != "sold")
-				.OrderBy(l => l.Id)
+				.Include(l => l.AuctionLot)
+				.Where(l => !l.IsRemoved && l.Status == "active" && !l.IsAuction)
+				.OrderByDescending(l => l.CreatedAt)
 				.ToListAsync();
 
 			var userId = HttpContext.Session.GetInt32("UserId");

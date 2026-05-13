@@ -16,32 +16,16 @@ namespace noir.Pages
 			_context = context;
 		}
 
-		[BindProperty(SupportsGet = true)]
-		public string Source { get; set; } = "subscription";
-
-		[BindProperty(SupportsGet = true)]
-		public string Method { get; set; } = "visa";
-
-		[BindProperty(SupportsGet = true)]
-		public decimal Amount { get; set; }
-
-		[BindProperty(SupportsGet = true)]
-		public int? LotId { get; set; }
-
-		[BindProperty(SupportsGet = true)]
-		public string ItemTitle { get; set; } = "";
-
-		[BindProperty]
-		public string CardNumber { get; set; } = "";
-
-		[BindProperty]
-		public string CardHolder { get; set; } = "";
-
-		[BindProperty]
-		public string CardExpiry { get; set; } = "";
-
-		[BindProperty]
-		public string CardCvv { get; set; } = "";
+		[BindProperty(SupportsGet = true)] public string Source { get; set; } = "subscription";
+		[BindProperty(SupportsGet = true)] public string Method { get; set; } = "visa";
+		[BindProperty(SupportsGet = true)] public decimal Amount { get; set; }
+		[BindProperty(SupportsGet = true)] public int? LotId { get; set; }
+		[BindProperty(SupportsGet = true)] public string ItemTitle { get; set; } = "";
+		[BindProperty(SupportsGet = true)] public bool UseBalance { get; set; } = false;
+		[BindProperty] public string CardNumber { get; set; } = "";
+		[BindProperty] public string CardHolder { get; set; } = "";
+		[BindProperty] public string CardExpiry { get; set; } = "";
+		[BindProperty] public string CardCvv { get; set; } = "";
 
 		public User? CurrentUser { get; set; }
 		public bool IsLinking => Source == "linkcard";
@@ -53,12 +37,10 @@ namespace noir.Pages
 		public async Task<IActionResult> OnGetAsync()
 		{
 			var userId = HttpContext.Session.GetInt32("UserId");
-			if (!userId.HasValue)
-				return RedirectToPage("/Log_In");
+			if (!userId.HasValue) return RedirectToPage("/Log_In");
 
 			CurrentUser = await _context.Users.FindAsync(userId.Value);
-			if (CurrentUser == null)
-				return RedirectToPage("/Log_In");
+			if (CurrentUser == null) return RedirectToPage("/Log_In");
 
 			return Page();
 		}
@@ -66,12 +48,10 @@ namespace noir.Pages
 		public async Task<IActionResult> OnPostAsync()
 		{
 			var userId = HttpContext.Session.GetInt32("UserId");
-			if (!userId.HasValue)
-				return Unauthorized();
+			if (!userId.HasValue) return Unauthorized();
 
 			var user = await _context.Users.FindAsync(userId.Value);
-			if (user == null)
-				return Unauthorized();
+			if (user == null) return Unauthorized();
 
 			try
 			{
@@ -107,9 +87,20 @@ namespace noir.Pages
 				else if (IsAuction && LotId.HasValue && Amount > 0)
 				{
 					var lot = await _context.AuctionLots
+						.Include(a => a.Listing)
 						.FirstOrDefaultAsync(a => a.ListingId == LotId.Value);
 
-					if (lot != null)
+					if (lot == null || lot.IsEnded || lot.EndDate <= DateTime.UtcNow)
+						return new JsonResult(new { success = false, error = "Auction ended or not found" });
+
+					if (UseBalance)
+					{
+						if (user.Balance < Amount)
+							return new JsonResult(new { success = false, error = "Insufficient balance" });
+						user.Balance -= Amount;
+					}
+
+					if (Amount > lot.CurrentPrice)
 					{
 						lot.CurrentPrice = Amount;
 						_context.Bids.Add(new Bid
@@ -120,21 +111,32 @@ namespace noir.Pages
 							CreatedAt = DateTime.UtcNow
 						});
 					}
+					else
+					{
+						return new JsonResult(new { success = false, error = "Bid must be higher than current price" });
+					}
 				}
 				else if (IsPurchase && LotId.HasValue && Amount > 0)
 				{
 					var listing = await _context.Listings.FindAsync(LotId.Value);
-					if (listing != null)
+					if (listing == null || listing.Status != "active")
+						return new JsonResult(new { success = false, error = "Item not available" });
+
+					if (UseBalance)
 					{
-						listing.Status = "sold";
-						_context.Purchases.Add(new Purchase
-						{
-							ListingId = LotId.Value,
-							BuyerId = user.Id,
-							Amount = Amount,
-							CreatedAt = DateTime.UtcNow
-						});
+						if (user.Balance < Amount)
+							return new JsonResult(new { success = false, error = "Insufficient balance" });
+						user.Balance -= Amount;
 					}
+
+					listing.Status = "sold";
+					_context.Purchases.Add(new Purchase
+					{
+						ListingId = LotId.Value,
+						BuyerId = user.Id,
+						Amount = Amount,
+						CreatedAt = DateTime.UtcNow
+					});
 				}
 
 				await _context.SaveChangesAsync();

@@ -1,12 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace noir.Pages
 {
-    public class SubscriptionModel : PageModel
-    {
-        public void OnGet()
-        {
-        }
-    }
+	public class SubscriptionModel : PageModel
+	{
+		public void OnGet()
+		{
+		}
+	}
 }

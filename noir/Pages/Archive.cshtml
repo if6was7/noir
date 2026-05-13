@@ -126,8 +126,8 @@
     </main>
 
     <script>
-        var SUPERADMIN = '@@if6was7';
-        function getAdmins() { return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]'); }
+        var SUPERADMIN = 'if6was7';
+        function getAdmins() { return JSON.parse(localStorage.getItem('noir_admins') || '["if6was7"]'); }
         function requireAuth(url) {
             if (!sessionStorage.getItem('noir_user')) { window.location.href = '/Log_In'; }
             else { window.location.href = url; }
@@ -162,16 +162,18 @@
             var isGuest = !user;
             var displayName = 'guest';
             if (!isGuest) {
-                if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
+                if (user.username === SUPERADMIN) {
+                    displayName = user.username;
+                } else if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
                 else if (user.displayName && user.displayName !== user.email) displayName = user.displayName;
                 else if (user.name) displayName = user.name;
-                else if (user.username) displayName = user.username.replace('@@', '');
+                else if (user.username) displayName = user.username;
                 else if (user.email) displayName = user.email.split('@@')[0];
             }
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
             if (!isGuest) {
-                var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
+                var cleanName = (user.username || user.email || '');
                 var img = document.createElement('img');
                 img.src = '/images/avatar/' + cleanName + '.jpg';
                 img.onerror = function() { ha.removeChild(img); ha.style.backgroundColor = '#000'; };
@@ -180,7 +182,7 @@
             document.getElementById('headerUsername').innerText = displayName;
             document.getElementById('authBtn').innerText = isGuest ? 'sign in' : 'exit';
             if (!isGuest) {
-                var isSuperAdmin = (user.username === SUPERADMIN);
+                var isSuperAdmin = (user.username === SUPERADMIN) || (user.role === 'superadmin');
                 var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
                 if (isSuperAdmin) ha.classList.add('gold-border');
                 else if (isPlus) ha.classList.add('plus-border');

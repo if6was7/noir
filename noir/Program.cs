@@ -3,9 +3,12 @@ using noir;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
-builder.Services.AddControllers();
+// DbContext
+builder.Services.AddDbContext < NoirDbContext > (options =>
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Session
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
 	options.IdleTimeout = TimeSpan.FromHours(2);
@@ -13,11 +16,12 @@ builder.Services.AddSession(options =>
 	options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddDbContext<NoirDbContext>(options =>
-	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Razor Pages
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
+// Middleware
 if (!app.Environment.IsDevelopment())
 {
 	app.UseExceptionHandler("/Error");
@@ -25,11 +29,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 app.UseAuthorization();
-app.MapStaticAssets();
-app.MapRazorPages().WithStaticAssets();
+app.MapRazorPages();
 app.MapControllers();
 
 app.Run();

@@ -167,6 +167,10 @@
             -webkit-appearance: none;
         }
         .btn-login:hover { background: #1a1a1a; }
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
         .divider-or {
             display: flex;
@@ -281,7 +285,7 @@
         <div class="error-msg" id="errorMsg"></div>
         <div class="success-msg" id="successMsg">Account created — redirecting...</div>
 
-        <button class="btn-login" onclick="handleRegister()">Create Account</button>
+        <button class="btn-login" id="submitBtn" onclick="handleRegister()">Create Account</button>
 
         <div class="divider-or">or</div>
 
@@ -322,10 +326,11 @@
             var pc = document.getElementById('passwordConfirm').value;
             var err = document.getElementById('errorMsg');
             var ok  = document.getElementById('successMsg');
+            var btn = document.getElementById('submitBtn');
 
             var errors = [];
             if (u.length < 3) errors.push('Username must be at least 3 characters');
-            if (p.length < 3) errors.push('Password must be at least 3 characters');
+            if (p.length < 6) errors.push('Password must be at least 6 characters');
             if (p !== pc)     errors.push('Passwords do not match');
 
             if (errors.length > 0) {
@@ -334,17 +339,24 @@
                 return;
             }
 
-            var finalUsername = u.startsWith('@@') ? u : '@@' + u;
-            var email = finalUsername + '@@noir.com';
+            // Фикс: нормальный email без @@
+            var email = u + '@@noir.com';
+
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
 
             fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: finalUsername, email: email, password: p })
+                body: JSON.stringify({ username: u, email: email, password: p })
             })
             .then(function(r) {
-                if (!r.ok) return r.json().then(function(j) { throw new Error(j.error); });
-                return r.json();
+                return r.json().then(function(data) {
+                    if (!r.ok || data.error) {
+                        throw new Error(data.error || 'Registration failed');
+                    }
+                    return data;
+                });
             })
             .then(function() {
                 ok.classList.add('visible');
@@ -355,6 +367,8 @@
             .catch(function(e) {
                 err.innerHTML = e.message;
                 err.classList.add('visible');
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
             });
         }
 

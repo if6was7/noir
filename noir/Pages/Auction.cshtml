@@ -53,11 +53,13 @@
         .item-card:hover .image-wrapper::before { transform: scaleY(1); }
         .auction-badge { position: absolute; top: 0; left: 0; background: #000; color: #fff; font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 2px; padding: 10px 18px; z-index: 10; transition: background 0.4s ease; }
         .item-card:hover .auction-badge { background: var(--auction-purple); }
-        .image-wrapper span { font-family: 'Cinzel', serif; font-size: 12rem; color: #f6f6f6; position: absolute; bottom: -40px; right: -30px; line-height: 1; }
+        .image-wrapper img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1; }
+        .image-wrapper span { font-family: 'Cinzel', serif; font-size: 12rem; color: #f6f6f6; position: absolute; bottom: -40px; right: -30px; line-height: 1; z-index: 0; }
         .item-info { text-align: left; border-top: 1px solid #000; padding-top: 18px; }
         .item-title { font-size: 1.8rem; margin: 0 0 10px 0; text-transform: lowercase; font-weight: normal; }
         .item-price { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 600; }
         .item-price::before { content: "STARTING BID: EUR "; font-weight: 400; opacity: 0.5; }
+        .item-timer { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; color: var(--live-red); letter-spacing: 1px; margin-top: 6px; text-transform: uppercase; }
         .footer { margin-top: 120px; border-top: 1px solid #000; padding: 60px 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
         .footer-brand { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 5px; text-transform: lowercase; }
         .footer-copy { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.35; text-align: center; }
@@ -74,16 +76,44 @@
         </div>
         <nav>
             <a onclick="window.location.href='/'">Catalog</a>
-            <a onclick="requireAuth('/Auction')">Auction</a>
+            <a onclick="requireAuth('/Auction')" class="active">Auction</a>
             <a onclick="requireAuth('/Archive')">Archive</a>
             <a onclick="requireAuth('/Upload')">Upload</a>
         </nav>
         <div class="header-right">
             <div class="header-avatar-wrap" onclick="requireAuth('/Account')">
-                <div class="header-avatar" id="headerAvatar"></div>
-                <span class="header-username" id="headerUsername"></span>
+                <div class="header-avatar" id="headerAvatar">
+                    @if (Model.CurrentUser != null)
+                    {
+                        <img src="/images/avatar/@(Model.CurrentUser.Username).jpg" onerror="this.style.display='none'" alt="" />
+                    }
+                </div>
+                <!-- ФИХ: суперадмин всегда показывает username, остальные — nickname или username -->
+                <span class="header-username" id="headerUsername">
+                    @{
+                        var displayName = "guest";
+                        if (Model.CurrentUser != null)
+                        {
+                            if (Model.CurrentUser.Username == "if6was7")
+                            {
+                                displayName = Model.CurrentUser.Username;
+                            }
+                            else if (!string.IsNullOrEmpty(Model.CurrentUser.Nickname))
+                            {
+                                displayName = Model.CurrentUser.Nickname;
+                            }
+                            else
+                            {
+                                displayName = Model.CurrentUser.Username;
+                            }
+                        }
+                    }
+                    @displayName
+                </span>
             </div>
-            <button class="auth-btn" id="authBtn" onclick="handleAuth()">sign in</button>
+            <button class="auth-btn" id="authBtn" onclick="handleAuth()">
+                @(Model.CurrentUser != null ? "exit" : "sign in")
+            </button>
         </div>
     </header>
 
@@ -107,15 +137,30 @@
         <div class="catalog-grid" id="auctionGrid">
             @foreach (var lot in Model.AuctionLots) 
             {
-                <div class="item-card" id="lot-@lot.Id" data-id="@lot.Id" data-price="@lot.Price" data-title="@lot.Title">
-                    <span class="lot-tag">Archive Ref: 00@lot.Id</span>
+                var lotPrice = lot.AuctionLot?.CurrentPrice > 0 ? lot.AuctionLot.CurrentPrice : lot.AuctionLot?.StartPrice ?? lot.Price;
+                var remaining = lot.AuctionLot != null ? lot.AuctionLot.EndDate - DateTime.UtcNow : TimeSpan.Zero;
+                <div class="item-card" id="lot-@lot.Id" data-id="@lot.Id" data-price="@lotPrice" data-title="@lot.Title">
+                    <span class="lot-tag">Archive Ref: @lot.ArchiveRef</span>
                     <div class="image-wrapper" onclick="handleItemClick(@lot.Id)">
                         <div class="auction-badge">Auction</div>
-                        <span>@lot.Id</span>
+                        @if (!string.IsNullOrEmpty(lot.PhotoUrl))
+                        {
+                            <img src="@lot.PhotoUrl" alt="@lot.Title" loading="lazy" />
+                        }
+                        else
+                        {
+                            <span>@lot.Id</span>
+                        }
                     </div>
                     <div class="item-info" onclick="handleItemClick(@lot.Id)">
                         <h3 class="item-title">@lot.Title</h3>
-                        <div class="item-price" id="price-@lot.Id">@lot.Price.ToString("N0")</div>
+                        <div class="item-price" id="price-@lot.Id">@lotPrice.ToString("N0")</div>
+                        @if (lot.AuctionLot != null && remaining.TotalSeconds > 0)
+                        {
+                            <div class="item-timer" data-end="@lot.AuctionLot.EndDate.ToString("o")">
+                                Ends in: @remaining.Days d @remaining.Hours h @remaining.Minutes m
+                            </div>
+                        }
                     </div>
                 </div>
             }
@@ -128,23 +173,25 @@
     </main>
 
     <script>
-        var SUPERADMIN = '@@if6was7';
+        var SUPERADMIN = 'if6was7';
         function getAdmins() {
-            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
+            return JSON.parse(localStorage.getItem('noir_admins') || '["if6was7"]');
         }
         function requireAuth(url) {
-            if (!sessionStorage.getItem('noir_user')) { window.location.href = '/Log_In'; }
+            var hasUser = @(Model.CurrentUser != null ? "true" : "false");
+            if (!hasUser && !sessionStorage.getItem('noir_user')) { window.location.href = '/Log_In'; }
             else { window.location.href = url; }
         }
         function handleItemClick(itemId) {
-            if (!sessionStorage.getItem('noir_user')) { window.location.href = '/Log_In'; }
+            var hasUser = @(Model.CurrentUser != null ? "true" : "false");
+            if (!hasUser && !sessionStorage.getItem('noir_user')) { window.location.href = '/Log_In'; }
             else { window.location.href = '/Product?id=' + itemId; }
         }
         function sortItems(mode) {
             var grid = document.getElementById('auctionGrid');
             var cards = Array.from(grid.querySelectorAll('.item-card'));
             cards.sort(function(a, b) {
-                var priceA = parseInt(a.dataset.price); var priceB = parseInt(b.dataset.price);
+                var priceA = parseFloat(a.dataset.price); var priceB = parseFloat(b.dataset.price);
                 var idA = parseInt(a.dataset.id); var idB = parseInt(b.dataset.id);
                 var titleA = a.dataset.title.toLowerCase(); var titleB = b.dataset.title.toLowerCase();
                 switch(mode) {
@@ -173,31 +220,62 @@
                 }
             });
         }
+        function updateTimers() {
+            document.querySelectorAll('.item-timer').forEach(function(el) {
+                var end = new Date(el.dataset.end);
+                var now = new Date();
+                var diff = end - now;
+                if (diff <= 0) {
+                    el.innerText = 'AUCTION ENDED';
+                    el.style.color = '#999';
+                } else {
+                    var d = Math.floor(diff / 86400000);
+                    var h = Math.floor((diff % 86400000) / 3600000);
+                    var m = Math.floor((diff % 3600000) / 60000);
+                    el.innerText = 'Ends in: ' + d + 'd ' + h + 'h ' + m + 'm';
+                }
+            });
+        }
         function loadUser() {
             var userData = sessionStorage.getItem('noir_user');
             var user = userData ? JSON.parse(userData) : null;
             var isGuest = !user;
             var displayName = 'guest';
             if (!isGuest) {
-                if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
-                else if (user.displayName && user.displayName !== user.email) displayName = user.displayName;
-                else if (user.name) displayName = user.name;
-                else if (user.username) displayName = user.username.replace('@@', '');
-                else if (user.email) displayName = user.email.split('@@')[0];
+                // ФИХ: суперадмин — всегда username, без nickname
+                if (user.username === SUPERADMIN || user.role === 'superadmin') {
+                    displayName = user.username || SUPERADMIN;
+                } else if (user.nickname && user.nickname.length > 0) {
+                    displayName = user.nickname;
+                } else if (user.displayName && user.displayName !== user.email) {
+                    displayName = user.displayName;
+                } else if (user.name) {
+                    displayName = user.name;
+                } else if (user.username) {
+                    displayName = user.username;
+                } else if (user.email) {
+                    displayName = user.email.split('@@')[0];
+                }
             }
             var ha = document.getElementById('headerAvatar');
-            ha.innerHTML = '';
+            if (ha && !ha.querySelector('img')) {
+                ha.innerHTML = '';
+                if (!isGuest) {
+                    var cleanName = (user.username || user.email || '');
+                    var img = document.createElement('img');
+                    img.src = '/images/avatar/' + cleanName + '.jpg';
+                    img.onerror = function() { ha.removeChild(img); ha.style.backgroundColor = '#000'; };
+                    ha.appendChild(img);
+                } else { ha.style.backgroundColor = '#000'; }
+            }
+            // ФИХ: всегда перезаписываем имя в хедере, не проверяем на 'guest'
+            var hu = document.getElementById('headerUsername');
+            if (hu) hu.innerText = displayName;
+
+            var ab = document.getElementById('authBtn');
+            if (ab && ab.innerText === 'sign in' && !isGuest) ab.innerText = 'exit';
             if (!isGuest) {
-                var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
-                var img = document.createElement('img');
-                img.src = '/images/avatar/' + cleanName + '.jpg';
-                img.onerror = function() { ha.removeChild(img); ha.style.backgroundColor = '#000'; };
-                ha.appendChild(img);
-            } else { ha.style.backgroundColor = '#000'; }
-            document.getElementById('headerUsername').innerText = displayName;
-            document.getElementById('authBtn').innerText = isGuest ? 'sign in' : 'exit';
-            if (!isGuest) {
-                var isSuperAdmin = (user.username === SUPERADMIN);
+                var isSuperAdmin = (user.username === SUPERADMIN) || (user.role === 'superadmin');
                 var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
                 if (isSuperAdmin) ha.classList.add('gold-border');
                 else if (isPlus) ha.classList.add('plus-border');
@@ -214,6 +292,8 @@
         }
         loadUser();
         loadBidPrices();
+        updateTimers();
+        setInterval(updateTimers, 60000);
     </script>
 </body>
 </html>

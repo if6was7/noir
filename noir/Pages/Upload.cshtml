@@ -103,6 +103,9 @@
     </header>
 
     <main class="container">
+        <!-- ANTIFORGERY TOKEN -->
+        @Html.AntiForgeryToken()
+
         <div id="uploadSection">
             <div class="upload-header">
                 <h1>upload artifact</h1>
@@ -124,7 +127,7 @@
                         <span class="upload-icon">+</span>
                         <p class="upload-hint">Upload Visuals</p>
                         <img id="photoPreview" src="" alt="">
-                        <input type="file" id="fileInp" hidden accept="image/*" onchange="previewPhoto(this)">
+                        <input type="file" id="fileInp" name="Photos" hidden accept="image/*" onchange="previewPhoto(this)">
                     </div>
                 </div>
 
@@ -177,15 +180,16 @@
         var currentUser = null;
         var isSuperAdmin = false;
         var isPlus = false;
+        var selectedFile = null;
 
         (function() {
             var userData = sessionStorage.getItem('noir_user');
             if (!userData) { window.location.href = '/Log_In'; return; }
             currentUser = JSON.parse(userData);
             var originalName = currentUser.username || "";
-            var clean = originalName.replace('@@', '');
+            var clean = originalName;
             var avatarPath = '/images/avatar/' + clean + '.jpg';
-            isSuperAdmin = (originalName === '@@if6was7');
+            isSuperAdmin = (originalName === 'if6was7') || (currentUser.role === 'superadmin');
             isPlus = isSuperAdmin || currentUser.hasPlus === true || currentUser.hasPlus === 'true';
             var ha = document.getElementById('headerAvatar');
             var haImg = document.createElement('img');
@@ -193,7 +197,8 @@
             haImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
             haImg.onerror = function() { ha.removeChild(haImg); };
             ha.appendChild(haImg);
-            document.getElementById('headerUsername').innerText = currentUser.displayName || clean;
+            var displayName = isSuperAdmin ? currentUser.username : (currentUser.displayName || clean);
+            document.getElementById('headerUsername').innerText = displayName;
             if (isSuperAdmin) ha.classList.add('gold-border');
             else if (isPlus) ha.classList.add('plus-border');
             if (isPlus) document.getElementById('headerPlus').style.display = 'inline';
@@ -206,6 +211,7 @@
 
         function previewPhoto(input) {
             if (!input.files || !input.files[0]) return;
+            selectedFile = input.files[0];
             var reader = new FileReader();
             reader.onload = function(e) {
                 var img = document.getElementById('photoPreview');
@@ -290,25 +296,36 @@
             if (!title) { document.getElementById('titleInput').focus(); return; }
             if (!price || price <= 0) { document.getElementById('priceInput').focus(); return; }
 
-            var payload = {
-                title: title,
-                price: price,
-                description: desc,
-                categories: tags.join(','),
-                isAuction: isAuction,
-                sellerUsername: currentUser ? currentUser.username : '@@anonymous'
-            };
+            // Берём antiforgery токен из сгенерированного @Html.AntiForgeryToken()
+            var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            var token = tokenInput ? tokenInput.value : '';
 
-            fetch('/api/listings', {
+            var formData = new FormData();
+            formData.append('__RequestVerificationToken', token);
+            formData.append('Title', title);
+            formData.append('Price', price);
+            formData.append('Description', desc);
+            formData.append('Tags', tags.join(','));
+            formData.append('IsAuction', isAuction);
+
+            if (isAuction) {
+                formData.append('StartPrice', price);
+                var endDate = new Date();
+                endDate.setDate(endDate.getDate() + 7);
+                formData.append('AuctionEndDate', endDate.toISOString());
+            }
+
+            if (selectedFile) {
+                formData.append('Photos', selectedFile);
+            }
+
+            fetch('/Upload', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: formData
             })
             .then(function(r) {
                 if (!r.ok) throw new Error('Failed to publish');
-                return r.json();
-            })
-            .then(function(data) {
+                // Сервер редиректит на Index, fetch следует за редиректом и получает 200
                 document.getElementById('uploadSection').style.display = 'none';
                 document.getElementById('successSub').innerText = '"' + title + '" has been added to the collection';
                 document.getElementById('successScreen').classList.add('visible');

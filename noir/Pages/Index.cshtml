@@ -154,7 +154,19 @@
             transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; 
         }
         .item-card:hover .image-wrapper::before { transform: scaleY(1); }
-        .image-wrapper span { font-family: 'Cinzel', serif; font-size: 12rem; color: #f6f6f6; position: absolute; bottom: -40px; right: -30px; line-height: 1; }
+        .image-wrapper span { font-family: 'Cinzel', serif; font-size: 12rem; color: #f6f6f6; position: absolute; bottom: -40px; right: -30px; line-height: 1; z-index: 1; }
+        .image-wrapper img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+        .item-card:hover .image-wrapper img {
+            transform: scale(1.03);
+        }
         .item-info { text-align: left; border-top: 1px solid #000; padding-top: 18px; }
         .item-title { font-size: 1.8rem; margin: 0 0 10px 0; text-transform: lowercase; font-weight: normal; }
         .item-price { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 600; }
@@ -190,18 +202,6 @@
             transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9000;
         }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .reset-removed-btn {
-            margin-left: 20px;
-            font-family: 'Montserrat';
-            font-size: 0.48rem;
-            letter-spacing: 2px;
-            padding: 8px 16px;
-            background: transparent;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .reset-removed-btn:hover { border-color: var(--admin-gold); color: var(--admin-gold); }
         .item-count {
             font-family: 'Montserrat';
             font-size: 0.5rem;
@@ -217,7 +217,14 @@
     <header>
         <div class="brand-wrapper" onclick="window.location.href='/'">
             <span class="brand">noir</span>
-            <span id="headerPlus" class="plus-sticker">plus</span>
+            @if (Model.CurrentUser?.HasPlus == true || Model.CurrentUser?.Role == "admin" || Model.CurrentUser?.Role == "superadmin")
+            {
+                <span id="headerPlus" class="plus-sticker" style="display:inline">plus</span>
+            }
+            else
+            {
+                <span id="headerPlus" class="plus-sticker">plus</span>
+            }
         </div>
         <nav>
             <a onclick="window.location.href='/'">Catalog</a>
@@ -226,11 +233,31 @@
             <a onclick="requireAuth('/Upload')">Upload</a>
         </nav>
         <div class="header-right">
-            <div class="header-avatar-wrap" onclick="requireAuth('/Account')">
-                <div class="header-avatar" id="headerAvatar"></div>
-                <span class="header-username" id="headerUsername"></span>
-            </div>
-            <button class="auth-btn" id="authBtn" onclick="handleAuth()">sign in</button>
+            @if (Model.CurrentUser != null)
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Account'">
+                    <div class="header-avatar @(Model.CurrentUser.Role == "superadmin" ? "gold-border" : Model.CurrentUser.HasPlus ? "plus-border" : "")" id="headerAvatar">
+                        @if (!string.IsNullOrEmpty(Model.CurrentUser.AvatarUrl))
+                        {
+                            <img src="@Model.CurrentUser.AvatarUrl" alt="" onerror="this.style.display='none'" />
+                        }
+                        else
+                        {
+                            <img src="/images/avatar/@(Model.CurrentUser.Username).jpg" onerror="this.style.display='none'" alt="" />
+                        }
+                    </div>
+                    <span class="header-username" id="headerUsername">@(string.IsNullOrEmpty(Model.CurrentUser.Nickname) ? Model.CurrentUser.Username : Model.CurrentUser.Nickname)</span>
+                </div>
+                <button class="auth-btn" id="authBtn" onclick="logout()">exit</button>
+            }
+            else
+            {
+                <div class="header-avatar-wrap" onclick="location.href='/Log_In'">
+                    <div class="header-avatar" id="headerAvatar" style="background:#000;"></div>
+                    <span class="header-username" id="headerUsername">guest</span>
+                </div>
+                <button class="auth-btn" id="authBtn" onclick="location.href='/Log_In'">sign in</button>
+            }
         </div>
     </header>
 
@@ -248,7 +275,6 @@
                 <option value="price-desc">Price ↓</option>
                 <option value="title">Alphabetical</option>
             </select>
-            <button class="reset-removed-btn" id="resetRemovedBtn" onclick="resetRemovedListings()" style="display:none;">⟳ Restore all items</button>
             <span class="item-count" id="itemCount"></span>
         </div>
 
@@ -269,11 +295,15 @@
             {
                 <div class="item-card" id="card-@item.Id" data-id="@item.Id" data-price="@item.Price" data-title="@item.Title" data-seller="@item.Seller.Username" onclick="handleItemClick(@item.Id)">
                     <span class="lot-tag">
-                        <span>Archive Ref: 00@item.Id</span>
-                        <a class="seller-link role-@item.Seller.Role" href="/Seller?username=@item.Seller.Username" onclick="event.stopPropagation()">by @@item.Seller.Username</a>
+                        <span>Archive Ref: @item.ArchiveRef</span>
+                        <a class="seller-link role-@item.Seller.Role" href="/Seller?username=@item.Seller.Username" onclick="event.stopPropagation()">by @item.Seller.Username</a>
                     </span>
                     <div class="image-wrapper">
-                        <span>@item.Id</span>
+                        @if (!string.IsNullOrEmpty(item.PhotoUrl))
+                        {
+                            <img src="@item.PhotoUrl" alt="@item.Title" loading="lazy" />
+                        }
+                        <span>@item.ArchiveRef</span>
                     </div>
                     <div class="item-info">
                         <h3 class="item-title">@item.Title</h3>
@@ -294,11 +324,23 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        function logout() {
+            fetch('/api/Auth/logout', { method: 'POST' })
+                .then(function() {
+                    sessionStorage.removeItem('noir_user');
+                    window.location.href = '/';
+                })
+                .catch(function() {
+                    sessionStorage.removeItem('noir_user');
+                    window.location.href = '/';
+                });
+        }
+
         var isAdminMode = false;
-        var SUPERADMIN = '@@if6was7';
+        var SUPERADMIN = 'if6was7';
 
         function getAdmins() {
-            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
+            return JSON.parse(localStorage.getItem('noir_admins') || '["if6was7"]');
         }
 
         function requireAuth(url) {
@@ -321,25 +363,8 @@
             e.stopPropagation();
             var card = document.getElementById('card-' + itemId);
             card.classList.add('removed');
-            var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
-            if (removed.indexOf(itemId) === -1) removed.push(itemId);
-            localStorage.setItem('noir_removed_listings', JSON.stringify(removed));
             showToast('Listing #' + itemId + ' removed');
             updateItemCount();
-            if (isAdminMode) {
-                document.getElementById('resetRemovedBtn').style.display = 'inline-block';
-            }
-        }
-
-        function resetRemovedListings() {
-            if (!isAdminMode) return;
-            localStorage.removeItem('noir_removed_listings');
-            document.querySelectorAll('.item-card.removed').forEach(function(card) {
-                card.classList.remove('removed');
-            });
-            document.getElementById('resetRemovedBtn').style.display = 'none';
-            updateItemCount();
-            showToast('All items restored!');
         }
 
         function updateItemCount() {
@@ -393,11 +418,11 @@
                         showToast('User listing — product page coming soon');
                     }
                 };
-                var sellerName = (listing.sellerDisplay || listing.seller || 'unknown').replace('@@','');
+                var sellerName = (listing.sellerDisplay || listing.seller || 'unknown');
                 card.innerHTML =
                     '<span class="lot-tag">' +
                         '<span>User Upload</span>' +
-                        '<a class="seller-link role-regular" href="/Seller?username=' + sellerName + '" onclick="event.stopPropagation()">by @@' + sellerName + '</a>' +
+                        '<a class="seller-link role-regular" href="/Seller?username=' + sellerName + '" onclick="event.stopPropagation()">by ' + sellerName + '</a>' +
                     '</span>' +
                     '<div class="image-wrapper">' +
                         '<span style="font-size:4rem;opacity:0.08;font-family:Montserrat">' + (listing.isAuction ? '⌖' : '◎') + '</span>' +
@@ -410,37 +435,30 @@
             });
         }
 
-        function hidePurchasedItems() {
-            try {
-                var purchases = JSON.parse(localStorage.getItem('noir_purchases') || '[]');
-                var purchasedLotIds = purchases.map(function(p) { return parseInt(p.lotId); });
-                purchasedLotIds.forEach(function(lotId) {
-                    var card = document.getElementById('card-' + lotId);
-                    if (card) {
-                        card.classList.add('purchased');
-                    }
-                });
-            } catch(e) {
-                console.error('hidePurchasedItems error:', e);
-            }
-        }
-
         function loadUser() {
             var userData = sessionStorage.getItem('noir_user');
             var user = userData ? JSON.parse(userData) : null;
             var isGuest = !user;
             var displayName = 'guest';
             if (!isGuest) {
-                if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
-                else if (user.displayName && user.displayName !== user.email) displayName = user.displayName;
-                else if (user.name) displayName = user.name;
-                else if (user.username) displayName = user.username.replace('@@', '');
-                else if (user.email) displayName = user.email.split('@@')[0];
+                if (user.username === SUPERADMIN) {
+                    displayName = user.username;
+                } else if (user.nickname && user.nickname.length > 0 && user.nickname !== user.username) {
+                    displayName = user.nickname;
+                } else if (user.displayName && user.displayName !== user.email) {
+                    displayName = user.displayName;
+                } else if (user.name) {
+                    displayName = user.name;
+                } else if (user.username) {
+                    displayName = user.username;
+                } else if (user.email) {
+                    displayName = user.email.split('@@')[0];
+                }
             }
             var ha = document.getElementById('headerAvatar');
             ha.innerHTML = '';
             if (!isGuest) {
-                var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
+                var cleanName = (user.username || user.email || '');
                 var avatarPath = '/images/avatar/' + cleanName + '.jpg';
                 var img = document.createElement('img');
                 img.src = avatarPath;
@@ -474,15 +492,6 @@
                 document.querySelectorAll('.item-card').forEach(function(c) {
                     c.classList.add('admin-mode');
                 });
-            }
-            var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
-            removed.forEach(function(id) {
-                var card = document.getElementById('card-' + id);
-                if (card) card.classList.add('removed');
-            });
-            hidePurchasedItems();
-            if (isAdminMode && removed.length > 0) {
-                document.getElementById('resetRemovedBtn').style.display = 'inline-block';
             }
             updateItemCount();
             var titles = [

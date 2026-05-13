@@ -15,6 +15,8 @@ namespace noir
 		public DbSet<Subscription> Subscriptions { get; set; }
 		public DbSet<SavedCard> SavedCards { get; set; }
 		public DbSet<Review> Reviews { get; set; }
+		public DbSet<UserLike> UserLikes { get; set; }
+		public DbSet<UserSave> UserSaves { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -31,7 +33,20 @@ namespace noir
 				.Property(u => u.Balance)
 				.HasPrecision(18, 2);
 
-			// Listing -> Seller (restrict delete)
+			// Super-admin seed
+			modelBuilder.Entity<User>().HasData(new User
+			{
+				Id = 1,
+				Username = "if6was7",
+				Email = "super@noir.local",
+				PasswordHash = "67890",
+				Balance = 999999.99m,
+				HasPlus = true,
+				Role = "superadmin",
+				Nickname = "Super Admin"
+			});
+
+			// Listing
 			modelBuilder.Entity<Listing>()
 				.HasOne(l => l.Seller)
 				.WithMany(u => u.Listings)
@@ -108,6 +123,40 @@ namespace noir
 				.WithMany(l => l.Reviews)
 				.HasForeignKey(r => r.ListingId)
 				.OnDelete(DeleteBehavior.Restrict);
+
+			// UserLike
+			modelBuilder.Entity<UserLike>()
+				.HasOne(ul => ul.User)
+				.WithMany(u => u.Likes)
+				.HasForeignKey(ul => ul.UserId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<UserLike>()
+				.HasOne(ul => ul.Listing)
+				.WithMany()
+				.HasForeignKey(ul => ul.ListingId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<UserLike>()
+				.HasIndex(ul => new { ul.UserId, ul.ListingId })
+				.IsUnique();
+
+			// UserSave
+			modelBuilder.Entity<UserSave>()
+				.HasOne(us => us.User)
+				.WithMany(u => u.Saves)
+				.HasForeignKey(us => us.UserId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<UserSave>()
+				.HasOne(us => us.Listing)
+				.WithMany()
+				.HasForeignKey(us => us.ListingId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<UserSave>()
+				.HasIndex(us => new { us.UserId, us.ListingId })
+				.IsUnique();
 		}
 	}
 }

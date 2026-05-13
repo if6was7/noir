@@ -22,11 +22,20 @@ namespace noir.Pages
 		public int ListingCount => SellerListings.Count;
 		public bool IsOwnProfile { get; set; }
 		public bool IsAdmin { get; set; }
+		public User? CurrentUser { get; set; }          // ← ДОБАВЛЕНО
 
 		public async Task<IActionResult> OnGetAsync(string username)
 		{
 			if (string.IsNullOrWhiteSpace(username))
-				return RedirectToPage("/Account");
+			{
+				var currentUserId = HttpContext.Session.GetInt32("UserId");
+				if (!currentUserId.HasValue) return RedirectToPage("/Log_In");
+
+				var currentUser = await _context.Users.FindAsync(currentUserId.Value);
+				if (currentUser == null) return RedirectToPage("/Log_In");
+
+				username = currentUser.Username;
+			}
 
 			Seller = await _context.Users
 				.Include(u => u.Listings)
@@ -40,14 +49,15 @@ namespace noir.Pages
 				.Where(l => !l.IsRemoved && l.Status != "sold")
 				.ToList();
 
-			var currentUserId = HttpContext.Session.GetInt32("UserId");
-			if (currentUserId.HasValue)
+			var currentUserId2 = HttpContext.Session.GetInt32("UserId");
+			if (currentUserId2.HasValue)
 			{
-				var currentUser = await _context.Users.FindAsync(currentUserId.Value);
+				var currentUser = await _context.Users.FindAsync(currentUserId2.Value);
 				if (currentUser != null)
 				{
+					CurrentUser = currentUser;            // ← ДОБАВЛЕНО
 					IsOwnProfile = currentUser.Username == username;
-					IsAdmin = currentUser.Role == "admin";
+					IsAdmin = currentUser.Role == "admin" || currentUser.Role == "superadmin";
 				}
 			}
 

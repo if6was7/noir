@@ -6,7 +6,7 @@ namespace noir.Models
 	{
 		public int Id { get; set; }
 		public decimal Amount { get; set; }
-		public DateTime CreatedAt { get; set; }
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public int LotId { get; set; }
 		public AuctionLot Lot { get; set; } = null!;
 		public int UserId { get; set; }

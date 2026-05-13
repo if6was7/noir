@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace noir.Pages
 {
-    public class LinkCardModel : PageModel
-    {
-        public void OnGet()
-        {
-        }
-    }
+	public class LinkCardModel : PageModel
+	{
+		public void OnGet()
+		{
+		}
+	}
 }

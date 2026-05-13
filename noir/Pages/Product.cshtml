@@ -2,7 +2,6 @@
 @model noir.Pages.ProductModel
 @{
     Layout = null;
-    var cats = Model.Listing.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries);
 }
 <!DOCTYPE html>
 <html lang="ru">
@@ -49,8 +48,24 @@
         .auth-btn:hover { opacity: 1; }
 
         .product-container { max-width: 1400px; margin: 80px auto; padding: 0 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; }
-        .product-image { width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); border: 1px solid #efefef; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-        .product-image span { font-family: 'Cinzel', serif; font-size: 22rem; color: #f6f6f6; position: absolute; bottom: -50px; right: -30px; pointer-events: none; }
+        .product-image { 
+            width: 100%; aspect-ratio: 3 / 4; background-color: var(--light-gray); 
+            border: 1px solid #efefef; display: flex; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden; 
+        }
+        .product-image img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+        }
+        .product-image span { 
+            font-family: 'Cinzel', serif; font-size: 22rem; color: #f6f6f6; 
+            position: absolute; bottom: -50px; right: -30px; pointer-events: none; 
+            z-index: 1;
+        }
 
         .auction-timer-overlay { display: none; }
 
@@ -159,10 +174,22 @@
         .rec-title { font-family: 'Cinzel', serif; font-size: 1.8rem; margin-bottom: 50px; text-align: center; letter-spacing: 3px; }
         .rec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
         .rec-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; position: relative; }
-        .rec-img { width: 100%; aspect-ratio: 3/4; background: var(--light-gray); border: 1px solid #eee; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; overflow: hidden; }
+        .rec-img { 
+            width: 100%; aspect-ratio: 3/4; background: var(--light-gray); border: 1px solid #eee; 
+            display: flex; align-items: center; justify-content: center; position: relative; 
+            margin-bottom: 20px; overflow: hidden; 
+        }
+        .rec-img img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+        }
         .rec-img::before { content: ""; position: absolute; left: 0; bottom: 0; width: 2px; height: 100%; background-color: #000; transform: scaleY(0); transform-origin: bottom; transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); z-index: 5; }
         .rec-card:hover .rec-img::before { transform: scaleY(1); }
-        .rec-img span { font-family: 'Cinzel'; font-size: 8rem; color: #f0f0f0; position: absolute; bottom: -20px; right: -10px; }
+        .rec-img span { font-family: 'Cinzel'; font-size: 8rem; color: #f0f0f0; position: absolute; bottom: -20px; right: -10px; z-index: 1; }
         .rec-info { border-top: 1px solid #000; padding-top: 15px; }
 
         .footer-main { border-top: 1px solid #000; padding: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: #fff; margin-top: 100px; }
@@ -218,13 +245,17 @@
                     <span id="timerText">Auction • 05:00</span>
                 </div> 
             }
-            <span>@(Model.Listing.Id)</span>
+            @if (!string.IsNullOrEmpty(Model.Listing.PhotoUrl))
+            {
+                <img src="@Model.Listing.PhotoUrl" alt="@Model.Listing.Title" />
+            }
+            <span>@Model.Listing.ArchiveRef</span>
         </div>
 
         <div class="product-details">
             <div class="lot-header">
                 <div style="display:flex; flex-direction:column; gap:14px;">
-                    <span class="lot-tag">Archive Ref: 00@(Model.Listing.Id)</span>
+                    <span class="lot-tag">Archive Ref: @Model.Listing.ArchiveRef</span>
                     @if (Model.Listing.IsAuction)
                     {
                         <div class="auction-badge" id="auctionBadge">
@@ -234,10 +265,10 @@
                     }
                 </div>
                 <div class="product-tools">
-                    <button class="tool-btn" onclick="this.classList.toggle('active')">
+                    <button class="tool-btn" id="bookmarkBtn" onclick="toggleBookmark()">
                         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                     </button>
-                    <button class="tool-btn" onclick="this.classList.toggle('active')">
+                    <button class="tool-btn" id="likeBtn" onclick="toggleLike()">
                         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     </button>
                 </div>
@@ -269,7 +300,7 @@
             }
 
             <div class="category-wrap">
-                @foreach (var cat in cats) { <a href="#" class="cat-tag">@cat.Trim()</a> }
+                @foreach (var cat in Model.Cats) { <a href="#" class="cat-tag">@cat.Trim()</a> }
             </div>
 
             <div class="seller-card">
@@ -284,7 +315,7 @@
                         <div class="seller-meta">Rating: ★★★★★ (42 deals)</div>
                     </div>
                 </a>
-                <button class="follow-btn" onclick="this.classList.toggle('following'); this.innerText = this.classList.contains('following') ? 'Following' : 'Follow';">Follow</button>
+                <button class="follow-btn" id="followBtn" onclick="this.classList.toggle('following'); this.innerText = this.classList.contains('following') ? 'Following' : 'Follow';">Follow</button>
             </div>
 
             <div class="reviews-section">
@@ -304,7 +335,13 @@
         <div class="rec-grid">
             @foreach (var rec in Model.Recommendations) {
                 <a href="/Product?id=@(rec.Id)" class="rec-card">
-                    <div class="rec-img"><span>@(rec.Id)</span></div>
+                    <div class="rec-img">
+                        @if (!string.IsNullOrEmpty(rec.PhotoUrl))
+                        {
+                            <img src="@rec.PhotoUrl" alt="@rec.Title" loading="lazy" />
+                        }
+                        <span>@rec.ArchiveRef</span>
+                    </div>
                     <div class="rec-info">
                         <h4 style="font-size: 1.4rem; font-weight: normal;">@rec.Title</h4>
                         <p style="font-family: 'Montserrat'; font-size: 0.8rem; margin-top: 5px;">EUR @rec.Price.ToString("N0")</p>
@@ -344,285 +381,341 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        var ITEM_ID = @(Model.Listing.Id);
-        var ITEM_ORIGINAL_TITLE = "@Model.Listing.Title";
-        var IS_AUCTION = @(Model.Listing.IsAuction ? "true" : "false");
-        var BASE_PRICE = @(Model.Listing.Price);
-        var SUPERADMIN = '@@if6was7';
+    var ITEM_ID = @(Model.Listing.Id);
+    var ITEM_ORIGINAL_TITLE = "@Model.Listing.Title";
+    var IS_AUCTION = @(Model.Listing.IsAuction ? "true" : "false");
+    var BASE_PRICE = @(Model.Listing.Price.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    var SUPERADMIN = 'if6was7';
+    var SELLER_NAME = "@Model.Listing.Seller.Username";
 
-        var SAMPLE_REVIEWS = [
-            { buyer: "tornadomart1", stars: 5, text: "Exceptional quality, arrived perfectly packaged. Exactly as described.", avatarExists: false },
-            { buyer: "anonymous", stars: 4, text: "Beautiful piece, very authentic. Minor delay in shipping but worth the wait.", avatarExists: false },
-            { buyer: "collector_x", stars: 5, text: "Stunning acquisition. The seller's expertise is evident in every detail.", avatarExists: false }
-        ];
+    var SAMPLE_REVIEWS = [
+        { buyer: "tornadomart1", stars: 5, text: "Exceptional quality, arrived perfectly packaged. Exactly as described.", avatarExists: false },
+        { buyer: "anonymous", stars: 4, text: "Beautiful piece, very authentic. Minor delay in shipping but worth the wait.", avatarExists: false },
+        { buyer: "collector_x", stars: 5, text: "Stunning acquisition. The seller's expertise is evident in every detail.", avatarExists: false }
+    ];
 
-        function getAdmins() {
-            return JSON.parse(localStorage.getItem('noir_admins') || '["@@if6was7"]');
+    function getAdmins() {
+        return JSON.parse(localStorage.getItem('noir_admins') || '["if6was7"]');
+    }
+
+    function requireAuth(url) {
+        var user = sessionStorage.getItem('noir_user') || localStorage.getItem('noir_user');
+        if (!user) {
+            window.location.href = '/Log_In';
+        } else {
+            window.location.href = url;
+        }
+    }
+
+    function renderReviews() {
+        var list = document.getElementById('reviewsList');
+        var stored = JSON.parse(localStorage.getItem('noir_reviews_' + ITEM_ID) || 'null');
+        var reviews = stored || SAMPLE_REVIEWS;
+
+        if (!reviews || reviews.length === 0) {
+            list.innerHTML = '<div class="no-reviews">No reviews yet</div>';
+            return;
         }
 
-        function requireAuth(url) {
-            if (!sessionStorage.getItem('noir_user')) {
-                window.location.href = '/Log_In';
-            } else {
-                window.location.href = url;
+        var last3 = reviews.slice(-3).reverse();
+        var html = '';
+        last3.forEach(function(r) {
+            var stars = '';
+            for (var i = 0; i < 5; i++) {
+                stars += i < r.stars ? '★' : '☆';
             }
-        }
+            var initial = (r.buyer || 'A').charAt(0).toUpperCase();
+            var avatarHtml = '<div class="review-avatar">' + initial + '</div>';
 
-        function renderReviews() {
-            var list = document.getElementById('reviewsList');
-            var stored = JSON.parse(localStorage.getItem('noir_reviews_' + ITEM_ID) || 'null');
-            var reviews = stored || SAMPLE_REVIEWS;
-
-            if (!reviews || reviews.length === 0) {
-                list.innerHTML = '<div class="no-reviews">No reviews yet</div>';
-                return;
-            }
-
-            var last3 = reviews.slice(-3).reverse();
-            var html = '';
-            last3.forEach(function(r) {
-                var stars = '';
-                for (var i = 0; i < 5; i++) {
-                    stars += i < r.stars ? '★' : '☆';
-                }
-                var initial = (r.buyer || 'A').charAt(0).toUpperCase();
-                var avatarHtml = '<div class="review-avatar">' + initial + '</div>';
-
-                html += '<div class="review-item">' +
-                    avatarHtml +
-                    '<div class="review-body">' +
-                        '<div class="review-top">' +
-                            '<span class="review-buyer">' + r.buyer + '</span>' +
-                            '<span class="review-stars">' + stars + '</span>' +
-                        '</div>' +
-                        '<div class="review-text">' + r.text + '</div>' +
+            html += '<div class="review-item">' +
+                avatarHtml +
+                '<div class="review-body">' +
+                    '<div class="review-top">' +
+                        '<span class="review-buyer">' + r.buyer + '</span>' +
+                        '<span class="review-stars">' + stars + '</span>' +
                     '</div>' +
-                '</div>';
-            });
-            list.innerHTML = html;
-        }
-
-        function loadUser() {
-            var userData = sessionStorage.getItem('noir_user');
-            var user = userData ? JSON.parse(userData) : null;
-            var isGuest = !user;
-
-            var displayName = 'guest';
-            if (!isGuest) {
-                if (user.nickname && user.nickname.length > 0) displayName = user.nickname;
-                else if (user.displayName && user.displayName !== user.email) displayName = user.displayName;
-                else if (user.name) displayName = user.name;
-                else if (user.username) displayName = user.username.replace('@@', '');
-                else if (user.email) displayName = user.email.split('@@')[0];
-            }
-
-            var ha = document.getElementById('headerAvatar');
-            ha.innerHTML = '';
-
-            if (!isGuest) {
-                var cleanName = (user.username || user.email || '').replace('@@', '').split('@@')[0];
-                var avatarPath = '/images/avatar/' + cleanName + '.jpg';
-                var img = document.createElement('img');
-                img.src = avatarPath;
-                img.onerror = function() {
-                    ha.removeChild(img);
-                    ha.style.backgroundColor = '#000';
-                };
-                ha.appendChild(img);
-            } else {
-                ha.style.backgroundColor = '#000';
-            }
-
-            document.getElementById('headerUsername').innerText = displayName;
-
-            var authBtn = document.getElementById('authBtn');
-            authBtn.innerText = isGuest ? 'sign in' : 'exit';
-
-            if (!isGuest) {
-                var admins = getAdmins();
-                var isAdminMode = admins.indexOf(user.username) !== -1;
-                var isSuperAdmin = (user.username === SUPERADMIN);
-                var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
-
-                if (isSuperAdmin) {
-                    ha.classList.add('gold-border');
-                } else if (isPlus) {
-                    ha.classList.add('plus-border');
-                }
-
-                if (isPlus) {
-                    document.getElementById('headerPlus').style.display = 'inline';
-                }
-
-                if (isAdminMode) {
-                    var adminControls = document.getElementById('adminControls');
-                    if (adminControls) adminControls.classList.add('visible');
-                }
-            }
-        }
-
-        function handleAuth() {
-            if (!sessionStorage.getItem('noir_user')) {
-                window.location.href = '/Log_In';
-            } else {
-                sessionStorage.removeItem('noir_user');
-                location.reload();
-            }
-        }
-
-        (function() {
-            var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
-            if (removed.indexOf(ITEM_ID) !== -1) {
-                document.getElementById('removedOverlay').classList.add('show');
-            }
-            var titleOverrides = JSON.parse(localStorage.getItem('noir_title_overrides') || '{}');
-            if (titleOverrides[ITEM_ID]) {
-                document.getElementById('productTitle').innerText = titleOverrides[ITEM_ID];
-            }
-        })();
-
-        (function() {
-            var sellerName = "@Model.Listing.Seller.Username";
-            var sa = document.getElementById('sellerAvatar');
-            var saImg = document.createElement('img');
-            saImg.src = '/images/avatar/' + sellerName + '.jpg';
-            saImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            saImg.onerror = function() {
-                sa.removeChild(saImg);
-                sa.style.backgroundColor = '#000';
-            };
-            sa.appendChild(saImg);
-        })();
-
-        renderReviews();
-
-        function openEditModal() {
-            var current = document.getElementById('productTitle').innerText;
-            document.getElementById('newTitleInput').value = current;
-            document.getElementById('editModal').classList.add('open');
-            setTimeout(function() { document.getElementById('newTitleInput').focus(); }, 80);
-        }
-        function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
-        document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
-
-        function saveTitle() {
-            var val = document.getElementById('newTitleInput').value.trim();
-            if (!val) return;
-            document.getElementById('productTitle').innerText = val;
-            var overrides = JSON.parse(localStorage.getItem('noir_title_overrides') || '{}');
-            overrides[ITEM_ID] = val;
-            localStorage.setItem('noir_title_overrides', JSON.stringify(overrides));
-            closeEditModal();
-            showToast('Title updated');
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && document.getElementById('editModal').classList.contains('open')) saveTitle();
-            if (e.key === 'Escape') closeEditModal();
+                    '<div class="review-text">' + r.text + '</div>' +
+                '</div>' +
+            '</div>';
         });
+        list.innerHTML = html;
+    }
 
-        function confirmRemove() {
-            var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
-            if (removed.indexOf(ITEM_ID) === -1) removed.push(ITEM_ID);
-            localStorage.setItem('noir_removed_listings', JSON.stringify(removed));
+    function toggleBookmark() {
+        var btn = document.getElementById('bookmarkBtn');
+        var bookmarks = JSON.parse(localStorage.getItem('noir_bookmarks') || '[]');
+        var idx = bookmarks.indexOf(ITEM_ID);
+        if (idx === -1) {
+            bookmarks.push(ITEM_ID);
+            btn.classList.add('active');
+            showToast('Saved to collection');
+        } else {
+            bookmarks.splice(idx, 1);
+            btn.classList.remove('active');
+            showToast('Removed from collection');
+        }
+        localStorage.setItem('noir_bookmarks', JSON.stringify(bookmarks));
+    }
+
+    function toggleLike() {
+        var btn = document.getElementById('likeBtn');
+        var likes = JSON.parse(localStorage.getItem('noir_likes') || '[]');
+        var idx = likes.indexOf(ITEM_ID);
+        if (idx === -1) {
+            likes.push(ITEM_ID);
+            btn.classList.add('active');
+            showToast('Added to favorites');
+        } else {
+            likes.splice(idx, 1);
+            btn.classList.remove('active');
+            showToast('Removed from favorites');
+        }
+        localStorage.setItem('noir_likes', JSON.stringify(likes));
+    }
+
+    function loadToolsState() {
+        var bookmarks = JSON.parse(localStorage.getItem('noir_bookmarks') || '[]');
+        var likes = JSON.parse(localStorage.getItem('noir_likes') || '[]');
+        if (bookmarks.indexOf(ITEM_ID) !== -1) document.getElementById('bookmarkBtn').classList.add('active');
+        if (likes.indexOf(ITEM_ID) !== -1) document.getElementById('likeBtn').classList.add('active');
+    }
+
+    function loadUser() {
+        var userData = sessionStorage.getItem('noir_user') || localStorage.getItem('noir_user');
+        var user = userData ? JSON.parse(userData) : null;
+        var isGuest = !user;
+
+        var displayName = 'guest';
+        if (!isGuest) {
+            if (user.username === SUPERADMIN) {
+                displayName = user.username;
+            } else if (user.nickname && user.nickname.length > 0 && user.nickname !== user.username) {
+                displayName = user.nickname;
+            } else if (user.displayName && user.displayName !== user.email) {
+                displayName = user.displayName;
+            } else if (user.name) {
+                displayName = user.name;
+            } else if (user.username) {
+                displayName = user.username;
+            } else if (user.email) {
+                displayName = user.email.split('@@')[0];
+            }
+        }
+
+        var ha = document.getElementById('headerAvatar');
+        ha.innerHTML = '';
+
+        if (!isGuest) {
+            var cleanName = (user.username || user.email || '');
+            var avatarPath = '/images/avatar/' + cleanName + '.jpg';
+            var img = document.createElement('img');
+            img.src = avatarPath;
+            img.onerror = function() {
+                ha.removeChild(img);
+                ha.style.backgroundColor = '#000';
+            };
+            ha.appendChild(img);
+        } else {
+            ha.style.backgroundColor = '#000';
+        }
+
+        document.getElementById('headerUsername').innerText = displayName;
+
+        var authBtn = document.getElementById('authBtn');
+        authBtn.innerText = isGuest ? 'sign in' : 'exit';
+
+        if (!isGuest) {
+            var admins = getAdmins();
+            isAdminMode = admins.indexOf(user.username) !== -1;
+            var isSuperAdmin = (user.username === SUPERADMIN);
+            var isPlus = isSuperAdmin || user.hasPlus === true || user.hasPlus === 'true';
+
+            if (isSuperAdmin) {
+                ha.classList.add('gold-border');
+            } else if (isPlus) {
+                ha.classList.add('plus-border');
+            }
+
+            if (isPlus) {
+                document.getElementById('headerPlus').style.display = 'inline';
+            }
+
+            if (isAdminMode) {
+                var adminControls = document.getElementById('adminControls');
+                if (adminControls) adminControls.classList.add('visible');
+            }
+
+            if (user.username === SELLER_NAME) {
+                var followBtn = document.getElementById('followBtn');
+                if (followBtn) followBtn.style.display = 'none';
+            }
+        }
+    }
+
+    function handleAuth() {
+        var user = sessionStorage.getItem('noir_user') || localStorage.getItem('noir_user');
+        if (!user) {
+            window.location.href = '/Log_In';
+        } else {
+            localStorage.removeItem('noir_user');
+            sessionStorage.removeItem('noir_user');
+            location.reload();
+        }
+    }
+
+    (function() {
+        var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
+        if (removed.indexOf(ITEM_ID) !== -1) {
             document.getElementById('removedOverlay').classList.add('show');
         }
+        var titleOverrides = JSON.parse(localStorage.getItem('noir_title_overrides') || '{}');
+        if (titleOverrides[ITEM_ID]) {
+            document.getElementById('productTitle').innerText = titleOverrides[ITEM_ID];
+        }
+    })();
 
-        function showToast(msg) {
-            var t = document.getElementById('toast');
-            t.innerText = msg;
-            t.classList.add('show');
-            setTimeout(function() { t.classList.remove('show'); }, 2200);
+    (function() {
+        var sa = document.getElementById('sellerAvatar');
+        var saImg = document.createElement('img');
+        saImg.src = '/images/avatar/' + SELLER_NAME + '.jpg';
+        saImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        saImg.onerror = function() {
+            sa.removeChild(saImg);
+            sa.style.backgroundColor = '#000';
+        };
+        sa.appendChild(saImg);
+    })();
+
+    renderReviews();
+
+    function openEditModal() {
+        var current = document.getElementById('productTitle').innerText;
+        document.getElementById('newTitleInput').value = current;
+        document.getElementById('editModal').classList.add('open');
+        setTimeout(function() { document.getElementById('newTitleInput').focus(); }, 80);
+    }
+    function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
+    document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
+
+    function saveTitle() {
+        var val = document.getElementById('newTitleInput').value.trim();
+        if (!val) return;
+        document.getElementById('productTitle').innerText = val;
+        var overrides = JSON.parse(localStorage.getItem('noir_title_overrides') || '{}');
+        overrides[ITEM_ID] = val;
+        localStorage.setItem('noir_title_overrides', JSON.stringify(overrides));
+        closeEditModal();
+        showToast('Title updated');
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && document.getElementById('editModal').classList.contains('open')) saveTitle();
+        if (e.key === 'Escape') closeEditModal();
+    });
+
+    function confirmRemove() {
+        var removed = JSON.parse(localStorage.getItem('noir_removed_listings') || '[]');
+        if (removed.indexOf(ITEM_ID) === -1) removed.push(ITEM_ID);
+        localStorage.setItem('noir_removed_listings', JSON.stringify(removed));
+        document.getElementById('removedOverlay').classList.add('show');
+    }
+
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 2200);
+    }
+
+    function loadAuctionState() {
+        if (!IS_AUCTION) return;
+        var bids = JSON.parse(localStorage.getItem('noir_bids') || '{}');
+        var lotBids = bids[ITEM_ID];
+        var priceDisplay = document.getElementById('priceDisplay');
+        var lastBidderWrap = document.getElementById('lastBidderWrap');
+        var lastBidderName = document.getElementById('lastBidderName');
+
+        if (lotBids && lotBids.length > 0) {
+            var lastBid = lotBids[lotBids.length - 1];
+            var currentPrice = lastBid.amount;
+            var bidder = lastBid.bidder || 'anonymous';
+            if (priceDisplay) priceDisplay.innerText = 'VALUE: EUR ' + currentPrice.toLocaleString('de-DE');
+            if (lastBidderWrap) lastBidderWrap.style.display = 'flex';
+            if (lastBidderName) lastBidderName.innerText = bidder;
+        }
+    }
+
+    function startAuctionTimer() {
+        if (!IS_AUCTION) return;
+        var endTime;
+        var storedEnd = localStorage.getItem('auction_end_' + ITEM_ID);
+        if (storedEnd) {
+            endTime = parseInt(storedEnd);
+        } else {
+            var durationMs = 5 * 24 * 60 * 60 * 1000;
+            endTime = Date.now() + durationMs;
+            localStorage.setItem('auction_end_' + ITEM_ID, endTime);
         }
 
-        function loadAuctionState() {
-            if (!IS_AUCTION) return;
-            var bids = JSON.parse(localStorage.getItem('noir_bids') || '{}');
-            var lotBids = bids[ITEM_ID];
-            var priceDisplay = document.getElementById('priceDisplay');
-            var lastBidderWrap = document.getElementById('lastBidderWrap');
-            var lastBidderName = document.getElementById('lastBidderName');
+        var badgeTimer = document.getElementById('badgeTimer');
+        var badge = document.getElementById('auctionBadge');
+        var timerEl = document.getElementById('timerText');
+        var overlayEl = document.getElementById('auctionTimerOverlay');
+        var actionBox = document.getElementById('actionBox');
+        var buyText = document.getElementById('buyText');
 
-            if (lotBids && lotBids.length > 0) {
-                var lastBid = lotBids[lotBids.length - 1];
-                var currentPrice = lastBid.amount;
-                var bidder = lastBid.bidder || 'anonymous';
-                if (priceDisplay) priceDisplay.innerText = 'VALUE: EUR ' + currentPrice.toLocaleString('de-DE');
-                if (lastBidderWrap) lastBidderWrap.style.display = 'flex';
-                if (lastBidderName) lastBidderName.innerText = bidder;
+        function onEnded() {
+            if (badgeTimer) badgeTimer.innerText = 'ENDED';
+            if (badge) badge.classList.add('ended');
+            if (timerEl) timerEl.innerText = 'Auction Ended';
+            if (overlayEl) overlayEl.classList.add('ended');
+            if (actionBox) {
+                actionBox.classList.add('ended');
+                actionBox.style.pointerEvents = 'none';
+                actionBox.removeAttribute('href');
             }
-        }
+            if (buyText) buyText.innerText = 'AUCTION ENDED';
 
-        function startAuctionTimer() {
-            if (!IS_AUCTION) return;
-            var endTime;
-            var storedEnd = localStorage.getItem('auction_end_' + ITEM_ID);
-            if (storedEnd) {
-                endTime = parseInt(storedEnd);
-            } else {
-                var durationMs = 5 * 24 * 60 * 60 * 1000;
-                endTime = Date.now() + durationMs;
-                localStorage.setItem('auction_end_' + ITEM_ID, endTime);
-            }
-
-            var badgeTimer = document.getElementById('badgeTimer');
-            var badge = document.getElementById('auctionBadge');
-            var timerEl = document.getElementById('timerText');
-            var overlayEl = document.getElementById('auctionTimerOverlay');
-            var actionBox = document.getElementById('actionBox');
-            var buyText = document.getElementById('buyText');
-
-            function onEnded() {
-                if (badgeTimer) badgeTimer.innerText = 'ENDED';
-                if (badge) badge.classList.add('ended');
-                if (timerEl) timerEl.innerText = 'Auction Ended';
-                if (overlayEl) overlayEl.classList.add('ended');
-                if (actionBox) {
-                    actionBox.classList.add('ended');
-                    actionBox.style.pointerEvents = 'none';
-                    actionBox.removeAttribute('href');
-                }
-                if (buyText) buyText.innerText = 'AUCTION ENDED';
-
+            setTimeout(function() {
+                var container = document.getElementById('productContainer');
+                if (!container) return;
+                container.style.transition = 'opacity 1s, transform 1s';
+                container.style.opacity = '0';
+                container.style.transform = 'scale(0.95)';
                 setTimeout(function() {
-                    var container = document.getElementById('productContainer');
-                    if (!container) return;
-                    container.style.transition = 'opacity 1s, transform 1s';
-                    container.style.opacity = '0';
-                    container.style.transform = 'scale(0.95)';
-                    setTimeout(function() {
-                        container.style.display = 'none';
-                        var msg = document.createElement('div');
-                        msg.style.cssText = 'text-align:center;padding:200px 20px;font-family:Cinzel;font-size:2rem;letter-spacing:6px;';
-                        msg.innerHTML = 'This lot has been sold<br><a href="/" style="font-family:Montserrat;font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:#999;text-decoration:none;margin-top:20px;display:inline-block;">← Return to catalog</a>';
-                        document.querySelector('main').appendChild(msg);
-                    }, 1000);
-                }, 3000);
-            }
-
-            function formatBadge(remaining) {
-                var d = Math.floor(remaining / (24*60*60*1000));
-                var h = Math.floor((remaining % (24*60*60*1000)) / (60*60*1000));
-                var m = Math.floor((remaining % (60*60*1000)) / (60*1000));
-                var s = Math.floor((remaining % (60*1000)) / 1000);
-                return (d<10?'0':'')+d+':'+(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-            }
-
-            function tick() {
-                var remaining = endTime - Date.now();
-                if (remaining <= 0) { onEnded(); return; }
-                var formatted = formatBadge(remaining);
-                if (badgeTimer) badgeTimer.innerText = formatted;
-                if (timerEl) timerEl.innerText = 'Auction • ' + formatted;
-            }
-
-            tick();
-            setInterval(tick, 1000);
+                    container.style.display = 'none';
+                    var msg = document.createElement('div');
+                    msg.style.cssText = 'text-align:center;padding:200px 20px;font-family:Cinzel;font-size:2rem;letter-spacing:6px;';
+                    msg.innerHTML = 'This lot has been sold<br><a href="/" style="font-family:Montserrat;font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:#999;text-decoration:none;margin-top:20px;display:inline-block;">← Return to catalog</a>';
+                    document.querySelector('main').appendChild(msg);
+                }, 1000);
+            }, 3000);
         }
 
-        loadUser();
-        loadAuctionState();
-        startAuctionTimer();
-    </script>
+        function formatBadge(remaining) {
+            var d = Math.floor(remaining / (24*60*60*1000));
+            var h = Math.floor((remaining % (24*60*60*1000)) / (60*60*1000));
+            var m = Math.floor((remaining % (60*60*1000)) / (60*1000));
+            var s = Math.floor((remaining % (60*1000)) / 1000);
+            return (d<10?'0':'')+d+':'+(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+        }
+
+        function tick() {
+            var remaining = endTime - Date.now();
+            if (remaining <= 0) { onEnded(); return; }
+            var formatted = formatBadge(remaining);
+            if (badgeTimer) badgeTimer.innerText = formatted;
+            if (timerEl) timerEl.innerText = 'Auction • ' + formatted;
+        }
+
+        tick();
+        setInterval(tick, 1000);
+    }
+
+    loadUser();
+    loadAuctionState();
+    startAuctionTimer();
+    loadToolsState();
+</script>
 </body>
 </html>

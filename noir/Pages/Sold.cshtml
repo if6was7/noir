@@ -110,13 +110,8 @@
                 <div class="closed-line"></div>
             </div>
             <div class="category-wrap">
-                @if (Model.Listing != null)
-                {
-                    foreach (var cat in Model.Listing.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        <a href="#" class="cat-tag">@cat.Trim()</a>
-                    }
-                }
+                
+                
             </div>
         </div>
     </main>

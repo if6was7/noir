@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace noir.Models
 {
@@ -10,9 +11,11 @@ namespace noir.Models
 		public decimal Price { get; set; }
 		public bool IsAuction { get; set; }
 		public bool IsRemoved { get; set; }
-		public string Type { get; set; } = string.Empty;
 		public string Status { get; set; } = "active";
-		public string Categories { get; set; } = string.Empty;
+		public string Tags { get; set; } = string.Empty;
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public string PhotoUrl { get; set; } = string.Empty;
+		public string ArchiveRef { get; set; } = "";
 		public int SellerId { get; set; }
 		public User Seller { get; set; } = null!;
 

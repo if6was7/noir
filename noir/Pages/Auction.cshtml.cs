@@ -17,13 +17,19 @@ namespace noir.Pages
 		}
 
 		public List<Listing> AuctionLots { get; set; } = new();
+		public User? CurrentUser { get; set; }
 
 		public async Task OnGetAsync()
 		{
+			var userId = HttpContext.Session.GetInt32("UserId");
+			if (userId.HasValue)
+				CurrentUser = await _context.Users.FindAsync(userId.Value);
+
 			AuctionLots = await _context.Listings
 				.Include(l => l.Seller)
-				.Where(l => l.IsAuction && l.Status == "active" && !l.IsRemoved)
-				.OrderBy(l => l.Id)
+				.Include(l => l.AuctionLot)
+				.Where(l => l.IsAuction && l.Status == "active" && !l.IsRemoved && l.AuctionLot != null && !l.AuctionLot.IsEnded && l.AuctionLot.EndDate > DateTime.UtcNow)
+				.OrderBy(l => l.AuctionLot!.EndDate)
 				.ToListAsync();
 		}
 	}
